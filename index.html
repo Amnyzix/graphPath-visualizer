@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/save-svg-as-png/1.4.17/saveSvgAsPng.min.js"></script>
+<link rel="stylesheet" href="style.css">
+<style id="main-style">
+:root {
+    --bg-gradient-start: #f5f7fa;
+    --bg-gradient-end: #c3cfe2;
+    --container-bg: white;
+    --text-primary: #2c3e50;
+    --canvas-border: #ecf0f1;
+    --canvas-bg: #fafbfc;
+    --circle-fill: white;
+    --circle-stroke: #34495e;
+    --current-fill: #f39c12;
+    --visited-fill: #27ae60;
+    --button-bg: #3498db;
+    --editor-bg: #fafbfc;
+    --editor-text: #2c3e50;
+}
+
+.dark {
+    --bg-gradient-start: #2c3e50;
+    --bg-gradient-end: #34495e;
+    --container-bg: #34495e;
+    --text-primary: #ecf0f1;
+    --canvas-border: #7f8c8d;
+    --canvas-bg: #2c3e50;
+    --circle-fill: #34495e;
+    --circle-stroke: #ecf0f1;
+    --editor-bg: #1a252f;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    padding: 20px;
+    color: var(--text-primary);
+}
+
+/* LAYOUT PRINCIPAL : 2 COLONNES */
+.main-wrapper {
+    display: grid;
+    grid-template-columns: 300px 1fr; /* Éditeur à gauche, Canvas à droite */
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    height: 85vh;
+}
+
+/* COLONNE GAUCHE : ÉDITEUR */
+.editor-panel {
+    background: var(--container-bg);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+h2 { font-size: 1.2rem; margin-bottom: 10px; }
+
+textarea {
+    flex-grow: 1;
+    background-color: var(--editor-bg);
+    color: var(--editor-text);
+    border: none;
+    border-radius: 8px;
+    padding: 15px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+/* COLONNE DROITE : CANVAS */
+.canvas-panel {
+    background: var(--container-bg);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+#canvas {
+    border: 1px solid var(--canvas-border);
+    border-radius: 8px;
+    background-color: var(--canvas-bg);
+    cursor: crosshair;
+    width: 100%;
+    height: 100%;
+    flex-grow: 1;
+}
+
+/* Messages de log en bas du canvas */
+#log-display {
+    position: absolute;
+    bottom: 30px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+/* SVG Styles (Gardés de ta version) */
+circle {
+    fill: var(--circle-fill);
+    stroke: var(--circle-stroke);
+    stroke-width: 2.5px;
+    cursor: grab;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: all 0.3s;
+}
+circle:active { cursor: grabbing; }
+circle:hover { fill: #ecf0f1; }
+circle.selected { stroke: #3498db; stroke-width: 3.5px; fill: #ebf5fb; }
+circle.current {
+    fill: var(--current-fill); stroke: #d68910; stroke-width: 3.5px; transform: scale(1.15);
+}
+circle.visited { fill: var(--visited-fill); stroke: #1e8449; }
+line { stroke: #95a5a6; stroke-width: 2px; pointer-events: none; }
+text { font-size: 14px; font-weight: bold; fill: #2c3e50; pointer-events: none; text-anchor: middle; dominant-baseline: middle; }
+.dark text { fill: #ecf0f1; }
+
+/* Boutons */
+.controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; width: 100%; justify-content: center;}
+button {
+    padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer;
+    background-color: var(--button-bg); color: white; font-weight: 500;
+    transition: transform 0.1s;
+}
+button:active { transform: scale(0.95); }
+button.run-script { background-color: #27ae60; width: 100%; margin-bottom: 10px; font-size: 1.1em;}
+button.record { background-color: #e74c3c; }
+</style>
+<title>Graph Animation Builder</title>
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <div class="editor-panel">
+            <h2>Scénario d'Animation</h2>
+
+            <textarea id="script-input" spellcheck="false"></textarea>
+
+            <button class="run-script" onclick="runScript()">▶ Jouer le Script</button>
+            <div style="font-size: 0.8rem; color: #7f8c8d; margin-top: 10px;">
+                Astuce : Dessinez le graphe à droite, puis notez les numéros des nœuds ici pour créer votre animation sur mesure.
+            </div>
+        </div>
+
+        
+
+        <div class="canvas-panel">
+            <div style="width:100%; display:flex; justify-content:space-between; margin-bottom:10px;">
+                <h2>Graph Builder</h2>
+                <div style="display:flex; gap:5px;">
+                    <div class="dropdown">
+                        <button class="dropbtn top-btn">File</button>
+                        <div class="dropdown-content">
+                            <a onclick="saveGraph()">Save</a>
+                            <a onclick="loadGraph()">Load</a>
+                            <a onclick="exportGraph()">Export JSON</a>
+                            <a onclick="importGraph()">Import JSON</a>
+                        </div>
+                    </div>
+                    <button id="theme-toggle" class="top-btn">Dark Mode</button>
+                </div>
+            </div>
+            
+            <svg id="canvas"></svg>
+            <div id="context-menu" class="context-menu" style="display:none;">
+                <div onclick="renameNode()">Rename</div>
+                <div onclick="deleteNodeFromMenu()">Delete</div>
+            </div>
+            <div id="log-display">Status message</div>
+            <canvas id="recorder-canvas" style="display:none;"></canvas>
+            <input type="file" id="import-file" accept=".json" style="display:none;" onchange="handleFileImport(event)">
+
+            <div class="controls">
+                <!-- <button onclick="startDFS()">Auto DFS</button> -->
+                <!-- <button onclick="startBFS()">Auto BFS</button> -->
+                <button onclick="resetGraph()" style="background-color: #95a5a6;">Reset</button>
+                <button class="record" onclick="recordAndPlay()">Record Video</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
