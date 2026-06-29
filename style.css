@@ -1,3 +1,6 @@
+/* =========================================
+   1. VARIABLES & THÈMES
+   ========================================= */
 :root {
     --bg-gradient-start: #f5f7fa;
     --bg-gradient-end: #c3cfe2;
@@ -12,6 +15,7 @@
     --button-bg: #3498db;
     --editor-bg: #fafbfc;
     --editor-text: #2c3e50;
+    --grid-color: #e2e8f0;
 }
 
 .dark {
@@ -24,9 +28,17 @@
     --circle-fill: #34495e;
     --circle-stroke: #ecf0f1;
     --editor-bg: #1a252f;
+    --grid-color: #334155;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* =========================================
+   2. BASE & RESET
+   ========================================= */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
 
 body {
     font-family: 'Segoe UI', sans-serif;
@@ -36,18 +48,23 @@ body {
     color: var(--text-primary);
 }
 
-/* LAYOUT PRINCIPAL : 2 COLONNES */
+/* =========================================
+   3. LAYOUT PRINCIPAL
+   ========================================= */
+
 .main-wrapper {
-    display: grid;
-    grid-template-columns: 300px 1fr; /* Éditeur à gauche, Canvas à droite */
-    gap: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+    display: flex;
+    gap: 0;
     width: 100%;
-    height: 85vh;
+    max-width: 100vw;
+    height: 90vh;
+    box-sizing: border-box;
+    padding: 20px; /* Un peu d'air autour de l'application */
 }
 
-/* COLONNE GAUCHE : ÉDITEUR */
+/* =========================================
+   4. PANNEAU ÉDITEUR (GAUCHE)
+   ========================================= */
 .editor-panel {
     background: var(--container-bg);
     border-radius: 12px;
@@ -55,9 +72,14 @@ body {
     display: flex;
     flex-direction: column;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    width: 480px;
+    min-width: 350px;
+    flex-shrink: 0;
 }
 
-h2 { font-size: 1.2rem; margin-bottom: 10px; }
+.editor-panel h2 { 
+    margin-bottom: 10px; 
+}
 
 textarea {
     flex-grow: 1;
@@ -74,7 +96,70 @@ textarea {
     margin-bottom: 15px;
 }
 
-/* COLONNE DROITE : CANVAS */
+/* =========================================
+   11. TABS (Script & Graph Data)
+   ========================================= */
+.tab-header {
+    display: flex;
+    border-bottom: 2px solid var(--canvas-border);
+    margin-bottom: 15px;
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #7f8c8d;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px; /* Superpose la bordure active sur celle du conteneur */
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.tab-btn.active {
+    color: #3b82f6;
+    border-bottom: 2px solid #3b82f6;
+}
+
+.tab-content {
+    display: none;
+    flex-direction: column;
+    height: calc(100% - 50px); /* Laisse l'espace pour l'en-tête */
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+/* Style de la zone de saisie textuelle pour le graphe */
+#data-input {
+    flex-grow: 1;
+    width: 100%;
+    background-color: var(--editor-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--canvas-border);
+    border-radius: 6px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+}
+
+#data-input:focus {
+    border-color: #3b82f6;
+}
+
+/* =========================================
+   5. PANNEAU GRAPHE & SVG (DROITE)
+   ========================================= */
 .canvas-panel {
     background: var(--container-bg);
     border-radius: 12px;
@@ -84,35 +169,28 @@ textarea {
     align-items: center;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     position: relative;
+    width: 100%;
 }
 
 #canvas {
     border: 1px solid var(--canvas-border);
     border-radius: 8px;
     background-color: var(--canvas-bg);
+
+    background-image: radial-gradient(var(--grid-color) 1.2px, transparent 1.2px);
+    background-size: 25px 25px;
+    background-position: center center;
+
     cursor: crosshair;
     width: 100%;
     height: 100%;
     flex-grow: 1;
-    -webkit-user-select: none;
     user-select: none;
+    -webkit-user-select: none;
+    min-height: 400px;
 }
 
-/* Messages de log en bas du canvas */
-#log-display {
-    position: absolute;
-    bottom: 30px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-}
-
-/* SVG Styles (Gardés de ta version) */
+/* Éléments SVG */
 circle {
     fill: var(--circle-fill);
     stroke: var(--circle-stroke);
@@ -122,88 +200,238 @@ circle {
     transform-origin: center;
     transition: all 0.3s;
 }
+
 circle:active { cursor: grabbing; }
 circle:hover { fill: #ecf0f1; }
 circle.selected { stroke: #3498db; stroke-width: 3.5px; fill: #ebf5fb; }
-circle.current {
-    fill: var(--current-fill); stroke: #d68910; stroke-width: 3.5px; transform: scale(1.15);
-}
+circle.current { fill: var(--current-fill); stroke: #d68910; stroke-width: 3.5px; transform: scale(1.15); }
 circle.visited { fill: var(--visited-fill); stroke: #1e8449; }
-line { stroke: #95a5a6; stroke-width: 2px; pointer-events: none; }
-text { font-size: 14px; font-weight: bold; fill: #2c3e50; pointer-events: none; text-anchor: middle; dominant-baseline: middle; -webkit-user-select: none; /* Safari / Chrome */
-    -moz-user-select: none;    /* Firefox */
-    -ms-user-select: none;     /* IE / Edge */
-    user-select: none;           /* Standard */ }
 
+line { 
+    stroke: #95a5a6; 
+    stroke-width: 2px; 
+    pointer-events: none; 
+}
+
+text { 
+    font-size: 14px; 
+    font-weight: bold; 
+    fill: #2c3e50; 
+    pointer-events: none; 
+    text-anchor: middle; 
+    dominant-baseline: middle; 
+    user-select: none;
+    -webkit-user-select: none;
+}
 .dark text { fill: #ecf0f1; }
 
-/* Boutons */
-.controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; width: 100%; justify-content: center;}
-button {
-    padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer;
-    background-color: var(--button-bg); color: white; font-weight: 500;
-    transition: transform 0.1s;
-}
-button:active { transform: scale(0.95); }
-button.run-script { background-color: #27ae60; width: 100%; margin-bottom: 10px; font-size: 1.1em;}
-button.record { background-color: #e74c3c; }
 
-/* Dropdown Menu */
+
+#left-panel {
+    width: 480px; /* Default starting width */
+    min-width: 250px;
+    max-width: 600px;
+    flex-shrink: 0;
+}
+
+/* Right panel takes remaining space */
+#right-panel {
+    flex-grow: 1;
+    width: calc(100% - 480px);
+}
+
+.resize-splitter {
+    width: 6px;
+    background-color: transparent;
+    cursor: col-resize;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    z-index: 10;
+    margin: 0 4px;
+    border-radius: 3px;
+}
+
+.resize-splitter:hover {
+    background-color: #3498db; /* Highlight blue when hovered */
+    box-shadow: 0 0 4px rgba(52, 152, 219, 0.5);
+}
+
+/* Active state during drag */
+body.is-resizing {
+    cursor: col-resize;
+    user-select: none;
+}
+
+/* =========================================
+   6. MENU SUPÉRIEUR (File, Dark Mode)
+   ========================================= */
+.top-btn {
+    background-color: #64748b;
+    color: white;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s ease, transform 0.1s;
+}
+
+.top-btn:hover { background-color: #475569; }
+.top-btn:active { transform: scale(0.97); }
+
 .dropdown {
     position: relative;
     display: inline-block;
 }
 
-.dropbtn {
-    cursor: pointer;
-}
-
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: var(--container-bg);
-    min-width: 120px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    border-radius: 4px;
-    top: 100%;
     right: 0;
+    background-color: var(--container-bg);
+    min-width: 160px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    z-index: 1000;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin-top: 2px;
+    padding-top: 8px;
+}
+
+.dropdown-content::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: transparent;
 }
 
 .dropdown-content a {
     color: var(--text-primary);
-    padding: 8px 12px;
+    padding: 12px 16px;
     text-decoration: none;
-    display: block;
-    font-size: 0.8rem;
-}
-
-.dropdown-content a:hover {
-    background-color: var(--canvas-bg);
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.dropdown:hover .dropbtn {
-    background-color: #6c7b7d;
-}
-
-/* Top bar buttons */
-.top-btn {
-    background: #7f8c8d;
-    color: white;
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    border: none;
-    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
     cursor: pointer;
-    width: 90px;
-    height: 25px;
+    transition: background-color 0.2s ease;
 }
 
-/* Context Menu */
+.dropdown-content a i {
+    width: 20px;
+    margin-right: 10px;
+    color: #94a3b8;
+}
+
+.dropdown-content a:hover { background-color: rgba(0, 0, 0, 0.05); }
+.dark .dropdown-content a:hover { background-color: rgba(255, 255, 255, 0.05); }
+.dropdown:hover .dropdown-content { display: block; }
+
+/* =========================================
+   7. BOUTONS D'ACTION (Compile, Reset, Record)
+   ========================================= */
+.controls { 
+    display: flex; 
+    gap: 12px; 
+    flex-wrap: wrap; 
+    margin-top: 15px; 
+    width: 100%; 
+    justify-content: center;
+}
+
+.action-btn {
+    padding: 10px 20px; 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    color: white; 
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease, transform 0.1s, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.action-btn:active { transform: translateY(1px); }
+
+.btn-reset { background-color: #64748b; }
+.btn-reset:hover { background-color: #475569; }
+
+.btn-record { background-color: #ef4444; }
+.btn-record:hover { background-color: #dc2626; }
+
+.btn-clear {
+    background-color: #f59e0b;
+}
+
+.btn-clear:hover {
+    background-color: #d97706;
+}
+
+.btn-snap {
+    background-color: #8b5cf6;
+}
+
+.btn-snap:hover {
+    background-color: #7c3aed;
+}
+
+.btn-compile {
+    background-color: #10b981;
+    width: 100%; 
+    margin-bottom: 15px; 
+    margin-top: 10px; 
+    font-size: 16px;
+    justify-content: center;
+}
+.btn-compile:hover { background-color: #059669; }
+
+.fa-spin-hover:hover { animation: fa-spin 2s linear infinite; }
+
+/* =========================================
+   8. LECTEUR D'ANIMATION (Player)
+   ========================================= */
+.player-btn {
+    padding: 8px 16px; 
+    cursor: pointer; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 6px; 
+    background: white;
+    font-weight: 600;
+    font-size: 14px;
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease, transform 0.1s;
+}
+
+.player-btn:hover:not(:disabled) { border-color: #94a3b8; }
+.player-btn:active:not(:disabled) { transform: scale(0.96); }
+.player-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn-play-active {
+    background-color: #3b82f6; 
+    color: white; 
+    border: none;
+    padding: 8px 20px;
+}
+.btn-play-active:hover { background-color: #0953f3; }
+
+/* =========================================
+   9. MENUS CONTEXTUELS & LOGS
+   ========================================= */
 .context-menu {
     position: absolute;
     background: var(--container-bg);
@@ -221,6 +449,46 @@ button.record { background-color: #e74c3c; }
     font-size: 0.9rem;
 }
 
-.context-menu div:hover {
-    background: var(--canvas-bg);
+.context-menu div:hover { background: var(--canvas-bg); }
+
+#log-display {
+    position: absolute;
+    bottom: 30px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
 }
+
+/* =========================================
+   10. MODALES (Docs & Edge Form)
+   ========================================= */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 2000;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.modal-content {
+    background: var(--container-bg); color: var(--text-primary);
+    padding: 20px; border-radius: 12px; width: 90%; max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid var(--canvas-border);
+}
+
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--canvas-border); padding-bottom: 15px; margin-bottom: 15px;
+}
+
+.icon-btn { background: none; border: none; color: var(--text-primary); font-size: 18px; cursor: pointer; }
+.icon-btn:hover { color: #e74c3c; }
+
+.syntax-list { list-style: none; padding: 0; }
+.syntax-list li { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--canvas-border); display: flex; flex-direction: column; gap: 5px; }
+.syntax-list code { color: #10b981; font-family: monospace; font-weight: bold; font-size: 14px; }
+.syntax-list span { font-size: 13px; color: #64748b; }
+.dark .syntax-list span { color: #94a3b8; }
