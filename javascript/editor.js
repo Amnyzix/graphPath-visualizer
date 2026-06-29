@@ -51,10 +51,15 @@ function getGraphEdgesAsObject() {
         const source = String(edge.from || edge.source);
         const target = String(edge.to || edge.target);
         const edgeWeight = Number(edge.weight) || 1;
+        const directed = Boolean(edge.directed) || false;
 
         if (adjacencyList[source]){
             adjacencyList[source][target] = edgeWeight;
-        } 
+            
+            if (!directed && adjacencyList[target]){
+                adjacencyList[target][source] = edgeWeight;
+            }
+        }
         
     });
 
