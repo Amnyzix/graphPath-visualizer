@@ -11,8 +11,8 @@ themeToggle.addEventListener('click', () => {
         themeToggle.innerHTML = '<i class="fa-solid fa-moon" style="margin-right: 6px;"></i>Dark Mode';
     }
 
-    if (typeof galEditor !== 'undefined') {
-        galEditor.setOption("theme", isDark ? "dracula" : "default"); // Modifie "dracula" si tu as choisi un autre thème !
+    if (typeof editor !== 'undefined') {
+        editor.setOption("theme", isDark ? "dracula" : "default"); // Modifie "dracula" si tu as choisi un autre thème !
     }
 });
 
