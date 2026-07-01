@@ -109,6 +109,15 @@ class GraphAPI:
         step = {"id": str(node), "action": "visit", "variables": self._capture_memory()}
         if message: step["message"] = str(message)
         self.history.append(step)
+    
+    def color_node(self, node, color):
+        self.history.append({"id": str(node), "action": "color_node", "color": color, "variables": self._capture_memory()})
+
+    def color_edge(self, u, v, color):
+        self.history.append({"id": str(u), "target": str(v), "action": "color_edge", "color": color, "variables": self._capture_memory()})
+
+    def draw_path(self, path, color):
+        self.history.append({"path": [str(p) for p in path], "action": "draw_path", "color": color, "variables": self._capture_memory()})
 
     def select(self, node):
         step = {"id": str(node), "action": "select", "variables": self._capture_memory()}
@@ -123,6 +132,9 @@ class GraphAPI:
 
 _api = GraphAPI(GRAPH_EDGES)
 def visit(node, msg=None): _api.visit(node, msg)
+def color_node(node, color): _api.color_node(node, color)
+def color_edge(u, v, color): _api.color_edge(u, v, color)
+def draw_path(path, color="#e74c3c"): _api.draw_path(path, color)
 def select(node): _api.select(node)
 def neighbors(node): return _api.neighbors(node)
 def weight(a, b): return _api.weight(a, b)
@@ -169,12 +181,15 @@ function loadPlayer(history) {
     updatePlayerUI();
 }
 
-function renderStateAtCurrentStep() {
+function renderStateAtCurrentStep2() {
     resetGraph();
     if (currentStepIndex === -1) {
         logDisplay.style.opacity = 0;
         return;
     }
+
+    const action = typeof item === 'object' ? item.action : null;
+    const color = typeof item === 'object' ? item.color : null;
 
     for (let i = 0; i <= currentStepIndex; i++) {
         const item = animationHistory[i];
@@ -185,11 +200,11 @@ function renderStateAtCurrentStep() {
         const circle = document.querySelector(`circle[data-id="${nodeId}"]`);
         if (!circle) continue;
 
-        showOrderBadge(nodeId, i + 1);
+        //showOrderBadge(nodeId, i + 1);
 
         if (i === currentStepIndex) {
             if (action === 'select') circle.classList.add('selected');
-            else circle.classList.add('current');
+            else circle.classList.add('visited');
             
             if (message) {
                 logDisplay.textContent = message;
@@ -200,6 +215,33 @@ function renderStateAtCurrentStep() {
         } else {
             if (action === 'select') circle.classList.add('selected');
             else circle.classList.add('visited');
+        }
+
+        if (action === 'color_node' && circle) {
+            circle.style.fill = color; // Change la couleur de remplissage
+            circle.style.stroke = color;
+        }
+        else if (action === 'color_edge') {
+            // Retrouve le path SVG selon le point de départ et d'arrivée (ou l'inverse si non orienté)
+            const edgePath = document.querySelector(`path.edge[data-from="${nodeId}"][data-to="${item.target}"]`) 
+                        || document.querySelector(`path.edge[data-from="${item.target}"][data-to="${nodeId}"]`);
+            if (edgePath) {
+                edgePath.style.stroke = color;
+                edgePath.style.strokeWidth = "4px"; // Rend l'arête un peu plus épaisse pour qu'elle ressorte
+            }
+        }
+        else if (action === 'draw_path' && item.path) {
+            // Parcourt le tableau de chemin et colore chaque segment
+            for (let j = 0; j < item.path.length - 1; j++) {
+                const u = item.path[j];
+                const v = item.path[j+1];
+                const edgePath = document.querySelector(`path.edge[data-from="${u}"][data-to="${v}"]`) 
+                            || document.querySelector(`path.edge[data-from="${v}"][data-to="${u}"]`);
+                if (edgePath) {
+                    edgePath.style.stroke = color || "#e74c3c"; // Rouge par défaut
+                    edgePath.style.strokeWidth = "5px";
+                }
+            }
         }
     }
 
@@ -220,6 +262,93 @@ function renderStateAtCurrentStep() {
         memoryPanel.innerHTML = htmlContent;
     }
 }
+
+
+function renderStateAtCurrentStep() {
+    resetGraph();
+    if (currentStepIndex === -1) {
+        logDisplay.style.opacity = 0;
+        return;
+    }
+
+    for (let i = 0; i <= currentStepIndex; i++) {
+        const item = animationHistory[i];
+        
+        // Extraction sécurisée
+        const action = typeof item === 'object' ? item.action : null;
+        const nodeId = typeof item === 'object' ? item.id : item;
+        const message = typeof item === 'object' ? item.message : null;
+        const color = typeof item === 'object' ? item.color : null;
+
+        if (nodeId && (action === 'visit' || action === 'select' || action === 'color_node')) {
+            const circle = document.querySelector(`circle[data-id="${nodeId}"]`);
+            if (circle) {
+
+                if (action === 'visit' || action === 'select') {
+                    circle.style.fill = '';
+                    circle.style.stroke = '';
+                }
+
+                if (i === currentStepIndex) {
+                    if (action === 'select') circle.classList.add('selected');
+                    else if (action === 'visit') circle.classList.add('visited');
+                    
+                    if (message) {
+                        logDisplay.textContent = message;
+                        logDisplay.style.opacity = 1;
+                    } else {
+                        logDisplay.style.opacity = 0;
+                    }
+                } else {
+                    if (action === 'select') circle.classList.add('selected');
+                    else if (action === 'visit') circle.classList.add('visited');
+                }
+
+                if (action === 'color_node' && color) {
+                    circle.style.fill = color;
+                    circle.style.stroke = `color-mix(in srgb, ${color}, black 30%)`;
+                    circle.style.strokeWidth = "3.5px";
+                }
+            }
+        }
+
+        if (action === 'color_edge' && item.target) {
+            const edgePath = document.querySelector(`path.edge[data-from="${nodeId}"][data-to="${item.target}"]`) 
+                          || document.querySelector(`path.edge[data-from="${item.target}"][data-to="${nodeId}"]`);
+            if (edgePath) {
+                edgePath.style.stroke = color || "#3498db";
+                edgePath.style.strokeWidth = "4px";
+            }
+        }
+
+        if (action === 'draw_path' && item.path) {
+            for (let j = 0; j < item.path.length - 1; j++) {
+                const u = item.path[j];
+                const v = item.path[j+1];
+                const edgePath = document.querySelector(`path.edge[data-from="${u}"][data-to="${v}"]`) 
+                              || document.querySelector(`path.edge[data-from="${v}"][data-to="${u}"]`);
+                if (edgePath) {
+                    edgePath.style.stroke = color || "#e74c3c";
+                    edgePath.style.strokeWidth = "5px";
+                }
+            }
+        }
+    }
+
+
+    const currentStep = animationHistory[currentStepIndex];
+    const memoryPanel = document.getElementById('memory-panel');
+    
+    if (memoryPanel && currentStep && currentStep.variables) {
+        let htmlContent = "<h3><i class='fa-solid fa-memory'></i> Variables State</h3><ul>";
+        for (const [varName, varValue] of Object.entries(currentStep.variables)) {
+            htmlContent += `<li><strong>${varName}</strong>: <code>${varValue}</code></li>`;
+        }
+        htmlContent += "</ul>";
+        memoryPanel.innerHTML = htmlContent;
+    }
+}
+
 
 function playAnimation() {
     if (currentStepIndex >= animationHistory.length - 1) {

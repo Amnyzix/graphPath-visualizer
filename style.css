@@ -205,7 +205,7 @@ circle:active { cursor: grabbing; }
 circle:hover { fill: #ecf0f1; }
 circle.selected { stroke: #3498db; stroke-width: 3.5px; fill: #ebf5fb; }
 circle.current { fill: var(--current-fill); stroke: #d68910; stroke-width: 3.5px; transform: scale(1.15); }
-circle.visited { fill: var(--visited-fill); stroke: #1e8449; }
+circle.visited { fill: var(--visited-fill); stroke: #1e8449; stroke-width: 3.5px; }
 
 line { 
     stroke: #95a5a6; 
