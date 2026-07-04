@@ -18,25 +18,49 @@ let tempSelectedId = null;
 let undoStack = [];
 let redoStack = [];
 
+let isPanning = false;
+let panStartX = 0;
+let panStartY = 0;
+let hasPanned = false; // Permet de savoir si on a bougé pour bloquer le menu contextuel
+
 // --- GESTION DES ÉVÉNEMENTS SOURIS ---
 svg.addEventListener('mousedown', (e) => {
-    if (e.target === svg) {
+    if (e.button === 1 || e.button === 2) {
+        isPanning = true;
+        hasPanned = false;
+        panStartX = e.clientX - panX;
+        panStartY = e.clientY - panY;
+        svg.style.cursor = 'grabbing';
+        e.preventDefault();
+        return;
+    }
+
+    if (e.button === 0 && e.target === svg) { 
         preventNodeCreation = (selectedNodes.size > 0 || tempSelectedId !== null);
         const rect = svg.getBoundingClientRect();
-
+        
         startX = (e.clientX - rect.left - panX) / zoomLevel;
         startY = (e.clientY - rect.top - panY) / zoomLevel;
-
+        
         selectionRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         selectionRect.setAttribute('fill', 'rgba(0,123,255,0.2)');
         selectionRect.setAttribute('stroke', 'blue');
-
+        
         const viewport = document.getElementById('viewport');
         if (viewport) viewport.appendChild(selectionRect);
     }
 });
 
 svg.addEventListener('mousemove', (e) => {
+    // NOUVEAU : Si on est en train de panner, on déplace le canvas
+    if (isPanning) {
+        hasPanned = true;
+        panX = e.clientX - panStartX;
+        panY = e.clientY - panStartY;
+        applyTransform();
+        return;
+    }
+
     if (draggingNode) {
         if (!isDragging) {
             const moveDist = Math.hypot(e.clientX - initialClickX, e.clientY - initialClickY);
@@ -80,6 +104,7 @@ svg.addEventListener('mousemove', (e) => {
         selectionRect.setAttribute('height', h);
     }
 
+    // Élastique
     if (tempSelectedId !== null) {
         const rubberband = document.getElementById('rubberband-edge');
         if (rubberband) {
@@ -92,7 +117,14 @@ svg.addEventListener('mousemove', (e) => {
     }
 });
 
-svg.addEventListener('mouseup', () => { 
+svg.addEventListener('mouseup', (e) => { 
+    // NOUVEAU : Arrêt du Panning
+    if (isPanning) {
+        isPanning = false;
+        svg.style.cursor = 'default';
+        return;
+    }
+
     if (selectionRect) {
         const x = parseFloat(selectionRect.getAttribute('x'));
         const y = parseFloat(selectionRect.getAttribute('y'));
@@ -114,6 +146,9 @@ svg.addEventListener('mouseup', () => {
 });
 
 svg.addEventListener('click', (e) => {
+    // On ne crée pas de noeud si on vient d'utiliser le clic droit/molette pour se déplacer
+    if (e.button !== 0) return; 
+
     if (e.target.id === 'canvas' && !isDragging && !selectionRect) {
         if (preventNodeCreation) {
             selectedNodes.clear();
@@ -123,12 +158,17 @@ svg.addEventListener('click', (e) => {
             return;
         }
         const rect = svg.getBoundingClientRect();
-
         addNode((e.clientX - rect.left - panX) / zoomLevel, (e.clientY - rect.top - panY) / zoomLevel);
         render();
     }
 });
 
+svg.addEventListener('contextmenu', (e) => {
+    if (hasPanned) {
+        e.preventDefault();
+        hasPanned = false;
+    }
+});
 
 // --- UNDO / REDO LOGIC ---
 function saveState() {
@@ -517,6 +557,7 @@ function render() {
         });
 
         circle.addEventListener('contextmenu', (e) => {
+            if (hasPanned) return;
             e.preventDefault();
             e.stopPropagation();
             contextNodeId = node.id;
