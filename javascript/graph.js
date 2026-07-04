@@ -68,6 +68,18 @@ svg.addEventListener('mousemove', (e) => {
         selectionRect.setAttribute('width', w);
         selectionRect.setAttribute('height', h);
     }
+
+    if (tempSelectedId !== null) {
+        const rubberband = document.getElementById('rubberband-edge');
+        if (rubberband) {
+            const rect = svg.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            rubberband.setAttribute('x2', mouseX);
+            rubberband.setAttribute('y2', mouseY);
+        }
+    }
 });
 
 svg.addEventListener('mouseup', () => { 
@@ -487,6 +499,24 @@ function render() {
 
         group.appendChild(circle); group.appendChild(text); svg.appendChild(group);
     });
+
+    if (tempSelectedId !== null) {
+        const startNode = nodes.find(n => n.id === tempSelectedId);
+        if (startNode) {
+            const rubberband = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            rubberband.setAttribute('id', 'rubberband-edge');
+            rubberband.setAttribute('x1', startNode.x);
+            rubberband.setAttribute('y1', startNode.y);
+            rubberband.setAttribute('x2', startNode.x);
+            rubberband.setAttribute('y2', startNode.y);
+            rubberband.setAttribute('stroke', '#3498db');
+            rubberband.setAttribute('stroke-width', '2');
+            rubberband.setAttribute('stroke-dasharray', '5,5');
+            rubberband.style.pointerEvents = 'none';
+            svg.appendChild(rubberband);
+        }
+    }
+
     updateGraphDataText();
 }
 
