@@ -174,7 +174,11 @@ function addNode(x, y) {
 
 function addEdge(id1, id2) {
     if (id1 === id2) return;
-    const exists = edges.some(e => (e.from === id1 && e.to === id2) || (e.from === id2 && e.to === id1));
+
+    const exists = edges.some(e => 
+        (e.from === id1 && e.to === id2) || 
+        (e.from === id2 && e.to === id1 && !e.directed)
+    );
     if (exists) return;
 
     const modal = document.getElementById('edge-form-modal');
@@ -185,6 +189,16 @@ function addEdge(id1, id2) {
 
     weightInput.value = "";
     directedInput.checked = false;
+
+    const hasReverse = edges.some(e => e.from === id2 && e.to === id1);
+
+    if (hasReverse) {
+        directedInput.checked = true;
+        directedInput.disabled = true; 
+    } else {
+        directedInput.checked = false;
+        directedInput.disabled = false;
+    }
 
     modal.style.display = 'block';
     modal.style.left = (window.innerWidth / 2 - 100) + 'px';
