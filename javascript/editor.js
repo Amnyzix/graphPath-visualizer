@@ -25,15 +25,49 @@ function getGraphData() {
     return { nodes, edges, nodeIdCounter };
 }
 
+// Initialisation du terminal
+const term = new Terminal({
+    cursorBlink: true,
+    fontFamily: 'Consolas, "Courier New", monospace',
+    fontSize: 14,
+    theme: {
+        background: '#1e1e1e',
+        foreground: '#cccccc'
+    },
+    convertEol: true
+});
+
+const fitAddon = new FitAddon.FitAddon();
+term.loadAddon(fitAddon);
+
+// Attacher le terminal au conteneur HTML
+term.open(document.getElementById('terminal-container'));
+
+fitAddon.fit();
+
+// 4. (Optionnel mais recommandé) Réajuster si l'utilisateur redimensionne la fenêtre
+window.addEventListener('resize', () => {
+    fitAddon.fit();
+});
+
 
 
 // Variable globale pour stocker l'instance Python
 let pyodideReady = null;
 
-// Initialisation au chargement de la page
+// ==========================================
+// 2. MODIFICATION DE INIT PYTHON ENGINE
+// ==========================================
 async function initPythonEngine() {
     console.log("Chargement de Python...");
-    pyodideReady = await loadPyodide();
+    pyodideReady = await loadPyodide({
+        stdout: (text) => { 
+            term.write(text + '\r\n'); 
+        },
+        stderr: (text) => { 
+            term.write('\x1b[31m' + text + '\x1b[0m\r\n'); 
+        }
+    });
     console.log("Python est prêt !");
 }
 
@@ -77,6 +111,8 @@ async function runScript() {
         if (!pyodideReady) {
             throw new Error("Le moteur Python est encore en cours de chargement...");
         }
+
+        term.clear();
 
         // 1. On récupère le graphe formaté pour l'API Python
         const graphEdges = getGraphEdgesAsObject();
@@ -160,11 +196,16 @@ json.dumps(_api.history)
 
     } catch (err) {
         console.error(err);
-        alert("❌ Erreur d'exécution Python :\n" + err.message);
+        const errorLines = err.toString().split('\n');
+        errorLines.forEach(line => {
+            term.write('\x1b[31m' + line + '\x1b[0m\r\n');
+        });
     } finally {
         if (compileBtn) compileBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run script';
     }
 }
+
+
 
 
 // --- LECTEUR D'ANIMATION ---
@@ -248,7 +289,8 @@ function renderStateAtCurrentStep2() {
     // ==========================================
     // NOUVEAU : Inspection des variables en direct
     // ==========================================
-    const currentStep = animationHistory[currentStepIndex];
+    /*
+     currentStep = animationHistory[currentStepIndex];
     const memoryPanel = document.getElementById('memory-panel');
     
     if (memoryPanel && currentStep && currentStep.variables) {
@@ -261,6 +303,7 @@ function renderStateAtCurrentStep2() {
         htmlContent += "</ul>";
         memoryPanel.innerHTML = htmlContent;
     }
+    */
 }
 
 
@@ -336,9 +379,9 @@ function renderStateAtCurrentStep() {
     }
 
 
+    /*
     const currentStep = animationHistory[currentStepIndex];
     const memoryPanel = document.getElementById('memory-panel');
-    
     if (memoryPanel && currentStep && currentStep.variables) {
         let htmlContent = "<h3><i class='fa-solid fa-memory'></i> Variables State</h3><ul>";
         for (const [varName, varValue] of Object.entries(currentStep.variables)) {
@@ -346,7 +389,7 @@ function renderStateAtCurrentStep() {
         }
         htmlContent += "</ul>";
         memoryPanel.innerHTML = htmlContent;
-    }
+    }*/
 }
 
 

@@ -13,8 +13,36 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/mode/simple.min.js"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
 </head>
 <body>
+
+    <header style="display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background-color: var(--container-bg); border-bottom: 2px solid var(--border-color); box-sizing: border-box; border-radius: 0 0 20px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px;">
+    
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="38" height="38" style="display: block;">
+            <path d="M 30 70 L 50 30 L 70 70 Z" fill="none" stroke="var(--border-color)" stroke-width="8" stroke-linejoin="round"/>
+            <circle cx="30" cy="70" r="12" fill="var(--container-bg)" stroke="var(--border-color)" stroke-width="6"/>
+            <circle cx="70" cy="70" r="12" fill="var(--container-bg)" stroke="var(--border-color)" stroke-width="6"/>
+            <circle cx="50" cy="30" r="14" fill="var(--brand-main)"/>
+            <circle cx="45" cy="25" r="4" fill="#ffffff" opacity="0.6"/>
+        </svg>
+        
+        <span style="color: var(--text-primary); font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em;">
+            Algo<span style="color: var(--brand-main);">Quest</span>
+        </span>
+    </div>
+
+    <div style="display: flex; align-items: center;">
+        <a href="docs.html" style="color: var(--brand-main); background: var(--brand-light); text-decoration: none; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 12px; transition: transform 0.1s; border: 2px solid transparent;" 
+           onmouseover="this.style.transform='scale(1.05)';" 
+           onmouseout="this.style.transform='scale(1)';">
+            <i class="fa-solid fa-gamepad"></i> Documentation
+        </a>
+    </div>
+</header>
 
     <div class="main-wrapper">
         <div class="editor-panel" id="left-panel">
@@ -34,15 +62,18 @@
                     <button class="run-script action-btn btn-compile" onclick="runScript()" style="margin: 0;">
                         <i class="fa-solid fa-gear fa-spin-hover"></i> Compile
                     </button>
-                    <a id="btn-open-docs" href="docs.html" class="action-btn" style="background-color: #3b82f6; margin: 0; padding: 10px 15px; text-decoration: none; display: inline-block;">
+                    <button id="btn-open-docs" class="action-btn btn-docs" onclick="window.location.href='docs.html'">
                         <i class="fa-solid fa-book"></i> Docs
-                    </a>
+                    </button>
                 </div>
 
+                <!--
                 <div id="memory-panel" class="panel-style" style="padding: 15px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; margin-top: 15px;">
                     <h3><i class='fa-solid fa-memory'></i> Variables State</h3>
                     <p style="color: gray; font-style: italic;">No algorithm running or variables to inspect.</p>
                 </div>
+                -->
+                <div id="terminal-container" style="width: 100%; height: 250px; background-color: #1e1e1e; padding: 10px; border-radius: 5px; overflow:hidden; box-sizing: border-box;"></div>
 
                 <div style="font-size: 0.8rem; color: #7f8c8d; margin-top: auto;">
                     Tips : Draws the graph at the right, then write your script here to create your custom animation.
