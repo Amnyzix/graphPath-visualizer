@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoQuest - Linked Lists</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/learn-header.css">
+    <style>
+        /* [Insérer exactement le même bloc CSS] */
+        :root { --brand-main: #6366F1; --brand-light: #E0E7FF; --bg-main: #F4F6F9; --container-bg: #FFFFFF; --text-primary: #334155; --text-muted: #64748B; --border-color: #CBD5E1; }
+        body { font-family: 'Nunito', sans-serif; background-color: var(--bg-main); color: var(--text-primary); line-height: 1.6}
+        .lesson-container { max-width: 900px; margin: 0 auto; background: var(--container-bg); border-radius: 16px; padding: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px solid var(--border-color); }
+        h1 { color: var(--brand-main); font-size: 2.5rem; font-weight: 800; margin-top: 0; border-bottom: 3px solid var(--brand-light); padding-bottom: 15px; }
+        h2 { color: var(--text-primary); font-size: 1.5rem; font-weight: 700; margin-top: 35px; display: flex; align-items: center; gap: 10px; }
+        h2 i { color: var(--brand-main); }
+        p, ul { font-size: 1.05rem; color: var(--text-primary); }
+        .highlight-box { background-color: var(--brand-light); border-left: 5px solid var(--brand-main); padding: 20px; border-radius: 0 12px 12px 0; margin: 25px 0; }
+        .highlight-box strong { color: var(--brand-main); }
+        .complexity-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .complexity-table th, .complexity-table td { text-align: left; padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .complexity-table th { background-color: var(--bg-main); font-weight: 800; }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <h1>Linked Lists</h1>
+        
+        <p>A <strong>Linked List</strong> is a linear data structure where elements are not stored at contiguous memory locations. Instead, each element (called a <em>Node</em>) contains its data and a memory pointer to the next node in the sequence.</p>
+
+        <div class="highlight-box">
+            <strong><i class="fa-solid fa-link"></i> Singly vs. Doubly:</strong> 
+            In a <em>Singly Linked List</em>, nodes only point forward. In a <em>Doubly Linked List</em>, each node holds two pointers: one pointing to the next node, and one pointing back to the previous node.
+        </div>
+
+        <h2><i class="fa-solid fa-arrow-right-arrow-left"></i> Advantages over Arrays</h2>
+        <p>Unlike standard arrays, linked lists do not have a fixed size. Inserting or deleting a node in the middle of a list does not require shifting all subsequent elements in memory; you simply update the pointers of the neighboring nodes to bypass or include the new node.</p>
+
+        <h2><i class="fa-solid fa-stopwatch"></i> Complexity</h2>
+        <table class="complexity-table">
+            <thead><tr><th>Operation</th><th>Complexity</th><th>Explanation</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Access / Search</strong></td><td>$O(n)$</td><td>You cannot access elements by index. You must start at the Head and traverse the list one by one.</td></tr>
+                <tr><td><strong>Insertion (at Head)</strong></td><td>$O(1)$</td><td>Creating a new node and pointing it to the current Head is instantaneous.</td></tr>
+                <tr><td><strong>Deletion (given pointer)</strong></td><td>$O(1)$</td><td>If you already hold the reference to the node, rerouting the pointers takes constant time.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="../js/ui/resolve_learn_header.js"></script>
+</body>
+</html>

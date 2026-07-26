@@ -1,0 +1,85 @@
+/* --- Navigation Header pour les Fiches Théoriques --- */
+
+body { 
+    margin: 0; /* CRUCIAL : Enlève les marges par défaut du navigateur */
+    padding: 0;
+    background-color: var(--bg-main); 
+}
+
+header.theory-navbar {
+    background: var(--container-bg, #FFFFFF);
+    border-bottom: 2px solid var(--border-color, #CBD5E1);
+    padding: 12px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    margin-bottom: 30px;
+}
+
+.theory-brand {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--brand-main, #6366F1);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.theory-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+/* --- Boutons de Navigation (Style 3D Cohérent) --- */
+.nav-btn {
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+}
+
+/* Bouton Secondaire (Learn Library) */
+.nav-btn-secondary {
+    background: var(--brand-light, #E0E7FF);
+    color: var(--brand-main, #6366F1);
+    border: 2px solid #C7D2FE;
+    box-shadow: 0 4px 0 #C7D2FE;
+}
+
+.nav-btn-secondary:hover {
+    background: #C7D2FE;
+}
+
+.nav-btn-secondary:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 transparent;
+}
+
+/* Bouton Primaire (Open Visualizer) */
+.nav-btn-primary {
+    background: var(--brand-main, #6366F1);
+    color: #FFFFFF;
+    border: 2px solid #4F46E5;
+    box-shadow: 0 4px 0 #4F46E5;
+}
+
+.nav-btn-primary:hover {
+    background: #5952e6;
+}
+
+.nav-btn-primary:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 transparent;
+}

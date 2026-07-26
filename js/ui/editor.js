@@ -15,14 +15,18 @@ window.onload = function() {
 });
     editor.setSize("100%", "400px");
     
-    render();
     editor.setValue("def main():\n   \nmain()");
 };
 
 
 
+const logDisplay = document.getElementById('log-display');
+
 function getGraphData() {
-    return { nodes, edges, nodeIdCounter };
+    if (window.graphApp) {
+        return window.graphApp.getGraphData();
+    }
+    return { nodes: window.nodes || [], edges: window.edges || [], nodeIdCounter: window.nodeIdCounter || 1 };
 }
 
 // Initialisation du terminal
@@ -76,12 +80,14 @@ initPythonEngine();
 // La fonction pour extraire le dictionnaire d'adjacence pour Python
 function getGraphEdgesAsObject() {
     const adjacencyList = {};
+    const currentNodes = window.graphApp ? window.graphApp.nodes : (window.nodes || []);
+    const currentEdges = window.graphApp ? window.graphApp.edges : (window.edges || []);
     
-    nodes.forEach(node => {
+    currentNodes.forEach(node => {
         adjacencyList[String(node.id)] = {};
     });
 
-    edges.forEach(edge => {
+    currentEdges.forEach(edge => {
         const source = String(edge.from || edge.source);
         const target = String(edge.to || edge.target);
         const edgeWeight = Number(edge.weight) || 1;
@@ -101,8 +107,8 @@ function getGraphEdgesAsObject() {
 }
 
 
-async function runScript() {
-    const code = editor.getValue(); // On récupère le code Python de l'éditeur
+async function runScript(customCode = null) {
+    const code = customCode !== null ? customCode : editor.getValue();
     const compileBtn = document.querySelector('.btn-compile');
 
     if (compileBtn) compileBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running...';
@@ -117,6 +123,9 @@ async function runScript() {
         // 1. On récupère le graphe formaté pour l'API Python
         const graphEdges = getGraphEdgesAsObject();
 
+        const graphData = getGraphData();
+        const graphNodesIds = graphData.nodes.map(node => String(node.id));
+
         // 2. On prépare l'API cachée
         const apiCode = `
 import json
@@ -124,10 +133,12 @@ import sys
 
 # On injecte le graphe JS directement dans Python
 GRAPH_EDGES = ${JSON.stringify(graphEdges)}
+GRAPH_NODES = ${JSON.stringify(graphNodesIds)}
 
 class GraphAPI:
-    def __init__(self, edges):
+    def __init__(self, edges, nodes):
         self.edges = edges
+        self.nodes = nodes
         self.history = []
 
     def _capture_memory(self):
@@ -146,11 +157,31 @@ class GraphAPI:
         if message: step["message"] = str(message)
         self.history.append(step)
     
-    def color_node(self, node, color):
-        self.history.append({"id": str(node), "action": "color_node", "color": color, "variables": self._capture_memory()})
+    def get_all_nodes(self):
+        return self.nodes
+    
+    def color_node(self, node, color,message=None):
+        step = {
+            "id": str(node), 
+            "action": "color_node", 
+            "color": color, 
+            "variables": self._capture_memory()
+        }
+        if message: 
+            step["message"] = str(message)
+        self.history.append(step)
 
-    def color_edge(self, u, v, color):
-        self.history.append({"id": str(u), "target": str(v), "action": "color_edge", "color": color, "variables": self._capture_memory()})
+    def color_edge(self, u, v, color,message=None):
+        step = {
+            "id": str(u), 
+            "target": str(v), 
+            "action": "color_edge", 
+            "color": color, 
+            "variables": self._capture_memory()
+        }
+        if message: 
+            step["message"] = str(message)
+        self.history.append(step)
 
     def draw_path(self, path, color):
         self.history.append({"path": [str(p) for p in path], "action": "draw_path", "color": color, "variables": self._capture_memory()})
@@ -166,14 +197,15 @@ class GraphAPI:
         neighbors_dict = self.edges.get(str(node_a), {})
         return neighbors_dict.get(str(node_b), float('inf'))
 
-_api = GraphAPI(GRAPH_EDGES)
+_api = GraphAPI(GRAPH_EDGES, GRAPH_NODES)
 def visit(node, msg=None): _api.visit(node, msg)
-def color_node(node, color): _api.color_node(node, color)
-def color_edge(u, v, color): _api.color_edge(u, v, color)
+def color_node(node, color, msg=None): _api.color_node(node, color, msg)
+def color_edge(u, v, color, msg=None): _api.color_edge(u, v, color, msg)
 def draw_path(path, color="#e74c3c"): _api.draw_path(path, color)
 def select(node): _api.select(node)
 def neighbors(node): return _api.neighbors(node)
 def weight(a, b): return _api.weight(a, b)
+def get_all_nodes(): return _api.get_all_nodes()
 `;
 
         // 3. On assemble l'API + le code utilisateur + le retour de l'historique
@@ -264,8 +296,8 @@ function renderStateAtCurrentStep2() {
         }
         else if (action === 'color_edge') {
             // Retrouve le path SVG selon le point de départ et d'arrivée (ou l'inverse si non orienté)
-            const edgePath = document.querySelector(`path.edge[data-from="${nodeId}"][data-to="${item.target}"]`) 
-                        || document.querySelector(`path.edge[data-from="${item.target}"][data-to="${nodeId}"]`);
+            const edgePath = document.querySelector(`line.edge[data-from="${nodeId}"][data-to="${item.target}"], path.edge[data-from="${nodeId}"][data-to="${item.target}"]`) 
+                        || document.querySelector(`line.edge[data-from="${item.target}"][data-to="${nodeId}"], path.edge[data-from="${item.target}"][data-to="${nodeId}"]`);
             if (edgePath) {
                 edgePath.style.stroke = color;
                 edgePath.style.strokeWidth = "4px"; // Rend l'arête un peu plus épaisse pour qu'elle ressorte
@@ -276,8 +308,8 @@ function renderStateAtCurrentStep2() {
             for (let j = 0; j < item.path.length - 1; j++) {
                 const u = item.path[j];
                 const v = item.path[j+1];
-                const edgePath = document.querySelector(`path.edge[data-from="${u}"][data-to="${v}"]`) 
-                            || document.querySelector(`path.edge[data-from="${v}"][data-to="${u}"]`);
+                const edgePath = document.querySelector(`line.edge[data-from="${u}"][data-to="${v}"], path.edge[data-from="${u}"][data-to="${v}"]`) 
+                            || document.querySelector(`line.edge[data-from="${v}"][data-to="${u}"], path.edge[data-from="${v}"][data-to="${u}"]`);
                 if (edgePath) {
                     edgePath.style.stroke = color || "#e74c3c"; // Rouge par défaut
                     edgePath.style.strokeWidth = "5px";
@@ -310,7 +342,7 @@ function renderStateAtCurrentStep2() {
 function renderStateAtCurrentStep() {
     resetGraph();
     if (currentStepIndex === -1) {
-        logDisplay.style.opacity = 0;
+        if (logDisplay) logDisplay.style.opacity = 0;
         return;
     }
 
@@ -336,10 +368,10 @@ function renderStateAtCurrentStep() {
                     if (action === 'select') circle.classList.add('selected');
                     else if (action === 'visit') circle.classList.add('visited');
                     
-                    if (message) {
+                    if (message && logDisplay) {
                         logDisplay.textContent = message;
                         logDisplay.style.opacity = 1;
-                    } else {
+                    } else if (logDisplay) {
                         logDisplay.style.opacity = 0;
                     }
                 } else {
@@ -356,40 +388,56 @@ function renderStateAtCurrentStep() {
         }
 
         if (action === 'color_edge' && item.target) {
-            const edgePath = document.querySelector(`path.edge[data-from="${nodeId}"][data-to="${item.target}"]`) 
-                          || document.querySelector(`path.edge[data-from="${item.target}"][data-to="${nodeId}"]`);
-            if (edgePath) {
-                edgePath.style.stroke = color || "#3498db";
-                edgePath.style.strokeWidth = "4px";
-            }
+                console.debug('color_edge step:', nodeId, '->', item.target, 'color=', color);
+                const selector = [
+                    `line.edge[data-from="${nodeId}"][data-to="${item.target}"]`,
+                    `line.edge-line[data-from="${nodeId}"][data-to="${item.target}"]`,
+                    `line[data-from="${nodeId}"][data-to="${item.target}"]`,
+                    `path.edge[data-from="${nodeId}"][data-to="${item.target}"]`,
+                    `line.edge[data-from="${item.target}"][data-to="${nodeId}"]`,
+                    `line.edge-line[data-from="${item.target}"][data-to="${nodeId}"]`,
+                    `line[data-from="${item.target}"][data-to="${nodeId}"]`,
+                    `path.edge[data-from="${item.target}"][data-to="${nodeId}"]`
+                ].join(', ');
+                const edgePaths = Array.from(document.querySelectorAll(selector));
+                if (edgePaths.length === 0) {
+                    const allEdges = Array.from(document.querySelectorAll('line.edge, line.edge-line, path.edge, line')); 
+                    console.debug('available edges count:', allEdges.length, 'examples:', allEdges.slice(0,5).map(e => ({tag:e.tagName, from:e.getAttribute('data-from'), to:e.getAttribute('data-to'), classes:e.className})));
+                }
+                const highlightColor = color || "#3498db";
+                edgePaths.forEach(edgePath => {
+                    edgePath.style.stroke = highlightColor;
+                    edgePath.style.strokeWidth = "4px";
+                    edgePath.style.strokeLinecap = "round";
+                    edgePath.style.color = highlightColor;
+                });
         }
 
         if (action === 'draw_path' && item.path) {
             for (let j = 0; j < item.path.length - 1; j++) {
                 const u = item.path[j];
                 const v = item.path[j+1];
-                const edgePath = document.querySelector(`path.edge[data-from="${u}"][data-to="${v}"]`) 
-                              || document.querySelector(`path.edge[data-from="${v}"][data-to="${u}"]`);
-                if (edgePath) {
-                    edgePath.style.stroke = color || "#e74c3c";
+                const selector = [
+                    `line.edge[data-from="${u}"][data-to="${v}"]`,
+                    `line.edge-line[data-from="${u}"][data-to="${v}"]`,
+                    `line[data-from="${u}"][data-to="${v}"]`,
+                    `path.edge[data-from="${u}"][data-to="${v}"]`,
+                    `line.edge[data-from="${v}"][data-to="${u}"]`,
+                    `line.edge-line[data-from="${v}"][data-to="${u}"]`,
+                    `line[data-from="${v}"][data-to="${u}"]`,
+                    `path.edge[data-from="${v}"][data-to="${u}"]`
+                ].join(', ');
+                const edgePaths = Array.from(document.querySelectorAll(selector));
+                const highlightColor = color || "#e74c3c";
+                edgePaths.forEach(edgePath => {
+                    edgePath.style.stroke = highlightColor;
                     edgePath.style.strokeWidth = "5px";
-                }
+                    edgePath.style.strokeLinecap = "round";
+                    edgePath.style.color = highlightColor;
+                });
             }
         }
     }
-
-
-    /*
-    const currentStep = animationHistory[currentStepIndex];
-    const memoryPanel = document.getElementById('memory-panel');
-    if (memoryPanel && currentStep && currentStep.variables) {
-        let htmlContent = "<h3><i class='fa-solid fa-memory'></i> Variables State</h3><ul>";
-        for (const [varName, varValue] of Object.entries(currentStep.variables)) {
-            htmlContent += `<li><strong>${varName}</strong>: <code>${varValue}</code></li>`;
-        }
-        htmlContent += "</ul>";
-        memoryPanel.innerHTML = htmlContent;
-    }*/
 }
 
 

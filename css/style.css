@@ -3,7 +3,8 @@
 /* =========================================
    1. VARIABLES & THÈMES - GAMIFIÉ (ALGOQUEST)
    ========================================= */
-:root {
+
+:root, body.light{
     /* Couleur principale : Indigo Vibrant */
     --brand-main: #6366F1;
     --brand-dark: #4F46E5;
@@ -37,7 +38,7 @@
 }
 
 /* Thème Sombre (Optionnel) */
-.dark {
+body.dark {
     --brand-light: rgba(99, 102, 241, 0.2);
 
     --bg-main: #0F172A;           /* Bleu Nuit profond */
@@ -63,7 +64,7 @@
 * { 
     margin: 0; 
     padding: 0; 
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
 
 body {
@@ -72,6 +73,7 @@ body {
     background-color: var(--bg-main);
     color: var(--text-primary);
     padding: 0; /* Géré par les conteneurs */
+    transition: background-color 0.3s, color 0.3s;
 }
 
 /* =========================================
@@ -243,10 +245,18 @@ circle {
     transition: fill 0.2s, stroke 0.2s, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-circle:active { cursor: grabbing; }
+
+/* Use a JS-toggled class when actually dragging with left button */
+.dragging circle { cursor: grabbing; }
 
 
 circle.selected { 
+    stroke: var(--brand-main); 
+    stroke-width: 4px; 
+    fill: var(--brand-light); 
+}
+
+circle.edge-start {
     stroke: var(--brand-main); 
     stroke-width: 4px; 
     fill: var(--brand-light); 
@@ -269,7 +279,14 @@ line {
     stroke: var(--circle-stroke); 
     stroke-width: 3px; 
     pointer-events: none; 
+    color: var(--circle-stroke);
 }
+
+/* Allow edge interaction explicitly via classes */
+.edge-line { pointer-events: stroke; }
+.edge-hit { pointer-events: stroke; }
+/* Make edge weight text clickable despite global text {pointer-events: none} */
+.edge-weight { pointer-events: auto; cursor: pointer; }
 
 text { 
     font-family: 'Nunito', sans-serif;
@@ -379,6 +396,17 @@ text {
 
 .btn-docs:hover { 
     background: #146eeb !important; /* S'assombrit légèrement au survol */
+}
+
+.btn-learn {
+    background: #8B5CF6 !important; /* Violet élégant (ou #10B981 pour du vert émeraude) */
+    color: #FFFFFF !important;
+    border-color: #6D28D9 !important;
+    box-shadow: 0 4px 0 #6D28D9 !important;
+}
+
+.btn-learn:hover {
+    background: #7C3AED !important; /* S'assombrit légèrement au survol */
 }
 
 /* =========================================
@@ -590,4 +618,193 @@ select:focus {
     font-size: 0.9rem;
     display: inline-block;
     margin-bottom: 4px;
+}
+
+
+/* --- Floating HUD Styles --- */
+.glass-hud {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 320px; /* Largeur du panneau */
+    max-height: 350px; /* Limite la hauteur pour ne pas manger tout l'écran */
+    background: rgba(255, 255, 255, 0.85); /* Transparent blanc */
+    backdrop-filter: blur(10px); /* L'effet de flou magique */
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000; /* Toujours au-dessus des graphes */
+    overflow: hidden; /* Empêche le contenu de déborder de la bordure arrondie */
+}
+
+/* Si tu as un mode sombre, ajoute ceci : */
+[data-theme="dark"] .glass-hud {
+    background: rgba(30, 41, 59, 0.85); /* Transparent sombre */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hud-header {
+    padding: 10px 15px;
+    background: var(--brand-main);
+    color: white;
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 2;
+}
+
+#ds-info-panel {
+    padding: 12px;
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Scrollbar stylisée pour le HUD */
+#ds-info-panel::-webkit-scrollbar {
+    width: 6px;
+}
+#ds-info-panel::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 10px;
+}
+
+
+
+
+
+
+/* --- RETOUR VISUEL DES AUTOMATES --- */
+.node-group circle.selected-state {
+    fill: #FEF3C7 !important;  /* Jaune clair */
+    stroke: #F59E0B !important;/* Orange vif */
+    stroke-width: 5px !important;
+}
+
+.node-group circle.state-active {
+    fill: #FEF3C7 !important;  /* Lecture du mot (Jaune) */
+    stroke: #F59E0B !important;
+    stroke-width: 4px !important;
+}
+
+.node-group circle.state-success {
+    fill: #D1FAE5 !important;  /* Mot accepté (Vert) */
+    stroke: #10B981 !important;
+    stroke-width: 4px !important;
+}
+
+.node-group circle.state-error {
+    fill: #FECACA !important;  /* Mot rejeté / Bloqué (Rouge) */
+    stroke: #EF4444 !important;
+    stroke-width: 4px !important;
+}
+
+
+
+/* --- Modale personnalisée (Automates) --- */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6); /* Fond sombre semi-transparent */
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-modal {
+    background: var(--container-bg, #FFFFFF);
+    border: 2px solid var(--border-color, #CBD5E1);
+    border-radius: 16px;
+    padding: 25px;
+    width: 350px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    animation: modalPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.custom-modal h3 {
+    margin: 0 0 10px 0;
+    color: var(--brand-main, #6366F1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.custom-modal p {
+    font-size: 0.9rem;
+    color: var(--text-muted, #64748B);
+    margin-bottom: 20px;
+}
+
+.custom-modal input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid var(--border-color, #CBD5E1);
+    font-size: 1rem;
+    font-family: monospace;
+    font-weight: 800;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.custom-modal input:focus {
+    border-color: var(--brand-main, #6366F1);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+
+/* --- TABS UI --- */
+.tabs-header {
+    display: flex;
+    border-bottom: 1px solid var(--border-color, #CBD5E1);
+    background: var(--editor-bg, #F8FAFC);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    color: var(--text-muted, #64748B);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary, #334155);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.tab-btn.active {
+    color: var(--brand-main, #6366F1);
+    border-bottom: 3px solid var(--brand-main, #6366F1);
+    background: var(--container-bg, #FFFFFF);
 }
