@@ -18,20 +18,49 @@ let tempSelectedId = null;
 let undoStack = [];
 let redoStack = [];
 
+let isPanning = false;
+let panStartX = 0;
+let panStartY = 0;
+let hasPanned = false; // Permet de savoir si on a bougé pour bloquer le menu contextuel
+
 // --- GESTION DES ÉVÉNEMENTS SOURIS ---
 svg.addEventListener('mousedown', (e) => {
-    if (e.target === svg) {
+    if (e.button === 1 || e.button === 2) {
+        isPanning = true;
+        hasPanned = false;
+        panStartX = e.clientX - panX;
+        panStartY = e.clientY - panY;
+        svg.style.cursor = 'grabbing';
+        e.preventDefault();
+        return;
+    }
+
+    if (e.button === 0 && e.target === svg) { 
         preventNodeCreation = (selectedNodes.size > 0 || tempSelectedId !== null);
-        startX = e.offsetX;
-        startY = e.offsetY;
+        const rect = svg.getBoundingClientRect();
+        
+        startX = (e.clientX - rect.left - panX) / zoomLevel;
+        startY = (e.clientY - rect.top - panY) / zoomLevel;
+        
         selectionRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         selectionRect.setAttribute('fill', 'rgba(0,123,255,0.2)');
         selectionRect.setAttribute('stroke', 'blue');
-        svg.appendChild(selectionRect);
+        
+        const viewport = document.getElementById('viewport');
+        if (viewport) viewport.appendChild(selectionRect);
     }
 });
 
 svg.addEventListener('mousemove', (e) => {
+    // NOUVEAU : Si on est en train de panner, on déplace le canvas
+    if (isPanning) {
+        hasPanned = true;
+        panX = e.clientX - panStartX;
+        panY = e.clientY - panStartY;
+        applyTransform();
+        return;
+    }
+
     if (draggingNode) {
         if (!isDragging) {
             const moveDist = Math.hypot(e.clientX - initialClickX, e.clientY - initialClickY);
@@ -46,10 +75,11 @@ svg.addEventListener('mousemove', (e) => {
             }
         }
         if (isDragging) {
-            const dx = e.clientX - dragStartX;
-            const dy = e.clientY - dragStartY;
+            const dx = (e.clientX - dragStartX) / zoomLevel;
+            const dy = (e.clientY - dragStartY) / zoomLevel;
             dragStartX = e.clientX;
             dragStartY = e.clientY;
+            
             nodes.forEach(n => {
                 if (selectedNodes.has(n.id)) {
                     n.x += dx;
@@ -59,18 +89,42 @@ svg.addEventListener('mousemove', (e) => {
             render();
         }
     } else if (selectionRect) {
-        const x = Math.min(startX, e.offsetX);
-        const y = Math.min(startY, e.offsetY);
-        const w = Math.abs(e.offsetX - startX);
-        const h = Math.abs(e.offsetY - startY);
+        const rect = svg.getBoundingClientRect();
+        const currentX = (e.clientX - rect.left - panX) / zoomLevel;
+        const currentY = (e.clientY - rect.top - panY) / zoomLevel;
+        
+        const x = Math.min(startX, currentX);
+        const y = Math.min(startY, currentY);
+        const w = Math.abs(currentX - startX);
+        const h = Math.abs(currentY - startY);
+        
         selectionRect.setAttribute('x', x);
         selectionRect.setAttribute('y', y);
         selectionRect.setAttribute('width', w);
         selectionRect.setAttribute('height', h);
     }
+
+    // Élastique
+    if (tempSelectedId !== null) {
+        const rubberband = document.getElementById('rubberband-edge');
+        if (rubberband) {
+            const rect = svg.getBoundingClientRect();
+            const mouseX = (e.clientX - rect.left - panX) / zoomLevel;
+            const mouseY = (e.clientY - rect.top - panY) / zoomLevel;
+            rubberband.setAttribute('x2', mouseX);
+            rubberband.setAttribute('y2', mouseY);
+        }
+    }
 });
 
-svg.addEventListener('mouseup', () => { 
+svg.addEventListener('mouseup', (e) => { 
+    // NOUVEAU : Arrêt du Panning
+    if (isPanning) {
+        isPanning = false;
+        svg.style.cursor = 'default';
+        return;
+    }
+
     if (selectionRect) {
         const x = parseFloat(selectionRect.getAttribute('x'));
         const y = parseFloat(selectionRect.getAttribute('y'));
@@ -83,7 +137,7 @@ svg.addEventListener('mouseup', () => {
             }
         });
         tempSelectedId = null;
-        svg.removeChild(selectionRect);
+        selectionRect.remove();
         selectionRect = null;
         render();
     }
@@ -92,6 +146,9 @@ svg.addEventListener('mouseup', () => {
 });
 
 svg.addEventListener('click', (e) => {
+    // On ne crée pas de noeud si on vient d'utiliser le clic droit/molette pour se déplacer
+    if (e.button !== 0) return; 
+
     if (e.target.id === 'canvas' && !isDragging && !selectionRect) {
         if (preventNodeCreation) {
             selectedNodes.clear();
@@ -101,12 +158,17 @@ svg.addEventListener('click', (e) => {
             return;
         }
         const rect = svg.getBoundingClientRect();
-
-        addNode(e.clientX - rect.left, e.clientY - rect.top);
+        addNode((e.clientX - rect.left - panX) / zoomLevel, (e.clientY - rect.top - panY) / zoomLevel);
         render();
     }
 });
 
+svg.addEventListener('contextmenu', (e) => {
+    if (hasPanned) {
+        e.preventDefault();
+        hasPanned = false;
+    }
+});
 
 // --- UNDO / REDO LOGIC ---
 function saveState() {
@@ -174,7 +236,11 @@ function addNode(x, y) {
 
 function addEdge(id1, id2) {
     if (id1 === id2) return;
-    const exists = edges.some(e => (e.from === id1 && e.to === id2) || (e.from === id2 && e.to === id1));
+
+    const exists = edges.some(e => 
+        (e.from === id1 && e.to === id2) || 
+        (e.from === id2 && e.to === id1 && !e.directed)
+    );
     if (exists) return;
 
     const modal = document.getElementById('edge-form-modal');
@@ -185,6 +251,16 @@ function addEdge(id1, id2) {
 
     weightInput.value = "";
     directedInput.checked = false;
+
+    const hasReverse = edges.some(e => e.from === id2 && e.to === id1);
+
+    if (hasReverse) {
+        directedInput.checked = true;
+        directedInput.disabled = true; 
+    } else {
+        directedInput.checked = false;
+        directedInput.disabled = false;
+    }
 
     modal.style.display = 'block';
     modal.style.left = (window.innerWidth / 2 - 100) + 'px';
@@ -227,8 +303,17 @@ function deleteNodes(ids) {
 }
 
 function resetGraph() {
-    document.querySelectorAll('circle').forEach(c => c.classList.remove('visited', 'current'));
-    document.querySelectorAll('.order-badge').forEach(b => b.remove());
+    document.querySelectorAll('circle').forEach(c => {
+        c.classList.remove('visited', 'current', 'selected');
+        c.style.fill = '';
+        c.style.stroke = '';
+    });
+    
+    document.querySelectorAll('path.edge').forEach(p => {
+        p.style.stroke = '';
+        p.style.strokeWidth = '';
+    });
+
     logDisplay.style.opacity = 0;
 }
 
@@ -262,15 +347,39 @@ let zoomLevel = 1;
 let panX = 0;
 let panY = 0;
 
+// Remplace ton ancienne fonction applyTransform par celle-ci :
 function applyTransform() {
     const viewport = document.getElementById('viewport');
     if (viewport) {
         viewport.setAttribute('transform', `translate(${panX}, ${panY}) scale(${zoomLevel})`);
     }
+    // NOUVEAU : On zoome aussi la grille CSS de fond pour que ce soit naturel !
+    svg.style.backgroundSize = `${25 * zoomLevel}px ${25 * zoomLevel}px`;
 }
+
+// Ajoute ceci pour écouter la molette de la souris
+svg.addEventListener('wheel', (e) => {
+    e.preventDefault(); // Empêche la page entière de scroller
+    
+    const zoomStep = 0.1;
+    if (e.deltaY < 0) {
+        zoomLevel += zoomStep; // Haut = Zoom in
+    } else {
+        zoomLevel -= zoomStep; // Bas = Zoom out
+    }
+    
+    // On limite le zoom (entre 0.4x et 3x) pour éviter de perdre le graphe
+    zoomLevel = Math.max(0.4, Math.min(zoomLevel, 3)); 
+    
+    applyTransform();
+});
+
 
 function render() {
     svg.innerHTML = '';
+
+    const viewport = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    viewport.setAttribute('id', 'viewport');
 
     if (nodes.length === 0) {
         const placeholder = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -287,7 +396,7 @@ function render() {
         // As requested, keeping the UI text in English!
         placeholder.textContent = 'Click anywhere to create a node';
         
-        svg.appendChild(placeholder);
+        viewport.appendChild(placeholder);
     }
     
     // Markers (Arrowheads)
@@ -306,10 +415,9 @@ function render() {
     arrowhead.setAttribute('fill', '#6b7280');
     marker.appendChild(arrowhead);
     defs.appendChild(marker);
-    svg.appendChild(defs);
+    viewport.appendChild(defs);
 
 
-    // Edges
     // Edges
     edges.forEach(edge => {
         const n1 = nodes.find(n => n.id === edge.from);
@@ -319,7 +427,6 @@ function render() {
         const edgeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         edgeGroup.style.cursor = 'pointer';
 
-        // Détection de l'aller-retour
         const hasReverse = edges.some(e => e.from === edge.to && e.to === edge.from);
 
         const dx = n2.x - n1.x;
@@ -331,55 +438,55 @@ function render() {
         let textX = midX;
         let textY = midY;
 
-        // Calcul de la courbe si besoin
         if (edge.directed && hasReverse) {
             const len = Math.sqrt(dx * dx + dy * dy);
             const nx = -dy / len;
             const ny = dx / len;
-            const curveOffset = 30; // Force de la courbure
+            const curveOffset = 30;
 
             const cx = midX + nx * curveOffset;
             const cy = midY + ny * curveOffset;
 
             pathD = `M ${n1.x} ${n1.y} Q ${cx} ${cy} ${n2.x} ${n2.y}`;
 
-            // Calcul du sommet de la courbe pour placer le texte
             textX = 0.25 * n1.x + 0.5 * cx + 0.25 * n2.x;
             textY = 0.25 * n1.y + 0.5 * cy + 0.25 * n2.y;
         } else {
-            // Ligne droite classique (L = Line to)
             pathD = `M ${n1.x} ${n1.y} L ${n2.x} ${n2.y}`;
         }
 
-        // 1. La hitbox épaisse (invisible) pour attraper le clic
+
         const hitbox = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         hitbox.setAttribute('d', pathD);
-        hitbox.setAttribute('fill', 'none'); // Empêche le fond gris !
+        hitbox.setAttribute('fill', 'none');
         hitbox.setAttribute('stroke', 'white');
         hitbox.setAttribute('stroke-opacity', '0');
         hitbox.setAttribute('stroke-width', '25');
-        hitbox.style.pointerEvents = 'stroke'; // 'stroke' est plus précis que 'all' pour les courbes
+        hitbox.style.pointerEvents = 'stroke';
         edgeGroup.appendChild(hitbox);
 
-        // 2. La vraie ligne visible
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', pathD);
-        path.setAttribute('fill', 'none'); // Empêche le fond gris !
-        path.setAttribute('stroke', '#95a5a6'); // <-- On réapplique ta couleur !
-        path.setAttribute('stroke-width', '2'); // <-- On réapplique ton épaisseur !
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', '#95a5a6');
+        path.setAttribute('stroke-width', '2');
         path.style.pointerEvents = 'none';
         path.classList.add('edge');
-        // Remise de TON identifiant de flèche
+
         if (edge.directed) path.setAttribute('marker-end', 'url(#arrow)'); 
+
+        path.setAttribute('data-from', edge.from);
+        path.setAttribute('data-to', edge.to);
+
         edgeGroup.appendChild(path);
 
         if (edge.directed) path.setAttribute('marker-end', 'url(#arrow)'); 
         edgeGroup.appendChild(path);
 
-        // 3. Le texte du poids
+
         if (edge.weight !== null && edge.weight !== undefined) {
             const weightText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            // Ton calcul de positionnement, adapté aux nouvelles coordonnées (textX, textY)
+            
             weightText.setAttribute('x', textX);
             weightText.setAttribute('y', textY - 7);
             weightText.setAttribute('text-anchor', 'middle');
@@ -390,7 +497,6 @@ function render() {
             edgeGroup.appendChild(weightText);
         }
 
-        // 4. Ton événement d'ouverture de menu
         edgeGroup.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -404,7 +510,7 @@ function render() {
             }
         });
         
-        svg.appendChild(edgeGroup);
+        viewport.appendChild(edgeGroup);
     });
 
     // Nodes
@@ -451,47 +557,68 @@ function render() {
         });
 
         circle.addEventListener('contextmenu', (e) => {
+            if (hasPanned) return;
             e.preventDefault();
             e.stopPropagation();
             contextNodeId = node.id;
             const menu = document.getElementById('context-menu');
             const rect = svg.getBoundingClientRect();
             menu.style.display = 'block';
-            menu.style.left = (rect.left + node.x - 415) + 'px';
-            menu.style.top = (rect.top + node.y - 5) + 'px';
+            //menu.style.left = (rect.left + node.x - 415) + 'px';
+            //menu.style.top = (rect.top + node.y - 5) + 'px';
+
+            menu.style.left = e.clientX + 'px';
+            menu.style.top = e.clientY + 'px';
         });        
 
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         text.setAttribute('x', node.x); text.setAttribute('y', node.y + 1);
         text.textContent = node.id;
 
-        group.appendChild(circle); group.appendChild(text); svg.appendChild(group);
+        group.appendChild(circle);
+        group.appendChild(text);
+        viewport.appendChild(group);
     });
+
+    if (tempSelectedId !== null) {
+        const startNode = nodes.find(n => n.id === tempSelectedId);
+        if (startNode) {
+            const rubberband = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            rubberband.setAttribute('id', 'rubberband-edge');
+            rubberband.setAttribute('x1', startNode.x);
+            rubberband.setAttribute('y1', startNode.y);
+            rubberband.setAttribute('x2', startNode.x);
+            rubberband.setAttribute('y2', startNode.y);
+            rubberband.setAttribute('stroke', '#3498db');
+            rubberband.setAttribute('stroke-width', '2');
+            rubberband.setAttribute('stroke-dasharray', '5,5');
+            rubberband.style.pointerEvents = 'none';
+            viewport.appendChild(rubberband);
+        }
+    }
+    svg.appendChild(viewport);
+    applyTransform();
+
     updateGraphDataText();
 }
 
 
 function clearCanvas() {
-    // Si le canvas est déjà complètement vide, inutile de faire quoi que ce soit
     if (nodes.length === 0 && edges.length === 0) return;
     
-    // Étape cruciale : on sauvegarde l'état pour que le Ctrl+Z fonctionne !
     saveState();
     
-    // On remet toutes les variables d'état à zéro
     nodes = [];
     edges = [];
     nodeIdCounter = 1;
     selectedNodes.clear();
     tempSelectedId = null;
     
-    // Optionnel : On cache le lecteur d'animation s'il était ouvert, car le graphe n'existe plus
     const playerControls = document.getElementById('player-controls');
     if (playerControls) {
         playerControls.style.display = 'none';
     }
     
-    // On redessine le canvas (ce qui affichera à nouveau le placeholder text !)
     render();
 }
 

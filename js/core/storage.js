@@ -1,5 +1,12 @@
+function getCurrentGraphState() {
+    if (window.graphApp) {
+        return window.graphApp.getGraphData();
+    }
+    return { nodes: window.nodes || [], edges: window.edges || [], nodeIdCounter: window.nodeIdCounter || 1 };
+}
+
 function saveGraph() {
-    const graphData = { nodes, edges, nodeIdCounter };
+    const graphData = getCurrentGraphState();
     localStorage.setItem('graphData', JSON.stringify(graphData));
     alert('Graph saved to browser storage!');
 }
@@ -22,7 +29,7 @@ function loadGraph() {
 }
 
 function exportGraph() {
-    const graphData = { nodes, edges, nodeIdCounter };
+    const graphData = getCurrentGraphState();
     const dataStr = JSON.stringify(graphData, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -46,13 +53,22 @@ function handleFileImport(event) {
         reader.onload = function(e) {
             try {
                 const graphData = JSON.parse(e.target.result);
-                nodes = (graphData.nodes || []).map(n => ({ ...n, id: String(n.id) }));
-                edges = (graphData.edges || []).map(e => ({ ...e, from: String(e.from), to: String(e.to) }));
-                nodeIdCounter = parseInt(graphData.nodeIdCounter) || 1;
-                selectedNodes.clear();
-                tempSelectedId = null;
-                draggingNode = null;
-                render();
+                if (window.graphApp) {
+                    window.graphApp.setGraphData({
+                        nodes: (graphData.nodes || []).map(n => ({ ...n, id: String(n.id) })),
+                        edges: (graphData.edges || []).map(e => ({ ...e, from: String(e.from), to: String(e.to) })),
+                        nodeIdCounter: parseInt(graphData.nodeIdCounter) || 1
+                    });
+                    window.graphApp.render();
+                } else {
+                    nodes = (graphData.nodes || []).map(n => ({ ...n, id: String(n.id) }));
+                    edges = (graphData.edges || []).map(e => ({ ...e, from: String(e.from), to: String(e.to) }));
+                    nodeIdCounter = parseInt(graphData.nodeIdCounter) || 1;
+                    selectedNodes.clear();
+                    tempSelectedId = null;
+                    draggingNode = null;
+                    render();
+                }
                 alert('Graph imported successfully!');
             } catch (error) {
                 alert('Invalid JSON file.');

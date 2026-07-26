@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoQuest - Theory & Learning Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/learn-header.css">
+    <style>
+        :root {
+            --brand-main: #6366F1;
+            --brand-light: #E0E7FF;
+            --bg-main: #F4F6F9;
+            --card-bg: #FFFFFF;
+            --text-primary: #334155;
+            --text-muted: #64748B;
+            --border-color: #CBD5E1;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header Navigation */
+        header {
+            background: var(--card-bg);
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--brand-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-back {
+            background: var(--brand-main);
+            color: #FFFFFF;
+            border: 2px solid #4F46E5; /* var(--brand-dark) approximatif */
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #4F46E5;
+            transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background: #5952e6;
+        }
+
+        .btn-back:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 transparent;
+        }
+
+        /* Hero / Search Section */
+        .hero {
+            max-width: 900px;
+            margin: 40px auto 30px auto;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--brand-main);
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px 14px 45px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--brand-main);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Main Container */
+        .library-container {
+            max-width: 1100px;
+            margin: 0 auto 60px auto;
+            padding: 0 20px;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 40px 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .category-title i {
+            color: var(--brand-main);
+        }
+
+        /* Cards Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            padding: 22px;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--brand-main);
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--brand-main);
+            margin: 0;
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+            color: var(--brand-main);
+            background: var(--brand-light);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .card-footer {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--brand-light);
+            color: var(--brand-main);
+        }
+
+        .badge-green { background: #D1FAE5; color: #059669; }
+        .badge-purple { background: #F3E8FF; color: #7C3AED; }
+
+        /* Hide items when searching */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header id="theory-header" class="theory-navbar">
+        <a href="../index.html" class="theory-brand">
+            <i class="fa-solid fa-diagram-project"></i> AlgoQuest
+        </a>
+
+        <div class="theory-nav-links">
+             <a href="../index.html" class="nav-btn nav-btn-primary">
+                <i class="fa-solid fa-laptop-code"></i> Open Visualizer
+            </a>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1><i class="fa-solid fa-book-open"></i> Theory Library</h1>
+        <p>Explore detailed guides, code implementations, and complexity analysis for all supported data structures and algorithms.</p>
+        
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="library-search" placeholder="Search for BST, Heap, Quick Sort, Graphs..." oninput="filterLibrary()">
+        </div>
+    </div>
+<div class="library-container">
+        
+        <div class="category-section" id="cat-ds">
+            <div class="category-title">
+                <i class="fa-solid fa-layer-group"></i> Data Structures
+            </div>
+            <div class="grid">
+                
+                <a href="theory/bst.html" class="card" data-keywords="bst binary search tree tree nodes left right traversal">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Binary Search Tree</h2>
+                            <div class="card-icon"><i class="fa-solid fa-sitemap"></i></div>
+                        </div>
+                        <p class="card-desc">Hierarchical structure with left-child smaller and right-child larger properties. Supports quick search and traversals.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">Tree</span>
+                        <span class="badge badge-green">Search: O(log n)</span>
+                    </div>
+                </a>
+
+                <a href="theory/heap.html" class="card" data-keywords="heap max heap min heap priority queue bubble up down">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Binary Heap</h2>
+                            <div class="card-icon"><i class="fa-solid fa-crown"></i></div>
+                        </div>
+                        <p class="card-desc">Complete binary tree stored as an array. Guarantees instant access to the minimum or maximum element.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">Tree / Array</span>
+                        <span class="badge badge-green">Peek: O(1)</span>
+                    </div>
+                </a>
+
+                <a href="theory/array.html" class="card" data-keywords="array sorting contiguous index memory contiguous">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Arrays Overview</h2>
+                            <div class="card-icon"><i class="fa-solid fa-list-ol"></i></div>
+                        </div>
+                        <p class="card-desc">Sequential collection of elements in contiguous memory. Includes direct index access and sorting comparisons.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">Linear</span>
+                        <span class="badge badge-green">Access: O(1)</span>
+                    </div>
+                </a>
+
+                <a href="theory/linkedlist.html" class="card" data-keywords="linked list node pointer single double linear">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Linked List</h2>
+                            <div class="card-icon"><i class="fa-solid fa-link"></i></div>
+                        </div>
+                        <p class="card-desc">Linear collection of data elements where order is not given by physical memory, but by pointers connecting nodes.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">Linear</span>
+                        <span class="badge badge-green">Insert: O(1)</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="category-section" id="cat-sorting">
+            <div class="category-title">
+                <i class="fa-solid fa-arrow-down-a-z"></i> Sorting Algorithms
+            </div>
+            <div class="grid">
+
+                <a href="theory/bubble-sort.html" class="card" data-keywords="bubble sort swap adjacent compare simple">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Bubble Sort</h2>
+                            <div class="card-icon"><i class="fa-solid fa-sort-amount-up"></i></div>
+                        </div>
+                        <p class="card-desc">Simple comparison sort that repeatedly steps through the list and swaps adjacent out-of-order elements.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge badge-purple">Time: O(n²)</span>
+                        <span class="badge">Stable</span>
+                    </div>
+                </a>
+
+                <a href="theory/insertion-sort.html" class="card" data-keywords="insertion sort adaptive cards shift online">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Insertion Sort</h2>
+                            <div class="card-icon"><i class="fa-solid fa-arrow-down-short-wide"></i></div>
+                        </div>
+                        <p class="card-desc">Builds the sorted array one item at a time. Extremely fast for small or nearly-sorted datasets.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge badge-purple">Time: O(n²)</span>
+                        <span class="badge badge-green">Adaptive</span>
+                    </div>
+                </a>
+
+                <a href="theory/quick-sort.html" class="card" data-keywords="quick sort pivot partition divide conquer">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Quick Sort</h2>
+                            <div class="card-icon"><i class="fa-solid fa-bolt"></i></div>
+                        </div>
+                        <p class="card-desc">Divide-and-conquer algorithm using partitioning around a chosen pivot element.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge badge-green">Time: O(n log n)</span>
+                        <span class="badge">In-Place</span>
+                    </div>
+                </a>
+
+                <a href="theory/merge-sort.html" class="card" data-keywords="merge sort recursion combine split divide conquer">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Merge Sort</h2>
+                            <div class="card-icon"><i class="fa-solid fa-code-merge"></i></div>
+                        </div>
+                        <p class="card-desc">Guaranteed O(n log n) divide-and-conquer algorithm that recursively splits and merges sorted sub-arrays.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge badge-green">Time: O(n log n)</span>
+                        <span class="badge">Stable</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="category-section" id="cat-graphs">
+            <div class="category-title">
+                <i class="fa-solid fa-diagram-project"></i> Graph Algorithms
+            </div>
+            <div class="grid">
+
+                <a href="theory/bfs.html" class="card" data-keywords="bfs breadth first search queue shortest path level">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Breadth-First Search</h2>
+                            <div class="card-icon"><i class="fa-solid fa-water"></i></div>
+                        </div>
+                        <p class="card-desc">Explores a graph level by level using a Queue. Perfect for finding the shortest path in unweighted graphs.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">Traversal</span>
+                        <span class="badge badge-purple">Time: O(V + E)</span>
+                    </div>
+                </a>
+
+                <a href="theory/dfs.html" class="card" data-keywords="dfs depth first search stack recursion backtrack">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Depth-First Search</h2>
+                            <div class="card-icon"><i class="fa-solid fa-arrow-down-up-across-line"></i></div>
+                        </div>
+                        <p class="card-desc">Dives as deep as possible into a graph branch before backtracking, using a Stack or recursion.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">Traversal</span>
+                        <span class="badge badge-purple">Time: O(V + E)</span>
+                    </div>
+                </a>
+
+                <a href="theory/dijkstra.html" class="card" data-keywords="dijkstra shortest path weights greedy priority queue">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Dijkstra's Algorithm</h2>
+                            <div class="card-icon"><i class="fa-solid fa-route"></i></div>
+                        </div>
+                        <p class="card-desc">Finds the shortest path from a starting node to all other nodes in a graph with non-negative edge weights.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">Pathfinding</span>
+                        <span class="badge badge-purple">O(E log V)</span>
+                    </div>
+                </a>
+
+                <a href="theory/kruskal.html" class="card" data-keywords="kruskal mst minimum spanning tree union find greedy">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Kruskal's Algorithm</h2>
+                            <div class="card-icon"><i class="fa-solid fa-network-wired"></i></div>
+                        </div>
+                        <p class="card-desc">Greedy algorithm that finds a Minimum Spanning Tree (MST) by sorting edges and using Disjoint Sets (Union-Find).</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">MST</span>
+                        <span class="badge badge-purple">O(E log E)</span>
+                    </div>
+                </a>
+
+                <a href="theory/kosaraju.html" class="card" data-keywords="kosaraju scc strongly connected components transpose dfs">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Kosaraju's Algorithm</h2>
+                            <div class="card-icon"><i class="fa-solid fa-circle-nodes"></i></div>
+                        </div>
+                        <p class="card-desc">Finds all Strongly Connected Components (SCCs) in a directed graph using two passes of Depth-First Search.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">SCC</span>
+                        <span class="badge badge-purple">Time: O(V + E)</span>
+                    </div>
+                </a>
+
+                <a href="theory/bipartite.html" class="card" data-keywords="bipartite coloring two colors disjoint sets graph check">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Bipartite Check</h2>
+                            <div class="card-icon"><i class="fa-solid fa-people-arrows"></i></div>
+                        </div>
+                        <p class="card-desc">Determines if a graph can be colored using exactly two colors such that no adjacent nodes share the same color.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">Property</span>
+                        <span class="badge badge-purple">Time: O(V + E)</span>
+                    </div>
+                </a>
+
+                <a href="theory/connected_components.html" class="card" data-keywords="connected components isolated subgraphs cluster">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Connected Components</h2>
+                            <div class="card-icon"><i class="fa-solid fa-object-group"></i></div>
+                        </div>
+                        <p class="card-desc">Identifies isolated clusters (subgraphs) within an undirected graph where any two vertices are connected by paths.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">Analysis</span>
+                        <span class="badge badge-purple">Time: O(V + E)</span>
+                    </div>
+                </a>
+
+                <a href="theory/cycle_detection.html" class="card" data-keywords="cycle detection loops infinite graph back edge">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Cycle Detection</h2>
+                            <div class="card-icon"><i class="fa-solid fa-rotate"></i></div>
+                        </div>
+                        <p class="card-desc">Finds if a graph contains any cycles (paths that loop back to a starting node) using DFS back-edges or Union-Find.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">Analysis</span>
+                        <span class="badge badge-purple">Time: O(V + E)</span>
+                    </div>
+                </a>
+
+                <a href="theory/greedy_coloring.html" class="card" data-keywords="greedy coloring minimum colors graph conflict allocation">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Greedy Coloring</h2>
+                            <div class="card-icon"><i class="fa-solid fa-palette"></i></div>
+                        </div>
+                        <p class="card-desc">Assigns colors to the vertices of a graph such that no two adjacent vertices share the same color using a greedy approach.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge">Allocation</span>
+                        <span class="badge badge-purple">Time: O(V² + E)</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function filterLibrary() {
+            const query = document.getElementById('library-search').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.card');
+            const sections = document.querySelectorAll('.category-section');
+
+            cards.forEach(card => {
+                const keywords = card.getAttribute('data-keywords') || '';
+                const text = card.innerText.toLowerCase();
+                
+                if (text.includes(query) || keywords.includes(query)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Masquer les catégories si toutes leurs cartes sont cachées
+            sections.forEach(section => {
+                const visibleCards = section.querySelectorAll('.card:not(.hidden)');
+                if (visibleCards.length === 0) {
+                    section.classList.add('hidden');
+                } else {
+                    section.classList.remove('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

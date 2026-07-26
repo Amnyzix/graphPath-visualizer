@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoQuest - Greedy Coloring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/learn-header.css">
+
+    <script>
+        MathJax = {
+            tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        :root {
+            --brand-main: #6366F1;
+            --brand-light: #E0E7FF;
+            --bg-main: #F4F6F9;
+            --container-bg: #FFFFFF;
+            --text-primary: #334155;
+            --text-muted: #64748B;
+            --border-color: #CBD5E1;
+            --code-bg: #1E293B;
+            --code-text: #F8FAFC;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .lesson-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--container-bg);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 2px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--brand-main);
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-top: 0;
+            border-bottom: 3px solid var(--brand-light);
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 35px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            color: var(--brand-main);
+        }
+
+        p {
+            font-size: 1.05rem;
+            color: var(--text-primary);
+        }
+
+        .highlight-box {
+            background-color: var(--brand-light);
+            border-left: 5px solid var(--brand-main);
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+        }
+
+        .highlight-box strong {
+            color: var(--brand-main);
+        }
+
+        ul {
+            font-size: 1.05rem;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: #E2E8F0;
+            color: #B91C1C;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        .complexity-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .complexity-table th, .complexity-table td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .complexity-table th {
+            background-color: var(--bg-main);
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="lesson-container">
+        <h1>Greedy Coloring</h1>
+        
+        <p>Graph coloring is a computational problem where the objective is to assign colors to the vertices of a graph such that no two adjacent vertices (nodes connected by an edge) share the same color. The <strong>Greedy Coloring</strong> algorithm is a straightforward and fast approach to solving this problem by assigning the first available color to each node chronologically.</p>
+
+        <div class="highlight-box">
+            <strong><i class="fa-solid fa-palette"></i> Real-World Application:</strong> 
+            Graph coloring is heavily used in scheduling (making sure no two overlapping exams are scheduled in the same room), Sudoku puzzles, and map coloring. While greedy coloring doesn't guarantee the absolute minimum number of colors mathematically possible, it is extremely fast and provides a "good enough" approximation for large networks.
+        </div>
+
+        <h2><i class="fa-solid fa-compass"></i> The Algorithm Principle</h2>
+        <p>The logic follows a simple "first come, first served" strategy:</p>
+        <ul>
+            <li>Colors are represented by integers (Color 0, Color 1, Color 2...).</li>
+            <li>Iterate through all the nodes in the graph one by one.</li>
+            <li>For the current node, look at all its immediate neighbors and note which colors they are already using.</li>
+            <li>Assign the <strong>smallest integer color</strong> that is not currently being used by any of its neighbors.</li>
+            <li>Move to the next uncolored node and repeat.</li>
+        </ul>
+
+        <h2><i class="fa-solid fa-code"></i> Algorithm Walkthrough</h2>
+        <p>In our implementation below, we gather all nodes in the graph and color them sequentially, ensuring we visually apply distinct colors from a predefined palette.</p>
+
+<pre><code>def greedy_coloring():
+    PALETTE = ["#EF4444", "#3B82F6", "#10B981", "#F59E0B", "#8B5CF6"]
+    
+    all_nodes = get_all_nodes() 
+    colors = {}
+    
+    if len(all_nodes) > 0:
+        visit(all_nodes[0], "Starting Global Greedy Coloring...")
+    
+    for node in all_nodes:
+        select(node)
+        
+        # 1. Gather all neighbors
+        undirected_neighbors = set(neighbors(node))
+        for other_node in all_nodes:
+            if node in neighbors(other_node):
+                undirected_neighbors.add(other_node)
+                
+        # 2. Check colors used by neighbors
+        used_colors = set()
+        for neighbor in undirected_neighbors:
+            if neighbor in colors:
+                used_colors.add(colors[neighbor])
+                
+        # 3. Find the lowest available color integer
+        color_index = 0
+        while color_index in used_colors:
+            color_index += 1
+            
+        # 4. Assign the color and display it
+        colors[node] = color_index
+        hex_color = PALETTE[color_index % len(PALETTE)]
+        
+        color_node(node, hex_color, f"Node {node} is assigned to Color {color_index}")
+
+greedy_coloring()</code></pre>
+
+        <h2><i class="fa-solid fa-stopwatch"></i> Complexity</h2>
+        <p>The performance is excellent for general-purpose applications, though it varies slightly depending on how the graph is structured.</p>
+        <table class="complexity-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Complexity</th>
+                    <th>Explanation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Time Complexity</strong></td>
+                    <td>$O(V + E)$</td>
+                    <td>Where $V$ is the number of vertices and $E$ is the number of edges. We visit every vertex once, and for each vertex, we check its adjacent edges. Finding the lowest available color takes linear time proportional to the number of neighbors.</td>
+                </tr>
+                <tr>
+                    <td><strong>Space Complexity</strong></td>
+                    <td>$O(V)$</td>
+                    <td>We only need to store the assigned color for each of the $V$ vertices in a dictionary or array.</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    
+    <script src="../js/ui/resolve_learn_header.js"></script>
+</body>
+</html>

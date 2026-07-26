@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoQuest - Kosaraju's Algorithm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/learn-header.css">
+
+    <script>
+        MathJax = {
+            tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+
+    <style>
+        :root {
+            --brand-main: #6366F1;
+            --brand-light: #E0E7FF;
+            --bg-main: #F4F6F9;
+            --container-bg: #FFFFFF;
+            --text-primary: #334155;
+            --text-muted: #64748B;
+            --border-color: #CBD5E1;
+            --code-bg: #1E293B;
+            --code-text: #F8FAFC;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .lesson-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--container-bg);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 2px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--brand-main);
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-top: 0;
+            border-bottom: 3px solid var(--brand-light);
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 35px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            color: var(--brand-main);
+        }
+
+        p {
+            font-size: 1.05rem;
+            color: var(--text-primary);
+        }
+
+        .highlight-box {
+            background-color: var(--brand-light);
+            border-left: 5px solid var(--brand-main);
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+        }
+
+        .highlight-box strong {
+            color: var(--brand-main);
+        }
+
+        ul {
+            font-size: 1.05rem;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: #E2E8F0;
+            color: #B91C1C;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        .complexity-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .complexity-table th, .complexity-table td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .complexity-table th {
+            background-color: var(--bg-main);
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="lesson-container">
+        <h1>Kosaraju's Algorithm</h1>
+        
+        <p><strong>Kosaraju's Algorithm</strong> is a linear-time algorithm used to find all <strong>Strongly Connected Components (SCCs)</strong> in a directed graph. A sub-graph is strongly connected if there is a path in both directions between every pair of vertices in that sub-graph.</p>
+
+        <div class="highlight-box">
+            <strong><i class="fa-solid fa-arrows-spin"></i> Real-World Application:</strong> 
+            Kosaraju's algorithm is extensively used in social network analysis (finding closed groups where members mutually follow or interact with each other), optimizing compiler computations, and identifying highly interdependent web pages in search engine algorithms.
+        </div>
+
+        <h2><i class="fa-solid fa-compass"></i> The 3-Step Principle</h2>
+        <p>The magic of Kosaraju's algorithm lies in reversing the directions of all edges in the graph:</p>
+        <ul>
+            <li><strong>Step 1 (Ordering):</strong> Perform a standard DFS on the original graph. Once a node has no more unvisited neighbors, push it onto a stack. This records nodes in order of their finishing times.</li>
+            <li><strong>Step 2 (Transpose Graph):</strong> Reverse every edge in the graph ($u \rightarrow v$ becomes $v \rightarrow u$).</li>
+            <li><strong>Step 3 (Extraction):</strong> Pop nodes from the stack one by one. If a node hasn't been visited in the transposed graph, launch a new DFS starting from it. All reachable nodes belong to the same <strong>Strongly Connected Component</strong>.</li>
+        </ul>
+
+        <h2><i class="fa-solid fa-code"></i> Algorithm Walkthrough</h2>
+
+<pre><code>def kosaraju():
+    all_nodes = get_all_nodes()
+    visited = set()
+    stack = []
+    
+    # Pass 1: Standard DFS to fill the stack by finish time
+    def dfs_first_pass(u):
+        visited.add(u)
+        for v in neighbors(u):
+            if v not in visited:
+                dfs_first_pass(v)
+        stack.append(u)
+        
+    for node in all_nodes:
+        if node not in visited:
+            dfs_first_pass(node)
+            
+    # Pass 2: Reverse graph representation
+    reversed_graph = transpose_edges(all_nodes)
+            
+    # Pass 3: Process stack on the transposed graph
+    visited.clear()
+    scc_count = 0
+    
+    while len(stack) > 0:
+        root = stack.pop()
+        if root not in visited:
+            scc_count += 1
+            dfs_second_pass(root, scc_count)
+
+kosaraju()</code></pre>
+
+        <h2><i class="fa-solid fa-stopwatch"></i> Complexity</h2>
+        <table class="complexity-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Complexity</th>
+                    <th>Explanation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Time Complexity</strong></td>
+                    <td>$O(V + E)$</td>
+                    <td>Where $V$ is the number of vertices and $E$ is the number of edges. We perform two complete DFS traversals and one graph transposition step, all of which run in linear time.</td>
+                </tr>
+                <tr>
+                    <td><strong>Space Complexity</strong></td>
+                    <td>$O(V + E)$</td>
+                    <td>Space is required for storing the stack ($O(V)$), the recursion tree, and the reversed adjacency list ($O(V + E)$).</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <script src="../js/ui/resolve_learn_header.js"></script>
+</body>
+</html>

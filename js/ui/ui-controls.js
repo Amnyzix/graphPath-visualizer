@@ -1,4 +1,3 @@
-// --- THEME TOGGLE ---
 const themeToggle = document.getElementById('theme-toggle');
 
 themeToggle.addEventListener('click', () => {
@@ -12,7 +11,7 @@ themeToggle.addEventListener('click', () => {
     }
 
     if (typeof editor !== 'undefined') {
-        editor.setOption("theme", isDark ? "dracula" : "default"); // Modifie "dracula" si tu as choisi un autre thème !
+        editor.setOption("theme", isDark ? "dracula" : "default");
     }
 });
 
@@ -112,71 +111,60 @@ function editEdge() {
 let copiedNodes = [];
 let copiedEdges = [];
 
+
 document.addEventListener('keydown', (e) => {
+    // 1. On ignore les frappes si l'utilisateur écrit dans un champ de texte
     if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+
+    // 2. On récupère l'éditeur actuellement actif
+    const editor = window.activeEditor;
+
+    // --- COMMANDES AVEC CTRL ---
     if (e.ctrlKey) {
         switch (e.key.toLowerCase()) {
             case 'z':
                 e.preventDefault();
-                undo();
+                if (editor && typeof editor.undo === 'function') editor.undo();
+                else if (typeof undo === 'function') undo(); // Fallback Legacy
                 break;
+                
             case 'y':
-                e.preventDefault(); 
-                redo();
+                e.preventDefault();
+                if (editor && typeof editor.redo === 'function') editor.redo();
+                else if (typeof redo === 'function') redo(); // Fallback Legacy
                 break;
-
+                
             case 'x':
                 e.preventDefault();
-                if (selectedNodes.size > 0) {
-                    // 1. On copie en mémoire
-                    copiedNodes = nodes.filter(n => selectedNodes.has(n.id));
-                    copiedEdges = edges.filter(e => selectedNodes.has(e.from) && selectedNodes.has(e.to));
-                    
-                    // 2. On supprime (en sauvegardant l'état pour le Undo)
-                    saveState();
-                    nodes = nodes.filter(n => !selectedNodes.has(n.id));
-                    edges = edges.filter(e => !selectedNodes.has(e.from) && !selectedNodes.has(e.to));
-                    selectedNodes.clear();
-                    render();
-                }
+                // cut: à implémenter dans tes classes Editor si besoin
                 break;
-
+                
             case 'c':
-                copiedNodes = nodes.filter(n => selectedNodes.has(n.id));
-                copiedEdges = edges.filter(e => selectedNodes.has(e.from) && selectedNodes.has(e.to));
+                e.preventDefault();
+                if (editor && typeof editor.copySelected === 'function') editor.copySelected();
                 break;
+                
             case 'v':
-                if (copiedNodes.length > 0) {
-                    const offsetX = 50, offsetY = 50;
-                    const idMap = new Map();
-                    copiedNodes.forEach(n => {
-                        const newId = String(nodeIdCounter++);
-                        idMap.set(n.id, newId);
-                        nodes.push({ ...n, id: newId, x: n.x + offsetX, y: n.y + offsetY });
-                    });
-                    copiedEdges.forEach(e => {
-                        edges.push({ from: idMap.get(e.from), to: idMap.get(e.to) });
-                    });
-                    selectedNodes.clear();
-                    idMap.forEach(id => selectedNodes.add(id));
-                    render();
-                    saveState();
-                }
+                e.preventDefault();
+                if (editor && typeof editor.pasteClipboard === 'function') editor.pasteClipboard();
                 break;
         }
-    } else {
+    } 
+    // --- COMMANDES SANS CTRL ---
+    else {
         switch (e.key) {
             case 'Delete':
             case 'Backspace':
-                if (selectedNodes.size > 0) deleteNodes(selectedNodes);
-                break;
-            case 'r':
-                resetGraph();
+                if (editor && typeof editor.deleteSelected === 'function') {
+                    editor.deleteSelected();
+                } else if (typeof selectedNodes !== 'undefined' && selectedNodes.size > 0 && typeof deleteNodes === 'function') {
+                    // Fallback Legacy
+                    deleteNodes(selectedNodes);
+                }
                 break;
         }
     }
 });
-
 
 
 
@@ -272,5 +260,63 @@ function switchTab(tabName) {
     } else if (tabName === 'data') {
         document.getElementById('tab-data').classList.add('active');
         document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    }
+}
+
+
+function switchAiAlgorithm(algo) {
+    // 1. Stopper et nettoyer l'éditeur actuel avant de changer
+    if (window.aiApp) {
+        window.aiApp.stopAnimation();
+        window.aiApp.clearCanvas();
+    }
+
+    // 2. Basculer le pointeur vers le bon éditeur via le Registre !
+    window.aiApp = window.AppRegistry.get(algo);
+
+    // 3. Cacher toutes les sections (Ajout des sections K-NN)
+    document.getElementById('ai-minimax-controls').style.display = 'none';
+    document.getElementById('ai-kmeans-controls').style.display = 'none';
+    document.getElementById('ai-knn-controls').style.display = 'none'; 
+
+    document.getElementById('ai-minimax-guide').style.display = 'none';
+    document.getElementById('ai-kmeans-guide').style.display = 'none';
+    document.getElementById('ai-knn-guide').style.display = 'none'; 
+    
+    const paramLabel = document.getElementById('ai-param-label');
+    const paramSlider = document.getElementById('ai-depth-slider');
+    
+    // Réinitialiser le "step" du slider à 1 par défaut (pour Minimax et K-Means)
+    paramSlider.step = 1; 
+    
+    // 4. Afficher selon la sélection
+    if (algo === 'minimax') {
+        document.getElementById('ai-minimax-controls').style.display = 'flex';
+        document.getElementById('ai-minimax-guide').style.display = 'block';
+        
+        paramLabel.innerHTML = `Depth: <span id="ai-param-val">${paramSlider.value}</span>`;
+        paramSlider.min = 2;
+        paramSlider.max = 6;
+        paramSlider.onchange = function() { window.aiApp.generateTree(this.value); };
+        
+    } else if (algo === 'kmeans') {
+        document.getElementById('ai-kmeans-controls').style.display = 'flex';
+        document.getElementById('ai-kmeans-guide').style.display = 'block';
+        
+        paramLabel.innerHTML = `Clusters (K): <span id="ai-param-val">${paramSlider.value}</span>`;
+        paramSlider.min = 2;
+        paramSlider.max = 10;
+        paramSlider.onchange = function() { /* K-Means lira cette valeur au clic sur Run */ };
+        
+    } else if (algo === 'knn') {
+        document.getElementById('ai-knn-controls').style.display = 'flex';
+        document.getElementById('ai-knn-guide').style.display = 'block';
+        
+        // Configuration spécifique pour K-NN (nombres impairs recommandés)
+        paramLabel.innerHTML = `K (Neighbors): <span id="ai-param-val">${paramSlider.value}</span>`;
+        paramSlider.min = 1;
+        paramSlider.max = 15;
+        paramSlider.step = 2; // Avance de 2 en 2 (1, 3, 5, 7...)
+        paramSlider.onchange = function() { /* K-NN lira cette valeur au clic sur Run */ };
     }
 }

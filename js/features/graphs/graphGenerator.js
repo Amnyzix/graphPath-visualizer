@@ -3,15 +3,27 @@
 //   GÉNÉRATEURS DE GRAPHES
 // =========================================
 
+function getGraphEditor() {
+    if (window.graphApp) return window.graphApp;
+    if (typeof graphApp !== 'undefined' && graphApp) return graphApp;
+    console.warn('Graph generator: GraphEditor instance not available');
+    return null;
+}
+
 function clearForGeneration() {
-    if (nodes.length > 0) {
+    const graph = getGraphEditor();
+    if (!graph) return false;
+
+    console.log('clearForGeneration start', { nodesLength: graph.nodes.length, edgesLength: graph.edges.length, nodeIdCounter: graph.nodeCounter, hasGraphApp: !!window.graphApp });
+    if (graph.nodes.length > 0) {
         if (!confirm("Clear current graph to generate a new one?")) return false;
     }
-    saveState(); // Permet de faire Ctrl+Z pour annuler la génération
-    nodes = [];
-    edges = [];
-    nodeIdCounter = 1;
-    selectedNodes.clear();
+    graph.saveState(); // Permet de faire Ctrl+Z pour annuler la génération
+    graph.nodes = [];
+    graph.edges = [];
+    graph.nodeCounter = 1;
+    graph.selectedNodes.clear();
+    console.log('clearForGeneration end', { nodesLength: graph.nodes.length, edgesLength: graph.edges.length, nodeIdCounter: graph.nodeCounter });
     return true;
 }
 
@@ -20,20 +32,26 @@ function clearForGeneration() {
 // 1. Graphe Complet (Disposition en cercle)
 function generateCompleteGraph(n = 5) {
     if (!clearForGeneration()) return;
+    const graph = getGraphEditor();
+    if (!graph) return;
+    const nodes = graph.nodes;
+    const edges = graph.edges;
     
     // On récupère la taille du canvas pour centrer le dessin
-    const cx = svg.clientWidth / 2;
-    const cy = svg.clientHeight / 2;
+    const cx = window.svg.clientWidth / 2;
+    const cy = window.svg.clientHeight / 2;
     const r = Math.min(cx, cy) - 60; // Le rayon s'adapte à l'écran
     
     // Création des nœuds en cercle
     for (let i = 0; i < n; i++) {
         const angle = (i * 2 * Math.PI) / n - Math.PI / 2; // -PI/2 pour avoir une pointe en haut
-        nodes.push({ 
-            id: String(nodeIdCounter++), 
+        const node = { 
+            id: String(graph.nodeCounter++), 
             x: cx + r * Math.cos(angle), 
             y: cy + r * Math.sin(angle) 
-        });
+        };
+        nodes.push(node);
+        console.log('generateCompleteGraph push node', node);
     }
     
     // Création des arêtes (tout le monde est relié à tout le monde)
@@ -42,12 +60,16 @@ function generateCompleteGraph(n = 5) {
             edges.push({ from: nodes[i].id, to: nodes[j].id, weight: null, directed: false });
         }
     }
-    render();
+    graph.render();
 }
 
 // 2. Arbre Binaire (Disposition pyramidale)
 function generateBinaryTree(levels = 3) {
     if (!clearForGeneration()) return;
+    const graph = getGraphEditor();
+    if (!graph) return;
+    const nodes = graph.nodes;
+    const edges = graph.edges;
     
     const width = svg.clientWidth;
     const levelHeight = 80; // Espace vertical entre les niveaux
@@ -55,7 +77,7 @@ function generateBinaryTree(levels = 3) {
     
     // On utilise une file (queue) pour construire l'arbre niveau par niveau (BFS)
     let queue = [{ 
-        id: String(nodeIdCounter++), x: width / 2, y: startY, 
+        id: String(graph.nodeCounter++), x: width / 2, y: startY, 
         level: 0, leftBound: 0, rightBound: width 
     }];
     nodes.push(queue[0]);
@@ -66,27 +88,31 @@ function generateBinaryTree(levels = 3) {
         if (curr.level < levels - 1) {
             let y = curr.y + levelHeight;
             
-            // Enfant Gauche
+                    // Enfant Gauche
             let lx = (curr.leftBound + curr.x) / 2;
-            let lNode = { id: String(nodeIdCounter++), x: lx, y: y, level: curr.level + 1, leftBound: curr.leftBound, rightBound: curr.x };
+            let lNode = { id: String(graph.nodeCounter++), x: lx, y: y, level: curr.level + 1, leftBound: curr.leftBound, rightBound: curr.x };
             nodes.push(lNode);
             edges.push({ from: curr.id, to: lNode.id, weight: null, directed: true }); // Arbres généralement orientés vers le bas
             queue.push(lNode);
             
             // Enfant Droit
             let rx = (curr.x + curr.rightBound) / 2;
-            let rNode = { id: String(nodeIdCounter++), x: rx, y: y, level: curr.level + 1, leftBound: curr.x, rightBound: curr.rightBound };
+            let rNode = { id: String(graph.nodeCounter++), x: rx, y: y, level: curr.level + 1, leftBound: curr.x, rightBound: curr.rightBound };
             nodes.push(rNode);
             edges.push({ from: curr.id, to: rNode.id, weight: null, directed: true });
             queue.push(rNode);
         }
     }
-    render();
+    graph.render();
 }
 
 // 3. Grille (Disposition en matrice)
 function generateGridGraph(rows = 3, cols = 3) {
     if (!clearForGeneration()) return;
+    const graph = getGraphEditor();
+    if (!graph) return;
+    const nodes = graph.nodes;
+    const edges = graph.edges;
     
     const spacing = 100;
     const startX = svg.clientWidth / 2 - ((cols - 1) * spacing) / 2;
@@ -96,7 +122,7 @@ function generateGridGraph(rows = 3, cols = 3) {
     for (let r = 0; r < rows; r++) {
         grid[r] = [];
         for (let c = 0; c < cols; c++) {
-            let node = { id: String(nodeIdCounter++), x: startX + c * spacing, y: startY + r * spacing };
+            let node = { id: String(graph.nodeCounter++), x: startX + c * spacing, y: startY + r * spacing };
             nodes.push(node);
             grid[r][c] = node;
 
@@ -104,13 +130,17 @@ function generateGridGraph(rows = 3, cols = 3) {
             if (r > 0) edges.push({ from: grid[r-1][c].id, to: node.id, weight: null, directed: false });
         }
     }
-    render();
+    graph.render();
 }
 
 
 // 4. Random Graph (Nodes placed randomly with random edges)
 function generateRandomGraph(numNodes = 6, numEdges = 8) {
     if (!clearForGeneration()) return;
+    const graph = getGraphEditor();
+    if (!graph) return;
+    const nodes = graph.nodes;
+    const edges = graph.edges;
     
     const width = svg.clientWidth - 100;
     const height = svg.clientHeight - 100;
@@ -119,7 +149,7 @@ function generateRandomGraph(numNodes = 6, numEdges = 8) {
     // Generate random nodes
     for (let i = 0; i < numNodes; i++) {
         nodes.push({
-            id: String(nodeIdCounter++),
+            id: String(graph.nodeCounter++),
             x: margin + Math.random() * width,
             y: margin + Math.random() * height
         });
@@ -146,12 +176,16 @@ function generateRandomGraph(numNodes = 6, numEdges = 8) {
             }
         }
     }
-    render();
+    graph.render();
 }
 
 // 5. Bipartite Graph (Two distinct sets, all left nodes connect to all right nodes)
 function generateBipartiteGraph(setSize1 = 3, setSize2 = 3) {
     if (!clearForGeneration()) return;
+    const graph = getGraphEditor();
+    if (!graph) return;
+    const nodes = graph.nodes;
+    const edges = graph.edges;
 
     const startX1 = 100;
     const startX2 = svg.clientWidth - 100;
@@ -163,14 +197,14 @@ function generateBipartiteGraph(setSize1 = 3, setSize2 = 3) {
 
     // Create Set 1 (Left partition)
     for (let i = 0; i < setSize1; i++) {
-        const node = { id: String(nodeIdCounter++), x: startX1, y: startY + i * spacing };
+        const node = { id: String(graph.nodeCounter++), x: startX1, y: startY + i * spacing };
         nodes.push(node);
         set1.push(node);
     }
 
     // Create Set 2 (Right partition)
     for (let i = 0; i < setSize2; i++) {
-        const node = { id: String(nodeIdCounter++), x: startX2, y: startY + i * spacing };
+        const node = { id: String(graph.nodeCounter++), x: startX2, y: startY + i * spacing };
         nodes.push(node);
         set2.push(node);
     }
@@ -181,12 +215,16 @@ function generateBipartiteGraph(setSize1 = 3, setSize2 = 3) {
             edges.push({ from: n1.id, to: n2.id, weight: null, directed: false });
         }
     }
-    render();
+    graph.render();
 }
 
 // 6. Path Chain (Linear sequence of nodes)
 function generatePathChain(numNodes = 5) {
     if (!clearForGeneration()) return;
+    const graph = getGraphEditor();
+    if (!graph) return;
+    const nodes = graph.nodes;
+    const edges = graph.edges;
 
     const startX = 80;
     const endX = svg.clientWidth - 80;
@@ -195,7 +233,7 @@ function generatePathChain(numNodes = 5) {
 
     for (let i = 0; i < numNodes; i++) {
         nodes.push({
-            id: String(nodeIdCounter++),
+            id: String(graph.nodeCounter++),
             x: startX + i * step,
             y: y
         });
@@ -209,7 +247,7 @@ function generatePathChain(numNodes = 5) {
             directed: false
         });
     }
-    render();
+    graph.render();
 }
 
 
@@ -227,7 +265,6 @@ function openGeneratorModal(type) {
     
     if (!modal) return;
 
-    // Adapte le titre et les champs visibles selon la sélection
     if (type === 'complete') {
         title.textContent = 'Generate Complete Graph';
         nodeField.style.display = 'block';
@@ -252,7 +289,6 @@ function openGeneratorModal(type) {
     modal.style.display = 'flex';
 }
 
-// Gestionnaires d'événements pour la modale
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('generator-modal');
     const btnClose = document.getElementById('btn-close-generator');
@@ -270,12 +306,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             modal.style.display = 'none';
             
-            // Lancement de la génération géométrique choisie
             executeGeneration(activeGeneratorType, numNodes, isWeighted, isDirected);
         });
     }
     
-    // Fermeture clic en dehors
     if (modal) {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.style.display = 'none';
@@ -284,12 +318,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function getWeightValue(isWeighted) {
-    // Si l'option "Weighted" est cochée, on assigne une valeur de poids aléatoire entre 1 et 10, sinon null.
     return isWeighted ? Math.floor(Math.random() * 10) + 1 : null;
 }
 
 function executeGeneration(type, count, isWeighted, isDirected) {
     if (!clearForGeneration()) return;
+    const graph = getGraphEditor();
+    if (!graph) return;
+    const nodes = graph.nodes;
+    const edges = graph.edges;
 
     if (type === 'complete') {
         const cx = svg.clientWidth / 2;
@@ -299,7 +336,7 @@ function executeGeneration(type, count, isWeighted, isDirected) {
         for (let i = 0; i < count; i++) {
             const angle = (i * 2 * Math.PI) / count - Math.PI / 2;
             nodes.push({ 
-                id: String(nodeIdCounter++), 
+                id: String(graph.nodeCounter++), 
                 x: cx + r * Math.cos(angle), 
                 y: cy + r * Math.sin(angle) 
             });
@@ -322,11 +359,13 @@ function executeGeneration(type, count, isWeighted, isDirected) {
         const margin = 50;
 
         for (let i = 0; i < count; i++) {
-            nodes.push({
-                id: String(nodeIdCounter++),
+            const node = {
+                id: String(graph.nodeCounter++),
                 x: margin + Math.random() * width,
                 y: margin + Math.random() * height
-            });
+            };
+            nodes.push(node);
+            console.log('generateRandomGraph push node', node);
         }
 
         const maxPossibleEdges = (count * (count - 1)) / 2;
@@ -356,7 +395,6 @@ function executeGeneration(type, count, isWeighted, isDirected) {
         }
     }
     else if (type === 'bipartite') {
-        // Partition équitable en deux (ou séparation arbitraire)
         const setSize1 = Math.ceil(count / 2);
         const setSize2 = Math.floor(count / 2);
         
@@ -369,13 +407,13 @@ function executeGeneration(type, count, isWeighted, isDirected) {
         const set2 = [];
 
         for (let i = 0; i < setSize1; i++) {
-            const node = { id: String(nodeIdCounter++), x: startX1, y: startY + i * spacing };
+            const node = { id: String(graph.nodeCounter++), x: startX1, y: startY + i * spacing };
             nodes.push(node);
             set1.push(node);
         }
 
         for (let i = 0; i < setSize2; i++) {
-            const node = { id: String(nodeIdCounter++), x: startX2, y: startY + i * spacing };
+            const node = { id: String(graph.nodeCounter++), x: startX2, y: startY + i * spacing };
             nodes.push(node);
             set2.push(node);
         }
@@ -392,7 +430,6 @@ function executeGeneration(type, count, isWeighted, isDirected) {
         }
     }
     else if (type === 'grid') {
-        // Traitement de base d'une grille carrée approximative (ex: √count)
         const cols = Math.ceil(Math.sqrt(count));
         const rows = Math.ceil(count / cols);
         const spacing = 100;
@@ -406,7 +443,7 @@ function executeGeneration(type, count, isWeighted, isDirected) {
             grid[r] = [];
             for (let c = 0; c < cols; c++) {
                 if (created >= count) break;
-                let node = { id: String(nodeIdCounter++), x: startX + c * spacing, y: startY + r * spacing };
+                let node = { id: String(graph.nodeCounter++), x: startX + c * spacing, y: startY + r * spacing };
                 nodes.push(node);
                 grid[r][c] = node;
                 created++;
@@ -417,13 +454,12 @@ function executeGeneration(type, count, isWeighted, isDirected) {
         }
     }
     else if (type === 'tree') {
-        // Génération d'arbre binaire standard
         const width = svg.clientWidth;
         const levelHeight = 80;
         const startY = 60;
         
         let queue = [{ 
-            id: String(nodeIdCounter++), x: width / 2, y: startY, 
+            id: String(graph.nodeCounter++), x: width / 2, y: startY, 
             level: 0, leftBound: 0, rightBound: width 
         }];
         if (queue[0]) nodes.push(queue[0]);
@@ -434,19 +470,17 @@ function executeGeneration(type, count, isWeighted, isDirected) {
             
             let y = curr.y + levelHeight;
             
-            // Enfant Gauche
             if (nodes.length < count) {
                 let lx = (curr.leftBound + curr.x) / 2;
-                let lNode = { id: String(nodeIdCounter++), x: lx, y: y, level: curr.level + 1, leftBound: curr.leftBound, rightBound: curr.x };
+                let lNode = { id: String(graph.nodeCounter++), x: lx, y: y, level: curr.level + 1, leftBound: curr.leftBound, rightBound: curr.x };
                 nodes.push(lNode);
                 edges.push({ from: curr.id, to: lNode.id, weight: getWeightValue(isWeighted), directed: isDirected });
                 queue.push(lNode);
             }
             
-            // Enfant Droit
             if (nodes.length < count) {
                 let rx = (curr.x + curr.rightBound) / 2;
-                let rNode = { id: String(nodeIdCounter++), x: rx, y: y, level: curr.level + 1, leftBound: curr.x, rightBound: curr.rightBound };
+                let rNode = { id: String(graph.nodeCounter++), x: rx, y: y, level: curr.level + 1, leftBound: curr.x, rightBound: curr.rightBound };
                 nodes.push(rNode);
                 edges.push({ from: curr.id, to: rNode.id, weight: getWeightValue(isWeighted), directed: isDirected });
                 queue.push(rNode);
@@ -461,7 +495,7 @@ function executeGeneration(type, count, isWeighted, isDirected) {
 
         for (let i = 0; i < count; i++) {
             nodes.push({
-                id: String(nodeIdCounter++),
+                id: String(graph.nodeCounter++),
                 x: startX + i * step,
                 y: y
             });
@@ -477,5 +511,5 @@ function executeGeneration(type, count, isWeighted, isDirected) {
         }
     }
 
-    render();
+    graph.render();
 }
