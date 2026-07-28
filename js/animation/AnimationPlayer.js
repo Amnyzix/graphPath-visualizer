@@ -1,7 +1,7 @@
 // javascript/core/AnimationPlayer.js
 
 class AnimationPlayer {
-    constructor() {
+    constructor(prefix = '') {
         this.history = [];
         this.currentIndex = -1;
         this.isPlaying = false;
@@ -10,8 +10,12 @@ class AnimationPlayer {
         // Vitesse de base de l'animation en ms (x1.0)
         this.baseSpeedMs = 800; 
 
+        const p = prefix ? `${prefix}-` : '';
+
         // Récupération de tous les éléments du nouveau lecteur
-        this.playerControls = document.getElementById('player-controls');
+        console.log('${p}player-controls')
+        this.playerControls = document.getElementById(`${p}player-controls`);
+        console.log(this.playerControls)
 
         if (this.playerControls) {
             const stopPropagation = (e) => e.stopPropagation();
@@ -21,17 +25,17 @@ class AnimationPlayer {
             this.playerControls.addEventListener('dblclick', stopPropagation);
         }
 
-        this.btnPlay = document.getElementById('btn-play');
-        this.btnPrev = document.getElementById('btn-prev');
-        this.btnNext = document.getElementById('btn-next');
-        this.btnStop = document.getElementById('btn-stop');
-        this.btnReset = document.getElementById('btn-reset');
+        this.btnPlay = document.getElementById(`${p}btn-play`);
+        this.btnPrev = document.getElementById(`${p}btn-prev`);
+        this.btnNext = document.getElementById(`${p}btn-next`);
+        this.btnStop = document.getElementById(`${p}btn-stop`);
+        this.btnReset = document.getElementById(`${p}btn-reset`);
         
-        this.timelineSlider = document.getElementById('timeline-slider');
-        this.speedSlider = document.getElementById('speed-slider');
+        this.timelineSlider = document.getElementById(`${p}timeline-slider`);
+        this.speedSlider = document.getElementById(`${p}speed-slider`);
         
-        this.stepCounter = document.getElementById('step-counter');
-        this.speedLabel = document.getElementById('speed-val');
+        this.stepCounter = document.getElementById(`${p}step-counter`);
+        this.speedLabel = document.getElementById(`${p}speed-val`);
 
         this.bindEvents();
     }
@@ -68,6 +72,10 @@ class AnimationPlayer {
                 e.preventDefault();
                 e.stopPropagation();
                 this.hide();
+
+                if (window.activeVisualization) {
+                    window.activeVisualization.clear();
+                }
             });
         }
 
@@ -77,6 +85,10 @@ class AnimationPlayer {
                 e.stopPropagation();
                 this.pause();
                 this.goToStep(-1);
+
+                if (window.activeVisualization) {
+                    window.activeVisualization.clear();
+                }
             });
         }
 

@@ -479,46 +479,70 @@
                             <button class="action-btn" onclick="handleDynamicBulkInsert()" title="Generate Random Data"><i class="fa-solid fa-dice"></i> Random</button>
                         </div>
 
-                        <div id="ds-playback-controls" style="display: none; margin-top: 15px; flex-direction: column; gap: 12px; padding: 12px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                        <!-- Bloc de configuration des données -->
+                        <div id="data-setup-controls" style="margin-bottom: 15px; padding: 12px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--text-primary);">
+                                <label>Array Size: <span id="array-size-val">25</span></label>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+                                <input type="range" id="slider-array-size" min="5" max="100" value="25" style="flex: 1; accent-color: var(--brand-main);" oninput="updateArraySize(this.value)">
+                            </div>
+                            <div id="ds-sorting-controls" style="display: none; margin-top: 15px; flex-direction: column; gap: 8px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Sorting Algorithms</span>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <button class="action-btn" onclick="startBubbleSort()" style="font-size: 0.8rem;"><i class="fa-solid fa-sort-amount-up"></i> Bubble Sort</button>
+                                <button class="action-btn" onclick="startInsertionSort()" style="font-size: 0.8rem;"><i class="fa-solid fa-arrow-down-short-wide"></i> Insertion</button>
+                                <button class="action-btn" onclick="startQuickSort()" style="font-size: 0.8rem;"><i class="fa-solid fa-bolt"></i> Quick Sort</button>
+                                <button class="action-btn" onclick="startMergeSort()" style="font-size: 0.8rem;"><i class="fa-solid fa-code-merge"></i> Merge</button>
+                            </div>
+                        </div>
+                        </div>
+    
+                        <div class="controls" id="ds-explore-controls" style="margin-top: 10px; display: flex; gap: 10px;">
+                            <button class="action-btn" onclick="handleDynamicFindMin()" style="flex: 1;"><i class="fa-solid fa-arrow-down-short-wide"></i> Find Min</button>
+                            <button class="action-btn" onclick="handleDynamicFindMax()" style="flex: 1;"><i class="fa-solid fa-arrow-up-wide-short"></i> Find Max</button>
+                        </div>
+
+                        <!-- Le lecteur universel (identique sur toutes les pages) -->
+                        <div id="array-player-controls" style="display: none; margin-top: 15px; flex-direction: column; gap: 12px; padding: 12px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                            
+                            <!-- Timeline et Vitesse -->
                             <div style="display: flex; flex-direction: column; gap: 8px;">
                                 <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--text-primary);">
-                                    <label>Size: <span id="array-size-val">25</span></label>
+                                    <label>Step: <span id="array-step-counter">0 / 0</span></label>
                                     <label>Speed: <span id="array-speed-val">x1.0</span></label>
                                 </div>
                                 <div style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="range" id="slider-array-size" min="5" max="100" value="25" style="flex: 1; accent-color: var(--brand-main);" oninput="updateArraySize(this.value)">
-                                    <input type="range" id="slider-array-speed" min="0.25" max="10" step="0.25" value="1" style="flex: 1; accent-color: var(--brand-main);" oninput="updateArraySpeed(this.value)">
+                                    <input type="range" id="array-timeline-slider" min="-1" max="0" value="-1" style="flex: 1; accent-color: var(--brand-main);" title="Timeline">
+                                    <input type="range" id="array-speed-slider" min="0.25" max="4" step="0.25" value="1" style="flex: 1; accent-color: var(--brand-main);" title="Playback Speed">
                                 </div>
                             </div>
 
+                            <!-- Contrôles principaux -->
                             <div style="display: flex; gap: 8px; margin-top: 5px;">
-                                <button class="action-btn" onclick="stepBackwardArrayAnimation()" style="flex: 1; background: #E0E7FF; color: #4F46E5; border-color: #C7D2FE;" title="Step Backward">
+                                <button type="button" class="action-btn" id="array-btn-prev" style="flex: 1; background: #E0E7FF; color: #4F46E5; border: 1px solid #C7D2FE; border-radius: 4px; padding: 8px; cursor: pointer;">
                                     <i class="fa-solid fa-backward-step"></i>
                                 </button>
                                 
-                                <button class="action-btn" id="btn-array-playpause" onclick="togglePlayPauseArrayAnimation()" style="flex: 1; background: #FEF3C7; color: #D97706; border-color: #FCD34D;" title="Pause">
-                                    <i class="fa-solid fa-pause"></i>
+                                <button type="button" class="action-btn" id="array-btn-play" style="flex: 1; background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; border-radius: 4px; padding: 8px; cursor: pointer;">
+                                    <i class="fa-solid fa-play"></i>
                                 </button>
                                 
-                                <button class="action-btn" onclick="stepArrayAnimation()" style="flex: 1; background: #E0E7FF; color: #4F46E5; border-color: #C7D2FE;" title="Step Forward">
+                                <button type="button" class="action-btn" id="array-btn-next" style="flex: 1; background: #E0E7FF; color: #4F46E5; border: 1px solid #C7D2FE; border-radius: 4px; padding: 8px; cursor: pointer;">
                                     <i class="fa-solid fa-forward-step"></i>
                                 </button>
                             </div>
 
+                            <!-- Actions secondaires -->
                             <div style="display: flex; gap: 6px; margin-top: 6px;">
-                                <button class="action-btn" onclick="stopArrayAnimation()" style="flex: 1; background: #FEE2E2; color: #EF4444; border-color: #FECACA; padding: 6px; font-size: 0.8rem; font-weight: 700;" title="Stop Animation">
+                                <button type="button" class="action-btn" id="array-btn-stop" style="flex: 1; background: #FEE2E2; color: #EF4444; border: 1px solid #FECACA; border-radius: 4px; padding: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
                                     <i class="fa-solid fa-stop"></i> Stop
                                 </button>
 
-                                <button class="action-btn" onclick="resetArrayAnimation()" style="flex: 1; background: #F3F4F6; color: #4B5563; border-color: #E5E7EB; padding: 6px; font-size: 0.8rem; font-weight: 700;" title="Reset to Initial Array">
+                                <button type="button" class="action-btn" id="array-btn-reset" style="flex: 1; background: #F3F4F6; color: #4B5563; border: 1px solid #E5E7EB; border-radius: 4px; padding: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
                                     <i class="fa-solid fa-rotate-left"></i> Reset
                                 </button>
                             </div>
-                        </div>
-
-                        <div class="controls" id="ds-explore-controls" style="margin-top: 10px; display: flex; gap: 10px;">
-                            <button class="action-btn" onclick="handleDynamicFindMin()" style="flex: 1;"><i class="fa-solid fa-arrow-down-short-wide"></i> Find Min</button>
-                            <button class="action-btn" onclick="handleDynamicFindMax()" style="flex: 1;"><i class="fa-solid fa-arrow-up-wide-short"></i> Find Max</button>
                         </div>
 
                         <div id="ds-traversal-controls" style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
@@ -531,15 +555,6 @@
                             </div>
                         </div>
 
-                        <div id="ds-sorting-controls" style="display: none; margin-top: 15px; flex-direction: column; gap: 8px;">
-                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Sorting Algorithms</span>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                <button class="action-btn" onclick="startBubbleSort()" style="font-size: 0.8rem;"><i class="fa-solid fa-sort-amount-up"></i> Bubble Sort</button>
-                                <button class="action-btn" onclick="startInsertionSort()" style="font-size: 0.8rem;"><i class="fa-solid fa-arrow-down-short-wide"></i> Insertion</button>
-                                <button class="action-btn" onclick="startQuickSort()" style="font-size: 0.8rem;"><i class="fa-solid fa-bolt"></i> Quick Sort</button>
-                                <button class="action-btn" onclick="startMergeSort()" style="font-size: 0.8rem;"><i class="fa-solid fa-code-merge"></i> Merge</button>
-                            </div>
-                        </div>
 
                     </div>
                 </div>
@@ -904,6 +919,10 @@
     <script src="js/features/datastructures/heap.js"></script>
     <script src="js/features/datastructures/linkedlist.js"></script>
     <script src="js/features/datastructures/doublylinkedlist.js"></script>
+
+    <script src="js/core/Documents/ArrayDocument.js"></script>
+    <script src="js/visualizations/ArrayVisualization.js"></script>
+    <script src="js/algorithm/ArrayAlgorithms.js"></script>
     <script src="js/features/datastructures/array.js"></script>
 </body>
 </html>
