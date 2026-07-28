@@ -23,14 +23,16 @@ class GraphEditor extends CanvasEngine {
         this.selectedNodeId = null;
         this.selectedNodes = new Set();
         this.clipboard = { nodes: [], edges: [] };
+
+        this.document = new GraphDocument();
     }
 
     getExportData() {
-        return { nodes: this.nodes, edges: this.edges };
+        return { nodes: this.document.nodes, edges: this.document.edges };
     }
 
     createNode(x, y) {
-        this.nodes.push({
+        this.document.addNode({
             id: String(this.nodeCounter++),
             x: x,
             y: y
@@ -47,9 +49,9 @@ class GraphEditor extends CanvasEngine {
         const svgNS = 'http://www.w3.org/2000/svg';
 
         // A) DESSINER LES ARÊTES
-        this.edges.forEach((edge, index) => {
-            const fromNode = this.nodes.find(n => n.id === edge.from);
-            const toNode = this.nodes.find(n => n.id === edge.to);
+        this.document.edges.forEach((edge, index) => {
+            const fromNode = this.document.getNode(edge.from);
+            const toNode = this.document.getNode(edge.to);
             if (!fromNode || !toNode) return;
 
             const path = document.createElementNS(svgNS, 'line');
@@ -95,7 +97,7 @@ class GraphEditor extends CanvasEngine {
                     e.preventDefault();
                     if (confirm(`Supprimer l'arête ${edge.from} -> ${edge.to} ?`)) {
                         this.saveState();
-                        this.edges.splice(index, 1);
+                        this.document.removeEdge(edge.id || index);
                         this.render();
                     }
                 }
@@ -140,7 +142,7 @@ class GraphEditor extends CanvasEngine {
                         e.preventDefault();
                         if (confirm(`Supprimer l'arête ${edge.from} -> ${edge.to} ?`)) {
                             this.saveState();
-                            this.edges.splice(index, 1);
+                            this.document.removeEdge(edge.id || index);
                             this.render();
                         }
                     }
@@ -166,7 +168,7 @@ class GraphEditor extends CanvasEngine {
         }
 
         // C) DESSINER LES NŒUDS
-        this.nodes.forEach(node => {
+        this.document.nodes.forEach(node => {
             const group = document.createElementNS(svgNS, 'g');
             const circle = document.createElementNS(svgNS, 'circle');
             circle.setAttribute('cx', node.x);
@@ -234,7 +236,12 @@ class GraphEditor extends CanvasEngine {
                         this.promptEdgeParams(fromId, toId).then(result => {
                             if (result && fromId && toId) {
                                 this.saveState();
-                                this.edges.push({ from: fromId, to: toId, weight: result.weight, directed: result.isDirected });
+                                this.document.addEdge({ 
+                                    from: fromId, 
+                                    to: toId, 
+                                    weight: result.weight, 
+                                    directed: result.isDirected 
+                                });
                             }
                             this.startNode = null;
                             this.tempEdge = null;
@@ -250,9 +257,9 @@ class GraphEditor extends CanvasEngine {
             group.addEventListener('dblclick', (e) => {
                 e.stopPropagation();
                 const newId = prompt('Renommer le nœud :', node.id);
-                if (newId && newId !== node.id && !this.nodes.some(n => n.id === newId)) {
+                if (newId && newId !== node.id && !this.document.nodes.some(n => n.id === newId)) {
                     this.saveState();
-                    this.edges.forEach(edge => {
+                    this.document.edges.forEach(edge => {
                         if (edge.from === node.id) edge.from = newId;
                         if (edge.to === node.id) edge.to = newId;
                     });
@@ -265,13 +272,16 @@ class GraphEditor extends CanvasEngine {
 
             this.container.appendChild(group);
         });
+
+        if (typeof window.renderStateAtCurrentStep === 'function') {
+            window.renderStateAtCurrentStep();
+        }
     }
 
     clearGraph() {
         if (confirm('Effacer tout le graphe ?')) {
             this.saveState();
-            this.nodes = [];
-            this.edges = [];
+            this.document.clear();
             this.nodeCounter = 1;
             // Ensure any temporary edge preview is removed
             this.startNode = null;
@@ -294,14 +304,14 @@ class GraphEditor extends CanvasEngine {
         }
         const log = document.getElementById('log-display');
         if (log) log.style.opacity = 0;
-        this.render();
+        //this.render();
     }
 
     snapAllNodesToGrid() {
         const gridSize = 25;
-        if (!this.nodes || this.nodes.length === 0) return;
+        if (!this.document.nodes || this.document.nodes.length === 0) return;
         this.saveState();
-        this.nodes.forEach(n => {
+        this.document.nodes.forEach(n => {
             n.x = Math.round(n.x / gridSize) * gridSize;
             n.y = Math.round(n.y / gridSize) * gridSize;
         });
@@ -309,10 +319,9 @@ class GraphEditor extends CanvasEngine {
     }
 
     clearCanvas() {
-        if ((!this.nodes || this.nodes.length === 0) && (!this.edges || this.edges.length === 0)) return;
+        if ((!this.document.nodes || this.document.nodes.length === 0) && (!this.document.edges || this.document.edges.length === 0)) return;
         this.saveState();
-        this.nodes = [];
-        this.edges = [];
+        this.document.clear();
         this.nodeCounter = 1;
         this.selectedNodes.clear();
         this.selectedNodeId = null;
@@ -326,8 +335,7 @@ class GraphEditor extends CanvasEngine {
 
     clear_no_alert() {
         this.saveState();
-        this.nodes = [];
-        this.edges = [];
+        this.document.clear();
         this.nodeCounter = 1;
         this.selectedNodes.clear();
         this.selectedNodeId = null;
@@ -337,14 +345,14 @@ class GraphEditor extends CanvasEngine {
     }
 
     getGraphData() {
-        return { nodes: this.nodes, edges: this.edges, nodeIdCounter: this.nodeCounter };
+        return { nodes: this.document.nodes, edges: this.document.edges, nodeIdCounter: this.nodeCounter };
     }
 
     setGraphData(data) {
         this.saveState();
-        this.nodes = data.nodes || [];
-        this.edges = data.edges || [];
-        this.nodeCounter = data.nodeIdCounter || this.nodes.length + 1;
+        this.document.nodes = data.nodes || [];
+        this.document.edges = data.edges || [];
+        this.nodeCounter = data.nodeIdCounter || this.document.nodes.length + 1;
         this.render();
     }
 
@@ -352,9 +360,9 @@ class GraphEditor extends CanvasEngine {
         if (this.selectedNodes.size > 0) {
             if (!confirm(`Supprimer ${this.selectedNodes.size} nœud(s) ?`)) return;
             this.saveState();
-            const ids = new Set(this.selectedNodes);
-            this.nodes = this.nodes.filter(n => !ids.has(n.id));
-            this.edges = this.edges.filter(e => !ids.has(e.from) && !ids.has(e.to));
+            
+            this.selectedNodes.forEach(id => this.document.removeNode(id));
+
             this.selectedNodes.clear();
             this.selectedNodeId = null;
             // Clear any ongoing edge preview that referenced deleted nodes
@@ -366,10 +374,11 @@ class GraphEditor extends CanvasEngine {
         if (!this.selectedNodeId) return;
         if (!confirm(`Supprimer le nœud ${this.selectedNodeId} ?`)) return;
         this.saveState();
-        const id = this.selectedNodeId;
-        this.nodes = this.nodes.filter(n => n.id !== id);
-        this.edges = this.edges.filter(e => e.from !== id && e.to !== id);
+
+        this.document.removeNode(this.selectedNodeId);
+        
         this.selectedNodeId = null;
+
         // Clear any temporary edge preview that may reference the removed node
         this.startNode = null;
         this.tempEdge = null;
@@ -379,8 +388,8 @@ class GraphEditor extends CanvasEngine {
     copySelected() {
         const nodesToCopy = this.selectedNodes.size > 0 ? Array.from(this.selectedNodes) : (this.selectedNodeId ? [this.selectedNodeId] : []);
         if (nodesToCopy.length === 0) return;
-        this.clipboard.nodes = nodesToCopy.map(id => JSON.parse(JSON.stringify(this.nodes.find(n => n.id === id))));
-        this.clipboard.edges = this.edges.filter(e => nodesToCopy.includes(e.from) && nodesToCopy.includes(e.to)).map(e => JSON.parse(JSON.stringify(e)));
+        this.clipboard.nodes = nodesToCopy.map(id => JSON.parse(JSON.stringify(this.document.nodes.find(n => n.id === id))));
+        this.clipboard.edges = this.document.edges.filter(e => nodesToCopy.includes(e.from) && nodesToCopy.includes(e.to)).map(e => JSON.parse(JSON.stringify(e)));
     }
 
     pasteClipboard() {
@@ -391,7 +400,7 @@ class GraphEditor extends CanvasEngine {
             const newId = String(this.nodeCounter++);
             idMap.set(n.id, newId);
             const newNode = { ...n, id: newId, x: n.x + 30, y: n.y + 30 };
-            this.nodes.push(newNode);
+            this.document.nodes.push(newNode);
             this.selectedNodeId = newId;
             this.selectedNodes.clear();
             this.selectedNodes.add(newId);
@@ -399,7 +408,14 @@ class GraphEditor extends CanvasEngine {
         this.clipboard.edges.forEach(e => {
             const from = idMap.get(e.from);
             const to = idMap.get(e.to);
-            if (from && to) this.edges.push({ from, to, weight: e.weight || null, directed: e.directed || false });
+            if (from && to) {
+                this.document.addEdge({ 
+                    from, 
+                    to, 
+                    weight: e.weight || null, 
+                    directed: e.directed || false 
+                });
+            }
         });
         this.render();
     }
@@ -407,7 +423,7 @@ class GraphEditor extends CanvasEngine {
     onSelectRect(x, y, w, h) {
         this.selectedNodes.clear();
         this.selectedNodeId = null;
-        this.nodes.forEach(n => {
+        this.document.nodes.forEach(n => {
             if (n.x >= x && n.x <= x + w && n.y >= y && n.y <= y + h) {
                 this.selectedNodes.add(n.id);
             }
@@ -443,37 +459,30 @@ function clearGraph() { if (graphApp) graphApp.clearGraph(); }
 Object.defineProperty(window, 'nodes', {
     configurable: true,
     get: () => {
-        const result = graphApp ? graphApp.nodes : window.__legacyNodes;
-        return result;
+        return graphApp ? graphApp.document.nodes : window.__legacyNodes;
     },
     set: (v) => {
-        if (graphApp) {
-            graphApp.nodes = v;
-        } else {
-            window.__legacyNodes = v;
-        }
-    }
-});
-Object.defineProperty(window, 'edges', {
-    configurable: true,
-    get: () => {
-        const result = graphApp ? graphApp.edges : window.__legacyEdges;
-        return result;
-    },
-    set: (v) => {
-        if (graphApp) {
-            graphApp.edges = v;
-        } else {
-            window.__legacyEdges = v;
-        }
+        if (graphApp) graphApp.document.nodes = v;
+        else window.__legacyNodes = v;
     }
 });
 
-function resetGraph() { 
+Object.defineProperty(window, 'edges', {
+    configurable: true,
+    get: () => {
+        return graphApp ? graphApp.document.edges : window.__legacyNodes;
+    },
+    set: (v) => {
+        if (graphApp) graphApp.document.edges = v;
+        else window.__legacyNodes = v;
+    }
+});
+
+/*function resetGraph() { 
     if (window.activeEditor && typeof window.activeEditor.resetGraph === 'function') {
         window.activeEditor.resetGraph(); 
     } 
-}
+}*/
 
 function snapAllNodesToGrid() { 
     if (window.activeEditor && typeof window.activeEditor.snapAllNodesToGrid === 'function') {
@@ -514,5 +523,4 @@ Object.defineProperty(window, 'selectedNodes', {
     get: function() { return graphApp ? graphApp.selectedNodes : window.__legacySelectedNodes; }
 });
 
-// Ensure nodes/edges globals return live arrays from graphApp
-// (nodes/edges already defined with getter+setter above)
+

@@ -4,9 +4,16 @@
 // =========================================
 
 function getGraphEditor() {
-    if (window.graphApp) return window.graphApp;
-    if (typeof graphApp !== 'undefined' && graphApp) return graphApp;
-    console.warn('Graph generator: GraphEditor instance not available');
+    // 1. Priorité absolue : utiliser le Registry (la source de vérité)
+    if (window.AppRegistry) {
+        const editor = window.AppRegistry.get('graphs');
+        if (editor) return editor;
+    }
+
+    // 2. Fallback via la variable globale générée dynamiquement (graphsApp)
+    if (window.graphsApp) return window.graphsApp;
+
+    console.warn('Graph generator: GraphEditor instance not available in AppRegistry');
     return null;
 }
 
@@ -14,16 +21,30 @@ function clearForGeneration() {
     const graph = getGraphEditor();
     if (!graph) return false;
 
-    console.log('clearForGeneration start', { nodesLength: graph.nodes.length, edgesLength: graph.edges.length, nodeIdCounter: graph.nodeCounter, hasGraphApp: !!window.graphApp });
-    if (graph.nodes.length > 0) {
+    console.log('clearForGeneration start', { 
+        nodesLength: graph.document.nodes.length, 
+        edgesLength: graph.document.edges.length, 
+        nodeIdCounter: graph.nodeCounter 
+    });
+    
+    if (graph.document.nodes.length > 0) {
         if (!confirm("Clear current graph to generate a new one?")) return false;
     }
+    
     graph.saveState(); // Permet de faire Ctrl+Z pour annuler la génération
-    graph.nodes = [];
-    graph.edges = [];
+    
+    // --- C'est ici que la magie du refactoring opère ! ---
+    graph.document.clear(); 
+    
     graph.nodeCounter = 1;
     graph.selectedNodes.clear();
-    console.log('clearForGeneration end', { nodesLength: graph.nodes.length, edgesLength: graph.edges.length, nodeIdCounter: graph.nodeCounter });
+    
+    console.log('clearForGeneration end', { 
+        nodesLength: graph.document.nodes.length, 
+        edgesLength: graph.document.edges.length, 
+        nodeIdCounter: graph.nodeCounter 
+    });
+    
     return true;
 }
 
@@ -34,8 +55,8 @@ function generateCompleteGraph(n = 5) {
     if (!clearForGeneration()) return;
     const graph = getGraphEditor();
     if (!graph) return;
-    const nodes = graph.nodes;
-    const edges = graph.edges;
+    const nodes = graph.document.nodes;
+    const edges = graph.document.edges;
     
     // On récupère la taille du canvas pour centrer le dessin
     const cx = window.svg.clientWidth / 2;
@@ -68,8 +89,8 @@ function generateBinaryTree(levels = 3) {
     if (!clearForGeneration()) return;
     const graph = getGraphEditor();
     if (!graph) return;
-    const nodes = graph.nodes;
-    const edges = graph.edges;
+    const nodes = graph.document.nodes;
+    const edges = graph.document.edges;
     
     const width = svg.clientWidth;
     const levelHeight = 80; // Espace vertical entre les niveaux
@@ -111,8 +132,8 @@ function generateGridGraph(rows = 3, cols = 3) {
     if (!clearForGeneration()) return;
     const graph = getGraphEditor();
     if (!graph) return;
-    const nodes = graph.nodes;
-    const edges = graph.edges;
+    const nodes = graph.document.nodes;
+    const edges = graph.document.edges;
     
     const spacing = 100;
     const startX = svg.clientWidth / 2 - ((cols - 1) * spacing) / 2;
@@ -139,8 +160,8 @@ function generateRandomGraph(numNodes = 6, numEdges = 8) {
     if (!clearForGeneration()) return;
     const graph = getGraphEditor();
     if (!graph) return;
-    const nodes = graph.nodes;
-    const edges = graph.edges;
+    const nodes = graph.document.nodes;
+    const edges = graph.document.edges;
     
     const width = svg.clientWidth - 100;
     const height = svg.clientHeight - 100;
@@ -184,8 +205,8 @@ function generateBipartiteGraph(setSize1 = 3, setSize2 = 3) {
     if (!clearForGeneration()) return;
     const graph = getGraphEditor();
     if (!graph) return;
-    const nodes = graph.nodes;
-    const edges = graph.edges;
+    const nodes = graph.document.nodes;
+    const edges = graph.document.edges;
 
     const startX1 = 100;
     const startX2 = svg.clientWidth - 100;
@@ -223,8 +244,8 @@ function generatePathChain(numNodes = 5) {
     if (!clearForGeneration()) return;
     const graph = getGraphEditor();
     if (!graph) return;
-    const nodes = graph.nodes;
-    const edges = graph.edges;
+    const nodes = graph.document.nodes;
+    const edges = graph.document.edges;
 
     const startX = 80;
     const endX = svg.clientWidth - 80;
@@ -325,8 +346,8 @@ function executeGeneration(type, count, isWeighted, isDirected) {
     if (!clearForGeneration()) return;
     const graph = getGraphEditor();
     if (!graph) return;
-    const nodes = graph.nodes;
-    const edges = graph.edges;
+    const nodes = graph.document.nodes;
+    const edges = graph.document.edges;
 
     if (type === 'complete') {
         const cx = svg.clientWidth / 2;

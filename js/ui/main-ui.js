@@ -13,6 +13,7 @@ function switchGlobalMode(mode) {
     if (targetView) targetView.classList.add('active-view');
     
     const editor = window.AppRegistry.get(mode);
+
     
     if (editor) {
         window.activeEditor = editor;
@@ -27,6 +28,9 @@ function switchGlobalMode(mode) {
 
 document.addEventListener('DOMContentLoaded', () => {
     window.AppRegistry.init();
+
+    // Au démarrage de l'application
+    window.player = new AnimationPlayer();
 
     Object.values(window.AppRegistry.editors).forEach(editor => {
         if (editor.render) editor.render();

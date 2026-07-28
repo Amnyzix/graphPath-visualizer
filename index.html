@@ -288,39 +288,47 @@
                     <canvas id="recorder-canvas" style="display:none;"></canvas>
                     <input type="file" id="import-file" accept=".json" style="display:none;" onchange="handleFileImport(event)">
 
-                    <div class="controls">
-                        <button onclick="resetGraph()" class="action-btn btn-reset">
-                            <i class="fa-solid fa-rotate-left"></i> Reset
-                        </button>
-                        
-                        <button onclick="clearCanvas()" class="action-btn btn-clear">
-                            <i class="fa-solid fa-trash-can"></i> Clear
-                        </button>
+                    <div id="player-controls" style="display: none; margin-top: 15px; flex-direction: column; gap: 12px; padding: 12px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); width: 100%; max-width: 400px; margin-left: auto; margin-right: auto;">
+    
+                        <!-- Timeline et Vitesse -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--text-primary);">
+                                <label>Step: <span id="step-counter">0 / 0</span></label>
+                                <label>Speed: <span id="speed-val">x1.0</span></label>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="range" id="timeline-slider" min="-1" max="0" value="-1" style="flex: 1; accent-color: var(--brand-main);" title="Timeline">
+                                <input type="range" id="speed-slider" min="0.25" max="4" step="0.25" value="1" style="flex: 1; accent-color: var(--brand-main);" title="Playback Speed">
+                            </div>
+                        </div>
 
-                        <button onclick="snapAllNodesToGrid()" class="action-btn btn-snap" title="Snap all nodes to the nearest grid intersection">
-                            <i class="fa-solid fa-magnet"></i> Snap to Grid
-                        </button>
-                        
-                        <button class="action-btn btn-record" onclick="recordAndPlay()">
-                            <i class="fa-solid fa-circle-dot"></i> Record Video
-                        </button>
+                        <!-- Contrôles principaux -->
+                        <div style="display: flex; gap: 8px; margin-top: 5px;">
+                            <button type="button" class="action-btn" id="btn-prev" style="flex: 1; background: #E0E7FF; color: #4F46E5; border: 1px solid #C7D2FE; border-radius: 4px; padding: 8px; cursor: pointer;" title="Step Backward">
+                                <i class="fa-solid fa-backward-step"></i>
+                            </button>
+                            
+                            <button type="button" class="action-btn" id="btn-play" style="flex: 1; background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; border-radius: 4px; padding: 8px; cursor: pointer;" title="Play / Pause">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            
+                            <button type="button" class="action-btn" id="btn-next" style="flex: 1; background: #E0E7FF; color: #4F46E5; border: 1px solid #C7D2FE; border-radius: 4px; padding: 8px; cursor: pointer;" title="Step Forward">
+                                <i class="fa-solid fa-forward-step"></i>
+                            </button>
+                        </div>
+
+                        <!-- Actions secondaires -->
+                        <div style="display: flex; gap: 6px; margin-top: 6px;">
+                            <button type="button" class="action-btn" id="btn-stop" style="flex: 1; background: #FEE2E2; color: #EF4444; border: 1px solid #FECACA; border-radius: 4px; padding: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer;" title="Stop Animation">
+                                <i class="fa-solid fa-stop"></i> Stop
+                            </button>
+
+                            <button type="button" class="action-btn" id="btn-reset" style="flex: 1; background: #F3F4F6; color: #4B5563; border: 1px solid #E5E7EB; border-radius: 4px; padding: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer;" title="Reset Animation">
+                                <i class="fa-solid fa-rotate-left"></i> Reset
+                            </button>
+                        </div>
                     </div>
 
-                    <div id="player-controls" style="margin-top: 15px; text-align: center; display: none; padding: 12px 16px; background: #f3f4f6; border-radius: 8px; align-items: center; justify-content: center; gap: 15px;">
-                        <button id="btn-prev" class="player-btn">
-                            <i class="fa-solid fa-backward-step"></i> Previous
-                        </button>
-                        
-                        <button id="btn-play" class="player-btn btn-play-active">
-                            <i class="fa-solid fa-play"></i> Play
-                        </button>
-                        
-                        <button id="btn-next" class="player-btn">
-                            Next <i class="fa-solid fa-forward-step"></i>
-                        </button>
-                        
-                        <span id="step-counter" style="margin-left: 15px; font-weight: bold; font-family: monospace; font-size: 16px; color: #374151;">Step 0 / 0</span>
-                    </div>
             </div>
 
             <div id="edge-form-modal" style="display: none; position: absolute; background: var(--container-bg); border: 1px solid var(--canvas-border); padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; color: var(--text-primary);">
@@ -850,8 +858,17 @@
 
     <script src="js/core/CanvasEngine.js"></script>
 
+    <script src="js/core/Documents/GraphDocuments.js"></script>
+
     <script src="js/features/graphs/GraphEditor.js"></script>
-    
+
+    <script src="js/visualizations/Visualization.js"></script>
+    <script src="js/visualizations/GraphVisualization.js"></script>
+    <script src="js/visualizations/PythonTraceVisualization.js"></script>
+    <script src="js/visualizations/VisualizationFactory.js"></script>
+
+    <script src="js/animation/AnimationPlayer.js"></script>
+
     <script src="js/features/automata/AutomataEditor.js"></script>
     <script src="js/features/automata/NFASimulator.js"></script>
     <script src="js/features/automata/RegexParser.js"></script>
