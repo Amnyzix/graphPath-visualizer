@@ -2,8 +2,7 @@
 <html>
 <head>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/save-svg-as-png/1.4.17/saveSvgAsPng.min.js"></script>
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/style_test.css">
+<link rel="stylesheet" href="css/style_final.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <title>Graph Animation Builder</title>
@@ -131,22 +130,25 @@
                 <div class="resize-splitter" id="splitter"></div>
 
                 <div class="canvas-panel" id="right-panel">
-                    <div style="width:100%; display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <h2>Graph Builder</h2>
-                        <div style="display: flex; gap: 10px; align-items: center;">
+                    <div style="width:100%; display:flex; flex-wrap: wrap; justify-content:space-between; align-items: center; margin-bottom:15px; gap: 15px;">
+                        <h2 style="margin: 0; white-space: nowrap;">Graph Builder</h2>
+                        
+                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
 
-                            <button class="top-btn" onclick="window.graphsApp.clearCanvas()">
-                                <i class="fa-solid fa-eraser"></i> Clear Graph
-                            </button>
+                            <!-- 1. QUICK ACTIONS (Icons only) -->
+                            <div style="display: flex; gap: 6px; border-right: 2px solid var(--border-color); padding-right: 12px;">
+                                <button class="top-btn icon-btn-menu" onclick="window.graphsApp.clearCanvas()" title="Clear Graph">
+                                    <i class="fa-solid fa-eraser"></i>
+                                </button>
+                                <button class="top-btn icon-btn-menu" onclick="window.graphsApp.relayoutGraph()" title="Auto Layout">
+                                    <i class="fa-solid fa-diagram-project"></i>
+                                </button>
+                                <button class="top-btn icon-btn-menu" id="share-btn" onclick="handleShareButtonClick(event)" title="Share">
+                                    <i class="fa-solid fa-share"></i>
+                                </button>
+                            </div>
 
-                            <button class="player-btn" onclick="window.graphsApp.relayoutGraph()" title="Réordonner visuellement l'automate">
-                                <i class="fa-solid fa-diagram-project"></i> Auto Layout
-                            </button>
-
-                            <button class="player-btn" id="share-btn" onclick="handleShareButtonClick(event)" title="Partager l'automate">
-                                <i class="fa-solid fa-share"></i> Share
-                            </button>
-
+                            <!-- 2. DROPDOWN MENUS -->
                             <div class="dropdown">
                                 <button onclick="toggleDropdown('file-menu')" class="dropbtn top-btn">
                                     <i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i>File
@@ -154,30 +156,21 @@
                                 <div class="dropdown-content" id="file-menu">
                                     <a onclick="saveGraph()"><i class="fa-solid fa-save"></i> Save</a>
                                     <a onclick="loadGraph()"><i class="fa-solid fa-folder-open"></i> Load</a>
-                                    <div style="height: 1px; background: var(--canvas-border); margin: 4px 0;"></div>
-
+                                    <div style="height: 1px; background: var(--border-color); margin: 4px 0;"></div>
                                     <a onclick="exportGraph()"><i class="fa-solid fa-file-export"></i> Export JSON</a>
                                     <a onclick="importGraph()"><i class="fa-solid fa-file-import"></i> Import JSON</a>
                                 </div>
                             </div>
 
-                            <div class="dropdown">
+                            <div class="dropdown" style="display: flex; gap: 6px; border-right: 2px solid var(--border-color); padding-right: 12px;">
                                 <button class="dropbtn top-btn" onclick="toggleDropdown('export-menu')">
-                                    <i class="fa-solid fa-download"></i> Export
+                                    <i class="fa-solid fa-download" style="margin-right: 8px;"></i>Export
                                 </button>
                                 <div class="dropdown-content" id="export-menu">
-                                    <a id="btn-export-svg" onclick="ExportManager.exportSVG()">
-                                        <i class="fa-solid fa-file-code"></i> to SVG
-                                    </a>
-                                    <a id="btn-export-png" onclick="ExportManager.exportPNG()">
-                                        <i class="fa-solid fa-image"></i> to PNG
-                                    </a>
-                                    <a id="btn-export-mp4" onclick="exportCurrentAnimation('mp4')">
-                                        <i class="fa-solid fa-video"></i> to MP4
-                                    </a>
-                                    <a id="btn-export-gif" onclick="exportCurrentAnimation('gif')">
-                                        <i class="fa-solid fa-film"></i> to GIF
-                                    </a>
+                                    <a id="btn-export-svg" onclick="ExportManager.exportSVG()"><i class="fa-solid fa-file-code"></i> to SVG</a>
+                                    <a id="btn-export-png" onclick="ExportManager.exportPNG()"><i class="fa-solid fa-image"></i> to PNG</a>
+                                    <a id="btn-export-mp4" onclick="exportCurrentAnimation('mp4')"><i class="fa-solid fa-video"></i> to MP4</a>
+                                    <a id="btn-export-gif" onclick="exportCurrentAnimation('gif')"><i class="fa-solid fa-film"></i> to GIF</a>
                                 </div>
                             </div>
 
@@ -190,9 +183,9 @@
                                     <a onclick="openGeneratorModal('bipartite')"><i class="fa-solid fa-code-branch"></i> Bipartite Graph</a>
                                     <a onclick="openGeneratorModal('grid')"><i class="fa-solid fa-border-all"></i> Grid Graph</a>
                                     <a onclick="openGeneratorModal('tree')"><i class="fa-solid fa-sitemap"></i> Binary Tree</a>
-                                    <div style="height: 1px; background: var(--canvas-border); margin: 4px 0;"></div>
+                                    <div style="height: 1px; background: var(--border-color); margin: 4px 0;"></div>
                                     <a onclick="openGeneratorModal('random')"><i class="fa-solid fa-shuffle"></i> Random Graph</a>
-                                    <a onclick="openGeneratorModal('path')"><i class="fa-solid fa-grip-lines"></i> Simple Path Chain</a>
+                                    <a onclick="openGeneratorModal('path')"><i class="fa-solid fa-grip-lines"></i> Simple Path</a>
                                 </div>
                             </div>
 
@@ -316,48 +309,70 @@
                         <div onclick="deleteEdgeFromMenu()" style="padding: 10px; cursor: pointer; color: #e74c3c;">Delete</div>
                     </div>
 
-                    <div id="log-display">Status message</div>
+                    <!-- Canvas caché pour l'export -->
                     <canvas id="recorder-canvas" style="display:none;"></canvas>
-                    <input type="file" id="import-file" accept=".json" style="display:none;" onchange="handleFileImport(event)">
 
-                    <div id="player-controls" style="display: none; margin-top: 15px; flex-direction: column; gap: 12px; padding: 12px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); width: 100%; max-width: 400px; margin-left: auto; margin-right: auto;">
-    
-                        <!-- Timeline et Vitesse -->
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--text-primary);">
-                                <label>Step: <span id="step-counter">0 / 0</span></label>
-                                <label>Speed: <span id="speed-val">x1.0</span></label>
-                            </div>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="range" id="timeline-slider" min="-1" max="0" value="-1" style="flex: 1; accent-color: var(--brand-main);" title="Timeline">
-                                <input type="range" id="speed-slider" min="0.25" max="4" step="0.25" value="1" style="flex: 1; accent-color: var(--brand-main);" title="Playback Speed">
-                            </div>
+                    <!-- Nouveau HUD redésigné avec tes IDs d'origine conservés -->
+                    <div id="player-controls" class="glass-hud" style="display: none;">
+                        
+                        <!-- Bulle d'information flottante (utilise l'ID d'origine pour le texte) -->
+                        <div class="hud-status-badge">
+                            <i class="fa-solid fa-compass"></i>
+                            <span id="log-display">Status message</span>
                         </div>
 
-                        <!-- Contrôles principaux -->
-                        <div style="display: flex; gap: 8px; margin-top: 5px;">
-                            <button type="button" class="action-btn" id="btn-prev" style="flex: 1; background: #E0E7FF; color: #4F46E5; border: 1px solid #C7D2FE; border-radius: 4px; padding: 8px; cursor: pointer;" title="Step Backward">
-                                <i class="fa-solid fa-backward-step"></i>
-                            </button>
-                            
-                            <button type="button" class="action-btn" id="btn-play" style="flex: 1; background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; border-radius: 4px; padding: 8px; cursor: pointer;" title="Play / Pause">
-                                <i class="fa-solid fa-play"></i>
-                            </button>
-                            
-                            <button type="button" class="action-btn" id="btn-next" style="flex: 1; background: #E0E7FF; color: #4F46E5; border: 1px solid #C7D2FE; border-radius: 4px; padding: 8px; cursor: pointer;" title="Step Forward">
-                                <i class="fa-solid fa-forward-step"></i>
-                            </button>
-                        </div>
+                        <div class="hud-content">
+                            <!-- Ligne des Sliders (Progression & Vitesse) -->
+                            <div class="hud-sliders-row">
+                                <div class="hud-slider-group">
+                                    <div class="hud-label-row">
+                                        <span class="hud-label">Step</span>
+                                        <span id="step-counter" class="hud-value">0 / 0</span>
+                                    </div>
+                                    <!-- ID : timeline-slider -->
+                                    <input type="range" id="timeline-slider" min="-1" max="0" value="-1" class="hud-range" title="Timeline">
+                                </div>
 
-                        <!-- Actions secondaires -->
-                        <div style="display: flex; gap: 6px; margin-top: 6px;">
-                            <button type="button" class="action-btn" id="btn-stop" style="flex: 1; background: #FEE2E2; color: #EF4444; border: 1px solid #FECACA; border-radius: 4px; padding: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer;" title="Stop Animation">
-                                <i class="fa-solid fa-stop"></i> Stop
-                            </button>
+                                <div class="hud-slider-group">
+                                    <div class="hud-label-row">
+                                        <span class="hud-label">Speed</span>
+                                        <!-- ID : speed-val -->
+                                        <span id="speed-val" class="hud-value">x1.0</span>
+                                    </div>
+                                    <!-- ID : speed-slider -->
+                                    <input type="range" id="speed-slider" min="0.25" max="4" step="0.25" value="1" class="hud-range" title="Playback Speed">
+                                </div>
+                            </div>
 
-                            <button type="button" class="action-btn" id="btn-reset" style="flex: 1; background: #F3F4F6; color: #4B5563; border: 1px solid #E5E7EB; border-radius: 4px; padding: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer;" title="Reset Animation">
-                                <i class="fa-solid fa-rotate-left"></i> Reset
-                            </button>
+                            <!-- Ligne des Contrôles Médias -->
+                            <div class="hud-buttons-row">
+                                <!-- ID : btn-prev -->
+                                <button class="hud-btn hud-btn-icon" id="btn-prev" title="Step Backward">
+                                    <i class="fa-solid fa-backward-step"></i>
+                                </button>
+                                
+                                <!-- ID : btn-play -->
+                                <button class="hud-btn hud-btn-play" id="btn-play" title="Play / Pause">
+                                    <i class="fa-solid fa-play"></i>
+                                </button>
+                                
+                                <!-- ID : btn-next -->
+                                <button class="hud-btn hud-btn-icon" id="btn-next" title="Step Forward">
+                                    <i class="fa-solid fa-forward-step"></i>
+                                </button>
+
+                                <div class="hud-btn-divider"></div>
+
+                                <!-- ID : btn-stop -->
+                                <button class="hud-btn hud-btn-stop" id="btn-stop" title="Stop Animation">
+                                    <i class="fa-solid fa-stop"></i> Stop
+                                </button>
+
+                                <!-- ID : btn-reset -->
+                                <button class="hud-btn hud-btn-reset" id="btn-reset" title="Reset Animation">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset
+                                </button>
+                            </div>
                         </div>
                     </div>
 
