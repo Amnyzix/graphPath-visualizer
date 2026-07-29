@@ -127,3 +127,27 @@ function handleShareButtonClick(event) {
         console.error("Copy error : ", err);
     });
 }
+
+function exportCurrentAnimation(format) {
+    // 1. On identifie le lecteur actif
+    let activePlayer = null;
+
+    if (window.currentAlgoName && window.currentAlgoName.includes('bst')) {
+        activePlayer = window.bstPlayer;
+    } else if (window.graphPlayer) {
+        activePlayer = window.graphPlayer;
+    } else if (window.heapPlayer) {
+        activePlayer = window.heapPlayer;
+    }
+
+    // 2. On lance l'export correspondant
+    if (activePlayer) {
+        if (format === 'gif') {
+            ExportManager.exportGIF(activePlayer);
+        } else if (format === 'mp4') {
+            ExportManager.exportVideo(activePlayer);
+        }
+    } else {
+        alert("No active animation player found to export.");
+    }
+}
