@@ -16,7 +16,6 @@ def dfs(start_node):
             for neighbor in reversed(neighbors(current)):
                 if neighbor not in visited:
                     stack.append(neighbor)
-                    select(neighbor)
 
 
 # Run the algorithm

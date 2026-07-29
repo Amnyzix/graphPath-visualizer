@@ -12,7 +12,6 @@ def bfs(start_node):
             if neighbor not in visited:
                 visited.append(neighbor)
                 queue.append(neighbor)
-                select(neighbor)
                 visit(neighbor, f"Exploring {neighbor} from {current}")
 
 
