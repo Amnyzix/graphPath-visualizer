@@ -72,15 +72,21 @@ async function runScript(customCode = null) {
         // Run the Python code via the Engine
         const animationData = await pythonEngine.run(code, nodes, edges);
 
-        // Feed the result to the Animation Player and Visualization
-        window.activeVisualization = VisualizationFactory.create('python_trace', graphEditor);
-        window.activeVisualization.init();
+        // --- SECTION MODIFIÉE ---
         
-        if (window.player) {
-            window.player.load(animationData);
+        // 1. On pointe sur la visualisation créée par l'AppRegistry
+        window.activeVisualization = window.pythonTraceVis;
+        window.activeVisualization.clear(); // Nettoie le graphe avant la nouvelle animation
+        
+        // 2. On utilise graphPlayer au lieu de player
+        if (window.graphPlayer) {
+            window.graphPlayer.load(animationData);
+            window.graphPlayer.play(); // On lance la lecture automatiquement
         } else {
-            console.warn("Animation player is not initialized.");
+            console.warn("Graph Animation player is not initialized.");
         }
+        
+        // ------------------------
 
     } catch (err) {
         console.error(err);

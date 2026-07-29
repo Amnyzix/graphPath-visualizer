@@ -121,8 +121,11 @@ async function loadAlgorithm(algoName) {
         const code = await response.text();
         
         // On l'injecte dans l'éditeur CodeMirror
-        if (typeof editor !== 'undefined') {
-            editor.setValue(code);
+        if (typeof codeEditor !== 'undefined') {
+            codeEditor.setValue(code);
+        }
+        else{
+            console.log(codeEditor)
         }
 
         window.currentAlgoName = algoName; 

@@ -1,7 +1,10 @@
 // javascript/core/AnimationPlayer.js
 
 class AnimationPlayer {
-    constructor(prefix = '') {
+    constructor(visualization=null, prefix = '') {
+
+        this.visualization = visualization;
+
         this.history = [];
         this.currentIndex = -1;
         this.isPlaying = false;
@@ -73,8 +76,8 @@ class AnimationPlayer {
                 e.stopPropagation();
                 this.hide();
 
-                if (window.activeVisualization) {
-                    window.activeVisualization.clear();
+                if (this.visualization) {
+                    this.visualization.clear();
                 }
             });
         }
@@ -86,8 +89,8 @@ class AnimationPlayer {
                 this.pause();
                 this.goToStep(-1);
 
-                if (window.activeVisualization) {
-                    window.activeVisualization.clear();
+                if (this.visualization) {
+                    this.visualization.clear();
                 }
             });
         }
@@ -230,8 +233,8 @@ class AnimationPlayer {
     }
 
     renderCurrentState() {
-        if (window.activeVisualization) {
-            window.activeVisualization.applyFrame(null, this.history, this.currentIndex);
+        if (this.visualization) {
+            this.visualization.applyFrame(null, this.history, this.currentIndex);
         }
     }
     

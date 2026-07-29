@@ -7,13 +7,14 @@ let arrayPlayer = null;
 
 window.addEventListener('DOMContentLoaded', () => {
     console.log("1. DOM chargé. Initialisation du module Array...");
-    
-    arrayPlayer = new AnimationPlayer('array');
+
     arrayEditor = new ArrayEditor();
-    arrayVisualization = new ArrayVisualization(arrayEditor);
     
-    // Définir cette visualisation comme active pour que AnimationPlayer interagisse avec
-    window.activeVisualization = arrayVisualization;
+    arrayVisualization = new ArrayVisualization(arrayEditor);
+
+    arrayPlayer = new AnimationPlayer(arrayVisualization, 'array');
+    
+    
 
     // Générer un premier tableau au chargement
     generateRandomArray();

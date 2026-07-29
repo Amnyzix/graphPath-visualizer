@@ -329,6 +329,14 @@ class GraphEditor extends CanvasEngine {
         this.render();
     }
 
+    relayoutGraph() {
+        if (this.document.nodes.length === 0) return;
+
+        this.saveState();
+        GraphLayout.applyLayout(this.document.nodes, this.document.edges);
+        this.render();
+    }
+
     // =========================================
     //   RENDERER
     // =========================================

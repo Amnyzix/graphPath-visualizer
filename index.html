@@ -133,6 +133,14 @@
                         <h2>Graph Builder</h2>
                         <div style="display: flex; gap: 10px; align-items: center;">
 
+                            <button class="top-btn" onclick="window.graphsApp.clearCanvas()">
+                                <i class="fa-solid fa-eraser"></i> Clear Graph
+                            </button>
+
+                            <button class="player-btn" onclick="window.graphsApp.relayoutGraph()" title="Réordonner visuellement l'automate">
+                                <i class="fa-solid fa-diagram-project"></i> Auto Layout
+                            </button>
+
                             <button class="player-btn" id="share-btn" onclick="handleShareButtonClick(event)" title="Partager l'automate">
                                 <i class="fa-solid fa-share"></i> Share
                             </button>
@@ -545,6 +553,47 @@
                             </div>
                         </div>
 
+                        <div id="bst-player-controls" style="display: none; margin-top: 15px; flex-direction: column; gap: 12px; padding: 12px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                            
+                            <!-- Timeline et Vitesse -->
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--text-primary);">
+                                    <label>Step: <span id="bst-step-counter">0 / 0</span></label>
+                                    <label>Speed: <span id="bst-speed-val">x1.0</span></label>
+                                </div>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <input type="range" id="bst-timeline-slider" min="-1" max="0" value="-1" style="flex: 1; accent-color: var(--brand-main);" title="Timeline">
+                                    <input type="range" id="bst-speed-slider" min="0.25" max="4" step="0.25" value="1" style="flex: 1; accent-color: var(--brand-main);" title="Playback Speed">
+                                </div>
+                            </div>
+
+                            <!-- Contrôles principaux -->
+                            <div style="display: flex; gap: 8px; margin-top: 5px;">
+                                <button type="button" class="action-btn" id="bst-btn-prev" style="flex: 1; background: #E0E7FF; color: #4F46E5; border: 1px solid #C7D2FE; border-radius: 4px; padding: 8px; cursor: pointer;">
+                                    <i class="fa-solid fa-backward-step"></i>
+                                </button>
+                                
+                                <button type="button" class="action-btn" id="bst-btn-play" style="flex: 1; background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; border-radius: 4px; padding: 8px; cursor: pointer;">
+                                    <i class="fa-solid fa-play"></i>
+                                </button>
+                                
+                                <button type="button" class="action-btn" id="bst-btn-next" style="flex: 1; background: #E0E7FF; color: #4F46E5; border: 1px solid #C7D2FE; border-radius: 4px; padding: 8px; cursor: pointer;">
+                                    <i class="fa-solid fa-forward-step"></i>
+                                </button>
+                            </div>
+
+                            <!-- Actions secondaires -->
+                            <div style="display: flex; gap: 6px; margin-top: 6px;">
+                                <button type="button" class="action-btn" id="bst-btn-stop" style="flex: 1; background: #FEE2E2; color: #EF4444; border: 1px solid #FECACA; border-radius: 4px; padding: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
+                                    <i class="fa-solid fa-stop"></i> Stop
+                                </button>
+
+                                <button type="button" class="action-btn" id="bst-btn-reset" style="flex: 1; background: #F3F4F6; color: #4B5563; border: 1px solid #E5E7EB; border-radius: 4px; padding: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+
                         <div id="ds-traversal-controls" style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
                             <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Tree Traversals</span>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
@@ -874,11 +923,13 @@
     <script src="js/core/CanvasEngine.js"></script>
 
     <script src="js/core/Documents/GraphDocuments.js"></script>
+    <script src="js/core/Documents/BSTDocument.js"></script>
 
     <script src="js/features/graphs/GraphEditor.js"></script>
 
     <script src="js/visualizations/Visualization.js"></script>
     <script src="js/visualizations/GraphVisualization.js"></script>
+    <script src="js/visualizations/BSTVisualization.js"></script>
     <script src="js/visualizations/PythonTraceVisualization.js"></script>
     <script src="js/visualizations/VisualizationFactory.js"></script>
 
@@ -915,8 +966,16 @@
     <script src="js/core/ShareManager.js"></script>
     <script src="js/core/AppRegistry.js"></script>
 
+    <script src="js/algorithm/BSTAlgorithms.js"></script>
     <script src="js/features/datastructures/bst.js"></script>
+
+
+    
+    <script src="js/core/Documents/HeapDocument.js"></script>
+    <script src="js/algorithm/HeapAlgorithms.js"></script>
+    <script src="js/visualizations/HeapVisualization.js"></script>
     <script src="js/features/datastructures/heap.js"></script>
+
     <script src="js/features/datastructures/linkedlist.js"></script>
     <script src="js/features/datastructures/doublylinkedlist.js"></script>
 
