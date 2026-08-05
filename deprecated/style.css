@@ -1,0 +1,820 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* =========================================
+   1. VARIABLES & THÈMES - GAMIFIÉ (ALGOQUEST)
+   ========================================= */
+
+:root, body.light{
+    /* Couleur principale : Indigo Vibrant */
+    --brand-main: #6366F1;
+    --brand-dark: #4F46E5;
+    --brand-light: #E0E7FF;
+
+    /* Thème Clair (Par Défaut) */
+    --bg-main: #F4F6F9;           /* Fond de l'application (Gris-bleu très doux) */
+    --container-bg: #FFFFFF;      /* Fond des panneaux */
+    --canvas-bg: #EEF2F6;         /* Fond de la zone de dessin */
+    
+    --text-primary: #334155;      /* Gris foncé bleuté (doux) */
+    --text-muted: #94A3B8;
+    --border-color: #CBD5E1;      /* Bordures douces */
+    --grid-color: rgba(148, 163, 184, 0.4);
+    
+    /* Couleurs du graphe (Gamifiées et fun) */
+    --circle-fill: #FFFFFF;
+    --circle-stroke: #94A3B8;
+    --current-fill: #FBBF24;      /* Nœud actif : Jaune Soleil */
+    --current-stroke: #D97706;    /* Contour du nœud actif */
+    --visited-fill: #34D399;      /* Nœud visité : Vert Menthe dynamique */
+    --visited-stroke: #059669;    /* Contour du nœud visité */
+    
+    /* L'éditeur de code et terminal restent sombres pour contraster */
+    --editor-bg: #F1F5F9;
+    --editor-text: #334155;
+    
+    /* Variables utilitaires */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Thème Sombre (Optionnel) */
+body.dark {
+    --brand-light: rgba(99, 102, 241, 0.2);
+
+    --bg-main: #0F172A;           /* Bleu Nuit profond */
+    --container-bg: #1E293B;      /* Panneaux Bleu Ardoise */
+    --canvas-bg: #0F172A;         /* Fond du Canvas Sombre */
+    
+    --text-primary: #F8FAFC;      /* Texte Blanc cassé */
+    --text-muted: #94A3B8;
+    --border-color: #334155;      
+    --grid-color: rgba(255, 255, 255, 0.05);
+    
+    --circle-fill: #1E293B;
+    --circle-stroke: #64748B;
+    /* Les couleurs de visite restent les mêmes car elles pop bien sur fond sombre */
+    
+    --editor-bg: #0B0F19;
+    --editor-text: #F8FAFC;
+}
+
+/* =========================================
+   2. BASE & RESET
+   ========================================= */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Nunito', system-ui, sans-serif;
+    min-height: 100vh;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    padding: 0; /* Géré par les conteneurs */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* =========================================
+   3. LAYOUT PRINCIPAL
+   ========================================= */
+.main-wrapper {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    max-width: 100vw;
+    height: calc(100vh - 80px); /* 80px c'est pour compenser le Header Gamifié */
+    box-sizing: border-box;
+    padding: 0 20px 20px 20px;
+}
+
+#left-panel {
+    width: 480px; 
+    min-width: 280px;
+    max-width: 600px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#right-panel {
+    flex-grow: 1;
+    width: calc(100% - 480px);
+}
+
+.resize-splitter {
+    width: 8px;
+    background-color: transparent;
+    cursor: col-resize;
+    transition: background-color 0.2s ease;
+    z-index: 10;
+    margin: 0 4px;
+    border-radius: 4px;
+}
+
+.resize-splitter:hover, body.is-resizing .resize-splitter {
+    background-color: var(--brand-main);
+}
+
+body.is-resizing {
+    cursor: col-resize;
+    user-select: none;
+}
+
+/* =========================================
+   4. PANNEAU ÉDITEUR (GAUCHE)
+   ========================================= */
+.editor-panel {
+    background: var(--container-bg);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-md);
+    flex-grow: 1;
+    border: 2px solid var(--border-color);
+}
+
+.editor-panel h2 { 
+    margin-bottom: 10px; 
+    font-weight: 800;
+}
+
+textarea#script-input, #data-input {
+    flex-grow: 1;
+    width: 100%;
+    background-color: var(--editor-bg);
+    color: var(--editor-text);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+textarea#script-input:focus, #data-input:focus {
+    border-color: var(--brand-main);
+}
+
+/* =========================================
+   5. TABS (Script & Graph Data)
+   ========================================= */
+.tab-header {
+    display: flex;
+    border-bottom: 3px solid var(--canvas-bg);
+    margin-bottom: 15px;
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 12px 0;
+    font-size: 15px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px; 
+}
+
+.tab-btn:hover {
+    color: var(--brand-main);
+}
+
+.tab-btn.active {
+    color: var(--brand-main);
+    border-bottom: 3px solid var(--brand-main);
+}
+
+.tab-content {
+    display: none;
+    flex-direction: column;
+    height: calc(100% - 50px); 
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+/* =========================================
+   6. PANNEAU GRAPHE & SVG (DROITE)
+   ========================================= */
+.canvas-panel {
+    background: var(--container-bg);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--border-color);
+}
+
+#canvas {
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    background-color: var(--canvas-bg);
+    background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px);
+    background-size: 25px 25px;
+    cursor: crosshair;
+    width: 100%;
+    height: 100%;
+    flex-grow: 1;
+    user-select: none;
+    min-height: 400px;
+}
+
+/* Éléments SVG Gamifiés */
+circle {
+    fill: var(--circle-fill);
+    stroke: var(--circle-stroke);
+    stroke-width: 3px;
+    cursor: grab;
+    transform-origin: center;
+    transition: fill 0.2s, stroke 0.2s, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+
+/* Use a JS-toggled class when actually dragging with left button */
+.dragging circle { cursor: grabbing; }
+
+
+circle.selected { 
+    stroke: var(--brand-main); 
+    stroke-width: 4px; 
+    fill: var(--brand-light); 
+}
+
+circle.edge-start {
+    stroke: var(--brand-main); 
+    stroke-width: 4px; 
+    fill: var(--brand-light); 
+}
+
+circle.current { 
+    fill: var(--current-fill); 
+    stroke: var(--current-stroke); 
+    stroke-width: 4px; 
+    transform: scale(1.25); 
+}
+
+circle.visited { 
+    fill: var(--visited-fill); 
+    stroke: var(--visited-stroke); 
+    stroke-width: 4px; 
+}
+
+line { 
+    stroke: var(--circle-stroke); 
+    stroke-width: 3px; 
+    pointer-events: none; 
+    color: var(--circle-stroke);
+}
+
+/* Allow edge interaction explicitly via classes */
+.edge-line { pointer-events: stroke; }
+.edge-hit { pointer-events: stroke; }
+/* Make edge weight text clickable despite global text {pointer-events: none} */
+.edge-weight { pointer-events: auto; cursor: pointer; }
+
+text { 
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px; 
+    font-weight: 800; 
+    fill: var(--text-primary); 
+    pointer-events: none; 
+    text-anchor: middle; 
+    dominant-baseline: middle; 
+    user-select: none;
+}
+
+/* =========================================
+   7. BOUTONS D'ACTION (Gamifiés 3D)
+   ========================================= */
+.controls { 
+    display: flex; 
+    gap: 12px; 
+    flex-wrap: wrap; 
+    margin-top: 15px; 
+    width: 100%; 
+    justify-content: center;
+}
+
+.action-btn, .btn-compile, .player-btn {
+    background: var(--container-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--border-color);
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-btn:active:not(:disabled), .btn-compile:active:not(:disabled), .player-btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 transparent;
+}
+
+/*.action-btn:hover:not(:disabled) {
+    background: var(--bg-main);
+}*/
+
+.btn-snap:hover:not(:disabled) {
+    background: var(--bg-main);
+}
+
+.btn-reset:hover:not(:disabled) {
+    background: var(--bg-main);
+}
+
+/* Couleurs spécifiques des boutons actions */
+.btn-compile {
+    background: var(--brand-main);
+    color: #FFFFFF;
+    border-color: var(--brand-dark);
+    box-shadow: 0 4px 0 var(--brand-dark);
+}
+.btn-compile:hover { background: #5952e6; }
+
+.btn-record {
+    background: #EF4444; /* Rouge vif */
+    color: #FFFFFF;
+    border-color: #B91C1C;
+    box-shadow: 0 4px 0 #B91C1C;
+}
+.btn-record:hover { background: #DC2626; }
+
+.btn-clear {
+    background: #F59E0B; /* Orange */
+    color: #FFFFFF;
+    border-color: #B45309;
+    box-shadow: 0 4px 0 #B45309;
+}
+.btn-clear:hover { background: #D97706; }
+
+/* Boutons Player */
+.player-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-play-active {
+    background: var(--brand-main); 
+    color: #FFFFFF; 
+    border-color: var(--brand-dark);
+    box-shadow: 0 4px 0 var(--brand-dark);
+}
+
+.fa-spin-hover:hover { animation: fa-spin 2s linear infinite; }
+
+
+/* Bouton Docs (Bleu) */
+.btn-docs {
+    background: #3B82F6 !important; /* Bleu vif */
+    color: #FFFFFF !important;
+    border-color: #2563EB !important; /* Bleu foncé pour la bordure */
+    box-shadow: 0 4px 0 #2563EB !important; /* Ombre 3D en bas */
+}
+
+.btn-docs:hover { 
+    background: #146eeb !important; /* S'assombrit légèrement au survol */
+}
+
+.btn-learn {
+    background: #8B5CF6 !important; /* Violet élégant (ou #10B981 pour du vert émeraude) */
+    color: #FFFFFF !important;
+    border-color: #6D28D9 !important;
+    box-shadow: 0 4px 0 #6D28D9 !important;
+}
+
+.btn-learn:hover {
+    background: #7C3AED !important; /* S'assombrit légèrement au survol */
+}
+
+/* =========================================
+   MENUS DÉROULANTS & BOUTONS SUPÉRIEURS
+   ========================================= */
+.top-btn {
+    background: var(--container-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--border-color); /* Effet 3D */
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.top-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 transparent; /* S'enfonce au clic */
+}
+
+.top-btn:hover {
+    background: var(--bg-main);
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    left: 0;
+    background-color: var(--container-bg);
+    min-width: 220px;
+    box-shadow: var(--shadow-md);
+    border-radius: 12px;
+    z-index: 1000;
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+    margin-top: 8px; /* Laisse l'espace pour l'effet 3D du bouton */
+}
+
+/* Affiche le menu au survol ou si activé par JS avec la classe .show */
+.dropdown:hover .dropdown-content,
+.dropdown-content.show { 
+    display: block; 
+}
+
+.dropdown-content a {
+    color: var(--text-primary);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, padding-left 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-content a i {
+    width: 24px;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+}
+
+/* Effet ludique au survol d'un élément du menu */
+.dropdown-content a:hover { 
+    background-color: var(--brand-light); 
+    color: var(--brand-dark);
+    padding-left: 20px; /* Petit décalage fun vers la droite */
+}
+
+.dropdown-content a:hover i {
+    color: var(--brand-main);
+}
+
+/* =========================================
+   8. MENUS CONTEXTUELS & LOGS
+   ========================================= */
+.context-menu {
+    position: absolute;
+    background: var(--container-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    z-index: 1000;
+    min-width: 140px;
+    overflow: hidden;
+}
+
+.context-menu div {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+}
+
+.context-menu div:hover { 
+    background: var(--brand-light); 
+    color: var(--brand-dark);
+}
+
+#log-display {
+    position: absolute;
+    bottom: 170px;
+    background: var(--editor-bg);
+    color: var(--editor-text);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+/* =========================================
+   9. MODALES (Settings, Docs & Forms)
+   ========================================= */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px);
+    z-index: 2000;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.modal-content {
+    background: var(--container-bg); 
+    color: var(--text-primary);
+    padding: 25px; 
+    border-radius: 16px; 
+    width: 90%; 
+    max-width: 450px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+    border: 2px solid var(--border-color);
+}
+
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 2px solid var(--canvas-bg); 
+    padding-bottom: 15px; 
+    margin-bottom: 20px;
+}
+
+.modal-header h2 { font-weight: 800; }
+
+.icon-btn { 
+    background: var(--canvas-bg); 
+    border: none; 
+    border-radius: 50%;
+    width: 32px; height: 32px;
+    color: var(--text-muted); 
+    font-size: 16px; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+}
+.icon-btn:hover { background: #EF4444; color: white; transform: rotate(90deg); }
+
+
+/* Boutons avec icône uniquement pour gagner de la place */
+.icon-btn-menu {
+    padding: 8px 12px; /* Ajuste selon la taille de ta police */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px; /* Rend le bouton parfaitement carré */
+    height: 40px;
+}
+/* Listes dans modales (ex: Docs syntaxe) */
+.syntax-list { list-style: none; padding: 0; }
+.syntax-list li { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 2px dashed var(--canvas-bg); display: flex; flex-direction: column; gap: 5px; }
+.syntax-list code { color: var(--brand-main); font-family: 'Consolas', monospace; font-weight: 800; font-size: 15px; background: var(--brand-light); padding: 2px 8px; border-radius: 6px; display: inline-block; width: fit-content; }
+.syntax-list span { font-size: 14px; color: var(--text-muted); font-weight: 600; }
+
+/* =========================================
+   10. STYLES DES CHAMPS DE SAISIE (INPUTS)
+   ========================================= */
+input[type="text"], 
+input[type="number"], 
+select {
+    background-color: var(--editor-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Effet quand l'utilisateur clique dans le champ */
+input[type="text"]:focus, 
+input[type="number"]:focus, 
+select:focus {
+    border-color: var(--brand-main);
+    box-shadow: 0 0 0 3px var(--brand-light);
+}
+
+/* On s'assure que les labels dans les modales sont bien lisibles */
+.modal-content label {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+
+/* --- Floating HUD Styles --- */
+.glass-hud {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 320px; /* Largeur du panneau */
+    max-height: 350px; /* Limite la hauteur pour ne pas manger tout l'écran */
+    background: rgba(255, 255, 255, 0.85); /* Transparent blanc */
+    backdrop-filter: blur(10px); /* L'effet de flou magique */
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000; /* Toujours au-dessus des graphes */
+    overflow: hidden; /* Empêche le contenu de déborder de la bordure arrondie */
+}
+
+/* Si tu as un mode sombre, ajoute ceci : */
+[data-theme="dark"] .glass-hud {
+    background: rgba(30, 41, 59, 0.85); /* Transparent sombre */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hud-header {
+    padding: 10px 15px;
+    background: var(--brand-main);
+    color: white;
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 2;
+}
+
+#ds-info-panel {
+    padding: 12px;
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Scrollbar stylisée pour le HUD */
+#ds-info-panel::-webkit-scrollbar {
+    width: 6px;
+}
+#ds-info-panel::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 10px;
+}
+
+
+
+
+
+
+/* --- RETOUR VISUEL DES AUTOMATES --- */
+.node-group circle.selected-state {
+    fill: #FEF3C7 !important;  /* Jaune clair */
+    stroke: #F59E0B !important;/* Orange vif */
+    stroke-width: 5px !important;
+}
+
+.node-group circle.state-active {
+    fill: #FEF3C7 !important;  /* Lecture du mot (Jaune) */
+    stroke: #F59E0B !important;
+    stroke-width: 4px !important;
+}
+
+.node-group circle.state-success {
+    fill: #D1FAE5 !important;  /* Mot accepté (Vert) */
+    stroke: #10B981 !important;
+    stroke-width: 4px !important;
+}
+
+.node-group circle.state-error {
+    fill: #FECACA !important;  /* Mot rejeté / Bloqué (Rouge) */
+    stroke: #EF4444 !important;
+    stroke-width: 4px !important;
+}
+
+
+
+/* --- Modale personnalisée (Automates) --- */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6); /* Fond sombre semi-transparent */
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-modal {
+    background: var(--container-bg, #FFFFFF);
+    border: 2px solid var(--border-color, #CBD5E1);
+    border-radius: 16px;
+    padding: 25px;
+    width: 350px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    animation: modalPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.custom-modal h3 {
+    margin: 0 0 10px 0;
+    color: var(--brand-main, #6366F1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.custom-modal p {
+    font-size: 0.9rem;
+    color: var(--text-muted, #64748B);
+    margin-bottom: 20px;
+}
+
+.custom-modal input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid var(--border-color, #CBD5E1);
+    font-size: 1rem;
+    font-family: monospace;
+    font-weight: 800;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.custom-modal input:focus {
+    border-color: var(--brand-main, #6366F1);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+
+/* --- TABS UI --- */
+.tabs-header {
+    display: flex;
+    border-bottom: 1px solid var(--border-color, #CBD5E1);
+    background: var(--editor-bg, #F8FAFC);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    color: var(--text-muted, #64748B);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary, #334155);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.tab-btn.active {
+    color: var(--brand-main, #6366F1);
+    border-bottom: 3px solid var(--brand-main, #6366F1);
+    background: var(--container-bg, #FFFFFF);
+}

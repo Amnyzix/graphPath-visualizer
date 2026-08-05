@@ -10,24 +10,27 @@ class GraphAPI:
 
     def _capture_memory(self):
         try:
-            frame = sys._getframe(2)
+            # On passe à 3 pour atteindre la fonction de l'utilisateur (main)
+            frame = sys._getframe(3) 
             mem = {}
             for key, val in frame.f_locals.items():
-                if isinstance(val, (int, float, str, list, dict, bool)):
+                # On ignore les variables internes
+                if not key.startswith('_') and isinstance(val, (int, float, str, list, dict, bool)):
                     mem[key] = str(val)
             return mem
         except Exception:
             return {}
 
-    def visit(self, node, message=None):
+    def visit(self, node, message=None, line_id=None):
         step = {"id": str(node), "action": "visit", "variables": self._capture_memory()}
         if message: step["message"] = str(message)
+        if line_id: step["line_id"] = str(line_id)
         self.history.append(step)
     
     def get_all_nodes(self):
         return self.nodes
     
-    def color_node(self, node, color, message=None):
+    def color_node(self, node, color, message=None, line_id=None):
         step = {
             "id": str(node), 
             "action": "color_node", 
@@ -36,9 +39,10 @@ class GraphAPI:
         }
         if message: 
             step["message"] = str(message)
+        if line_id: step["line_id"] = str(line_id)
         self.history.append(step)
 
-    def color_edge(self, u, v, color, message=None):
+    def color_edge(self, u, v, color, message=None,line_id=None):
         step = {
             "id": str(u), 
             "target": str(v), 
@@ -48,6 +52,7 @@ class GraphAPI:
         }
         if message: 
             step["message"] = str(message)
+        if line_id: step["line_id"] = str(line_id)
         self.history.append(step)
 
     def draw_path(self, path, color):
@@ -72,9 +77,9 @@ class GraphAPI:
 # GRAPH_EDGES et GRAPH_NODES seront injectés dynamiquement avant ce script
 _api = GraphAPI(GRAPH_EDGES, GRAPH_NODES)
 
-def visit(node, msg=None): _api.visit(node, msg)
-def color_node(node, color, msg=None): _api.color_node(node, color, msg)
-def color_edge(u, v, color, msg=None): _api.color_edge(u, v, color, msg)
+def visit(node, msg=None, line_id=None): _api.visit(node, msg, line_id)
+def color_node(node, color, msg=None, line_id=None): _api.color_node(node, color, msg, line_id)
+def color_edge(u, v, color, msg=None, line_id=None): _api.color_edge(u, v, color, msg, line_id)
 def draw_path(path, color="#e74c3c"): _api.draw_path(path, color)
 def select(node): _api.select(node)
 def neighbors(node): return _api.neighbors(node)

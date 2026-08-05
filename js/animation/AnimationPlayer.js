@@ -16,9 +16,7 @@ class AnimationPlayer {
         const p = prefix ? `${prefix}-` : '';
 
         // Récupération de tous les éléments du nouveau lecteur
-        console.log('${p}player-controls')
         this.playerControls = document.getElementById(`${p}player-controls`);
-        console.log(this.playerControls)
 
         if (this.playerControls) {
             const stopPropagation = (e) => e.stopPropagation();
@@ -111,7 +109,8 @@ class AnimationPlayer {
         }
     }
 
-    load(history) {
+
+    load(history,algoName="bfs") {
         this.history = history;
         this.currentIndex = -1;
         this.pause();
@@ -124,6 +123,8 @@ class AnimationPlayer {
         if (this.playerControls) {
             this.playerControls.style.display = 'flex'; // On affiche le nouveau bloc
         }
+
+        initAlgoTracker(algoName);
 
         this.updateUI();
         this.renderCurrentState();
@@ -199,6 +200,37 @@ class AnimationPlayer {
             this.updateUI();
             this.renderCurrentState();
         }
+
+        const frame = this.history[index];
+
+        console.log(frame);
+        
+        // --- CORRECTION : Nettoyage si on est au reset (-1) ---
+        if (!frame) {
+            document.querySelectorAll('.algo-line').forEach(el => el.classList.remove('active'));
+            document.getElementById('algo-variables-container').innerHTML = '';
+            return;
+        }
+
+        // 1. GESTION DU CODE SURBIGNÉ
+        document.querySelectorAll('.algo-line').forEach(el => el.classList.remove('active'));
+        if (frame.line_id) {
+            const activeLine = document.getElementById(`code-line-${frame.line_id}`);
+            if (activeLine) activeLine.classList.add('active');
+        }
+
+        // 2. GESTION DES VARIABLES
+        const variablesContainer = document.getElementById('algo-variables-container');
+        console.log(frame.variables)
+        if (frame.variables) {
+            variablesContainer.innerHTML = ''; 
+            for (const [key, value] of Object.entries(frame.variables)) {
+                const row = document.createElement('div');
+                row.className = 'var-row';
+                row.innerHTML = `<span class="var-name">${key}</span><span class="var-value">${value}</span>`;
+                variablesContainer.appendChild(row);
+            }
+        }
     }
 
     updateSpeed(multiplier) {
@@ -244,5 +276,30 @@ class AnimationPlayer {
         if (this.playerControls) {
             this.playerControls.style.display = 'none';
         }
+    }
+}
+
+function initAlgoTracker(algoName) {
+    const hud = document.getElementById('algo-tracker-hud');
+    const codeContainer = document.getElementById('algo-code-container');
+    const variablesContainer = document.getElementById('algo-variables-container');
+    
+    // Nettoyer
+    codeContainer.innerHTML = '';
+    variablesContainer.innerHTML = '';
+    
+    if (ALGO_LIBRARY[algoName]) {
+        hud.style.display = 'flex';
+        
+        // Créer les lignes de code
+        ALGO_LIBRARY[algoName].forEach(line => {
+            const div = document.createElement('div');
+            div.className = 'algo-line';
+            div.id = `code-line-${line.id}`;
+            div.textContent = line.text;
+            codeContainer.appendChild(div);
+        });
+    } else {
+        hud.style.display = 'none'; // Cacher si l'algo n'est pas dans le dictionnaire
     }
 }

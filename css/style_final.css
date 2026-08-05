@@ -636,3 +636,94 @@ textarea#script-input:focus, #data-input:focus { border-color: var(--brand-main)
 .algo-actions i.fa-play:hover { color: #10B981; transform: scale(1.1); }
 .algo-actions i.fa-file-code:hover { color: #3B82F6; transform: scale(1.1); }
 .algo-actions i.fa-book-open:hover { color: #F59E0B; transform: scale(1.1); }
+
+/* =========================================
+   ALGORITHM TRACKER HUD (Canvas Overlay)
+   ========================================= */
+/* Styles spécifiques au Tracker HUD */
+.tracker-hud {
+    position: absolute;
+    top: 24px;
+    right: 24px; /* Flotte en haut à droite */
+    width: 340px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    pointer-events: none; /* Laisse passer les clics vers le canvas */
+}
+
+#algo-tracker-hud {
+    position: absolute !important;
+    top: auto !important;
+    right: 30px !important;
+    left: auto !important;
+    bottom: 30px !important;
+    transform: none !important; /* Annule le centrage du lecteur */
+    height: fit-content !important; /* Empêche le panneau de s'étirer vers le bas */
+    max-height: 80vh; /* Ajoute une barre de défilement si le code est trop long */
+    overflow-y: auto;
+}
+
+.code-box {
+    background: var(--editor-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 0;
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.algo-line {
+    padding: 4px 12px;
+    margin: 2px 0;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    white-space: pre; /* Conserve l'indentation (les espaces) */
+}
+
+.algo-line.active {
+    background: var(--brand-light);
+    color: var(--brand-dark);
+    font-weight: 700;
+    border-left: 3px solid var(--brand-main);
+}
+
+.variables-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.var-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.85rem;
+}
+
+.var-name {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.var-value {
+    font-family: monospace;
+    background: var(--editor-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--brand-main);
+    word-break: break-all;
+    max-width: 60%;
+    text-align: right;
+}
+
+/* Ajoute ceci dans ton style.css pour que le surlignage fonctionne */
+.algo-line.active {
+    background: var(--brand-light) !important;
+    color: var(--brand-dark) !important;
+    font-weight: 800 !important;
+    border-left: 4px solid var(--brand-main) !important;
+    padding-left: 8px !important;
+}

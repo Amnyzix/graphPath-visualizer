@@ -376,6 +376,22 @@
                         </div>
                     </div>
 
+                    <div id="algo-tracker-hud" class="glass-hud tracker-hud" style="display: none; position: absolute; top: 20px; right: 20px; z-index: 1000;">
+        
+                        <div class="tracker-section">
+                            <h4 class="tracker-title"><i class="fa-solid fa-file-code"></i> Algorithm</h4>
+                            <div id="algo-code-container" class="code-box"></div>
+                        </div>
+
+                        <div class="tracker-divider"></div>
+
+                        <div class="tracker-section">
+                            <h4 class="tracker-title"><i class="fa-solid fa-memory"></i> Variables</h4>
+                            <div id="algo-variables-container" class="variables-box"></div>
+                        </div>
+
+                    </div>
+
             </div>
 
             <div id="edge-form-modal" style="display: none; position: absolute; background: var(--container-bg); border: 1px solid var(--canvas-border); padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; color: var(--text-primary);">
@@ -957,7 +973,8 @@
         </div>
     </div>
 
-    <!-- <script src="javascript/graph.js"></script> -->
+    <script src="js/algorithm/AlgoLibrary.js"></script>
+
 
     <script src="js/core/CanvasEngine.js"></script>
 
