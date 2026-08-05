@@ -77,7 +77,14 @@ class ArrayVisualization extends Visualization {
         const currentFrame = frame || (history ? history[currentIndex] : null);
         if (!currentFrame) return;
 
-        const { array, colors, message } = currentFrame;
+        // On récupère le message à la racine, et les données depuis le "payload"
+        const message = currentFrame.message;
+        const payload = currentFrame.payload || {};
+        const array = payload.array;
+        const colors = payload.colors;
+        
+        // Sécurité : si on n'a pas de tableau dans cette frame, on ne dessine rien
+        if (!array) return;
 
         // 1. Mise à jour des barres (Hauteur et Couleur)
         for (let i = 0; i < this.arrayLength; i++) {

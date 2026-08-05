@@ -58,47 +58,56 @@ class BSTVisualization extends Visualization {
     }
 
     applyFrame(frame, history, currentIndex) {
+        // Le player envoie maintenant la frame directement
         const currentFrame = frame || (history && currentIndex >= 0 ? history[currentIndex] : null);
         
         // On s'assure que le HUD flottant est visible car il contient les logs
         const floatingHud = document.getElementById('floating-hud');
         if (floatingHud) floatingHud.style.display = 'block';
 
-        if (!currentFrame) {
+        // Sécurité : on vérifie aussi que c'est bien une action destinée au BST
+        if (!currentFrame || currentFrame.action !== 'update_bst') {
             this.clear();
             return; 
         }
-        
-        if (currentFrame.root !== undefined) {
-            this.editor.document.root = currentFrame.root;
+
+        // --- NOUVELLE ARCHITECTURE : EXTRACTION DU PAYLOAD ---
+        const payload = currentFrame.payload || {};
+        const message = currentFrame.message;
+        // -----------------------------------------------------
+
+        // Mise à jour de la structure de l'arbre
+        if (payload.root !== undefined) {
+            this.editor.document.root = payload.root;
             this.render(); 
         }
         
-        if (currentFrame.highlightedNode) {
-            const group = document.getElementById(`bst-node-${currentFrame.highlightedNode}`);
+        // Mise en évidence du nœud en cours d'inspection
+        if (payload.highlightedNode) {
+            const group = document.getElementById(`bst-node-${payload.highlightedNode}`);
             if (group) {
                 const circle = group.querySelector('circle');
-                circle.style.fill = currentFrame.fill || 'var(--current-fill)';
-                circle.style.stroke = currentFrame.stroke || 'var(--current-stroke)';
+                circle.style.fill = payload.fill || 'var(--current-fill)';
+                circle.style.stroke = payload.stroke || 'var(--current-stroke)';
             }
         }
 
-        // --- GESTION DES BADGES DE PARCOURS (Nouveau) ---
+        // --- GESTION DES BADGES DE PARCOURS ---
         const traversalOutput = document.getElementById('ds-traversal-output');
         if (traversalOutput) {
-            if (currentFrame.visitedSequence) {
+            if (payload.visitedSequence) {
                 traversalOutput.style.display = 'block';
                 
                 const labels = {
                     'inorder': 'In-Order', 'preorder': 'Pre-Order',
                     'postorder': 'Post-Order', 'levelorder': 'Level-Order (BFS)'
                 };
-                const typeName = labels[currentFrame.traversalType] || 'Traversal';
+                const typeName = labels[payload.traversalType] || 'Traversal';
                 
                 let html = `<div style="font-weight: 700; margin-bottom: 6px; color: var(--text-primary);"><i class="fa-solid fa-list-ol"></i> Sequence (${typeName}):</div>`;
                 html += `<div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">`;
                 
-                currentFrame.visitedSequence.forEach((val, idx) => {
+                payload.visitedSequence.forEach((val, idx) => {
                     if (idx > 0) html += `<span style="color: var(--text-muted); font-weight: bold;">➔</span>`;
                     html += `<span style="padding: 4px 10px; background: var(--brand-main); color: white; font-weight: 800; border-radius: 6px; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">${val}</span>`;
                 });
@@ -114,7 +123,7 @@ class BSTVisualization extends Visualization {
 
         // --- GESTION DES LOGS ---
         const infoPanel = document.getElementById('ds-info-panel');
-        if (currentFrame.message && infoPanel) {
+        if (message && infoPanel) {
             infoPanel.innerHTML = '';
             const msgDiv = document.createElement('div');
             msgDiv.style.padding = '8px 12px';
@@ -122,7 +131,7 @@ class BSTVisualization extends Visualization {
             msgDiv.style.fontSize = '0.85rem';
             msgDiv.style.lineHeight = '1.4';
             msgDiv.style.color = 'var(--text-primary)';
-            msgDiv.innerHTML = `<i class="fa-solid fa-arrow-right" style="color: var(--brand-main); margin-right: 8px;"></i> ${currentFrame.message}`;
+            msgDiv.innerHTML = `<i class="fa-solid fa-arrow-right" style="color: var(--brand-main); margin-right: 8px;"></i> ${message}`;
             infoPanel.appendChild(msgDiv);
         }
     }

@@ -68,25 +68,25 @@ async function runScript(customCode = null) {
     try {
         // Retrieve current graph state
         const { nodes, edges } = graphEditor.getGraphData();
+        const graphDocument = { nodes, edges };
 
-        // Run the Python code via the Engine
-        const animationData = await pythonEngine.run(code, nodes, edges);
+        // 1. On instancie notre Traducteur (qui encapsule le moteur Python)
+        const algorithm = new PythonGraphAlgorithm(pythonEngine, "Custom Python Script");
 
-        // --- SECTION MODIFIÉE ---
+        // 2. On récupère notre objet Animation "pur"
+        const animation = await algorithm.run(graphDocument, code);
         
-        // 1. On pointe sur la visualisation créée par l'AppRegistry
+        // 3. On nettoie le canvas
         window.activeVisualization = window.pythonTraceVis;
-        window.activeVisualization.clear(); // Nettoie le graphe avant la nouvelle animation
+        window.activeVisualization.clear(); 
         
-        // 2. On utilise graphPlayer au lieu de player
+        // 4. On charge le BON objet !
         if (window.graphPlayer) {
-            window.graphPlayer.load(animationData);
-            window.graphPlayer.play(); // On lance la lecture automatiquement
+            window.graphPlayer.load(animation); // <-- CORRECTION : 'animation' au lieu de 'animationData'
+            window.graphPlayer.play(); 
         } else {
             console.warn("Graph Animation player is not initialized.");
         }
-        
-        // ------------------------
 
     } catch (err) {
         console.error(err);

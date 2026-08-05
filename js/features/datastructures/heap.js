@@ -35,8 +35,14 @@ async function insertHeapNode() {
     const val = parseInt(input.value);
     
     if (!isNaN(val)) {
-        const history = HeapAlgorithms.insert(heapEditor.document.heap, heapEditor.document.type, val);
-        heapPlayer.load(history);
+        // 1. On extrait l'animation ET le nouveau tas
+        const { animation, newHeap } = HeapAlgorithms.insert(heapEditor.document.heap, heapEditor.document.type, val);
+        
+        // 2. On sauvegarde définitivement le nouveau tas dans le Document
+        heapEditor.document.heap = newHeap;
+
+        // 3. On donne l'animation pur au lecteur universel
+        heapPlayer.load(animation);
         heapPlayer.play();
         input.value = '';
     }
@@ -44,9 +50,43 @@ async function insertHeapNode() {
 
 async function extractHeapRoot() {
     setupHeapDisplay();
-    const history = HeapAlgorithms.extractRoot(heapEditor.document.heap, heapEditor.document.type);
-    heapPlayer.load(history);
+    const { animation, newHeap } = HeapAlgorithms.extractRoot(heapEditor.document.heap, heapEditor.document.type);
+    heapEditor.document.heap = newHeap;
+    heapPlayer.load(animation);
     heapPlayer.play();
+}
+
+async function searchHeapNode() {
+    setupHeapDisplay();
+    const input = document.getElementById('ds-value-input');
+    const val = parseInt(input.value);
+    
+    if (!isNaN(val)) {
+        // Exactement la même logique que pour l'insertion
+        const { animation, newHeap } = HeapAlgorithms.search(heapEditor.document.heap, heapEditor.document.type, val);
+        
+        heapEditor.document.heap = newHeap;
+        heapPlayer.load(animation);
+        heapPlayer.play();
+        
+        // On ne vide pas l'input pour que l'utilisateur se souvienne de ce qu'il a cherché
+    }
+}
+
+async function deleteHeapNode() {
+    setupHeapDisplay();
+    const input = document.getElementById('ds-value-input');
+    const val = parseInt(input.value);
+    
+    if (!isNaN(val)) {
+        const { animation, newHeap } = HeapAlgorithms.delete(heapEditor.document.heap, heapEditor.document.type, val);
+        
+        heapEditor.document.heap = newHeap; // Sauvegarde la nouvelle structure
+        heapPlayer.load(animation);
+        heapPlayer.play();
+        
+        input.value = ''; // On vide l'input après la suppression
+    }
 }
 
 function generateRandomHeap() {
