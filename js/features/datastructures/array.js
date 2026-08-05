@@ -9,7 +9,7 @@ window.addEventListener('DOMContentLoaded', () => {
     console.log("1. DOM chargé. Initialisation du module Array...");
 
     arrayEditor = new ArrayEditor();
-    
+
     arrayVisualization = new ArrayVisualization(arrayEditor);
 
     arrayPlayer = new AnimationPlayer(arrayVisualization, 'array');
@@ -53,10 +53,10 @@ function startBubbleSort() {
     const currentData = arrayEditor.document.getArray();
     arrayVisualization.init(currentData); 
     
-    const history = ArrayAlgorithms.bubbleSort(currentData);
-    console.log(`4. Historique généré : ${history.length} étapes.`);
+    const animation = ArrayAlgorithms.bubbleSort(currentData);
+    console.log(`4. Historique généré : ${animation.length} étapes.`);
     
-    arrayPlayer.load(history);
+    arrayPlayer.load(animation);
     arrayPlayer.play();
     console.log("5. Lecture démarrée !");
 }
@@ -65,8 +65,8 @@ function startInsertionSort() {
     const currentData = arrayEditor.document.getArray();
     arrayVisualization.init(currentData);
     
-    const history = ArrayAlgorithms.insertionSort(currentData);
+    const animation = ArrayAlgorithms.insertionSort(currentData);
     
-    arrayPlayer.load(history);
+    arrayPlayer.load(animation);
     arrayPlayer.play();
 }

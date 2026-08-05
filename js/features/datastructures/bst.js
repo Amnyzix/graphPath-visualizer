@@ -28,8 +28,12 @@ async function insertNode() {
     const val = parseInt(input.value);
     if (!isNaN(val)) {
         window.activeVisualization = bstVisualization;
-        const history = BSTAlgorithms.insert(bstEditor.document.root, val);
-        bstPlayer.load(history);
+        const { animation, newRoot } = BSTAlgorithms.insert(bstEditor.document.root, val);
+        
+        // On met à jour le Document réel pour les prochaines opérations !
+        bstEditor.document.root = newRoot; 
+
+        bstPlayer.load(animation);
         bstPlayer.play();
         input.value = '';
     }
@@ -40,8 +44,8 @@ async function searchNode() {
     const val = parseInt(input.value);
     if (!isNaN(val)) {
         window.activeVisualization = bstVisualization;
-        const history = BSTAlgorithms.search(bstEditor.document.root, val);
-        bstPlayer.load(history);
+        const animation = BSTAlgorithms.search(bstEditor.document.root, val);
+        bstPlayer.load(animation);
         bstPlayer.play();
     }
 }
@@ -51,31 +55,34 @@ async function deleteNode() {
     const val = parseInt(input.value);
     if (!isNaN(val)) {
         window.activeVisualization = bstVisualization;
-        const history = BSTAlgorithms.delete(bstEditor.document.root, val);
-        bstPlayer.load(history);
+        
+        const { animation, newRoot } = BSTAlgorithms.delete(bstEditor.document.root, val);
+        bstEditor.document.root = newRoot; // Mise à jour du Document
+        
+        bstPlayer.load(animation);
         bstPlayer.play();
         input.value = '';
     }
 }
 
 function findBSTMin() {
-    window.activeVisualization = bstVisualization;
-    const history = BSTAlgorithms.findMin(bstEditor.document.root);
-    bstPlayer.load(history);
+   window.activeVisualization = bstVisualization;
+    const animation = BSTAlgorithms.findMin(bstEditor.document.root);
+    bstPlayer.load(animation);
     bstPlayer.play();
 }
 
 function findBSTMax() {
     window.activeVisualization = bstVisualization;
-    const history = BSTAlgorithms.findMax(bstEditor.document.root);
-    bstPlayer.load(history);
+    const animation = BSTAlgorithms.findMax(bstEditor.document.root);
+    bstPlayer.load(animation);
     bstPlayer.play();
 }
 
 function traverseBST(type) {
     window.activeVisualization = bstVisualization;
-    const history = BSTAlgorithms.traverse(bstEditor.document.root, type);
-    bstPlayer.load(history);
+    const animation = BSTAlgorithms.traverse(bstEditor.document.root, type);
+    bstPlayer.load(animation);
     bstPlayer.play();
 }
 

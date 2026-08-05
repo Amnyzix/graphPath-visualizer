@@ -56,17 +56,24 @@ class HeapVisualization extends Visualization {
         const floatingHud = document.getElementById('floating-hud');
         if (floatingHud) floatingHud.style.display = 'block';
 
-        if (!currentFrame) {
+        // Sécurité : On vérifie l'action
+        if (!currentFrame || currentFrame.action !== 'update_heap') {
             this.clear();
             return;
         }
 
-        this.editor.document.heap = currentFrame.heap;
-        this.render(currentFrame.heap);
+        // --- EXTRACTION DU PAYLOAD ---
+        const payload = currentFrame.payload || {};
+        const message = currentFrame.message;
+
+        if (payload.heap) {
+            this.editor.document.heap = payload.heap;
+            this.render(payload.heap);
+        }
 
         // Appliquer les couleurs multiples
-        if (currentFrame.highlights) {
-            currentFrame.highlights.forEach(hl => {
+        if (payload.highlights) {
+            payload.highlights.forEach(hl => {
                 const group = document.getElementById(`heap-node-${hl.index}`);
                 if (group) {
                     const circle = group.querySelector('circle');
@@ -78,7 +85,7 @@ class HeapVisualization extends Visualization {
 
         // Afficher les logs
         const infoPanel = document.getElementById('ds-info-panel');
-        if (currentFrame.message && infoPanel) {
+        if (message && infoPanel) {
             infoPanel.innerHTML = '';
             const msgDiv = document.createElement('div');
             msgDiv.style.padding = '8px 12px';
@@ -86,11 +93,11 @@ class HeapVisualization extends Visualization {
             msgDiv.style.fontSize = '0.85rem';
             msgDiv.style.lineHeight = '1.4';
             msgDiv.style.color = 'var(--text-primary)';
-            msgDiv.innerHTML = `<i class="fa-solid fa-arrow-right" style="color: var(--brand-main); margin-right: 8px;"></i> ${currentFrame.message}`;
+            msgDiv.innerHTML = `<i class="fa-solid fa-arrow-right" style="color: var(--brand-main); margin-right: 8px;"></i> ${message}`;
             infoPanel.appendChild(msgDiv);
         }
     }
-
+    
     clear() {
         this.render(this.editor.document.heap);
         const infoPanel = document.getElementById('ds-info-panel');

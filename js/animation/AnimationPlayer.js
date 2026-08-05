@@ -111,23 +111,28 @@ class AnimationPlayer {
         }
     }
 
-    load(history) {
-        this.history = history;
+    load(animation) {
+        this.animation = animation;
         this.currentIndex = -1;
         this.pause();
 
-        if (this.timelineSlider) {
-            this.timelineSlider.max = Math.max(0, this.history.length - 1);
+        // 1. Mise à jour de la timeline avec la nouvelle propriété .length
+        if (this.timelineSlider && this.animation) {
+            this.timelineSlider.max = Math.max(0, this.animation.length - 1);
             this.timelineSlider.value = -1;
         }
 
+        // 2. Affichage des contrôles
         if (this.playerControls) {
-            this.playerControls.style.display = 'flex'; // On affiche le nouveau bloc
+            this.playerControls.style.display = 'flex';
         }
 
+
+        // 4. On appelle TA méthode (et non _setupTimeline)
         this.updateUI();
         this.renderCurrentState();
     }
+
 
     togglePlay() {
         if (this.isPlaying) this.pause();
@@ -135,13 +140,12 @@ class AnimationPlayer {
     }
 
     play() {
-        if (this.history.length === 0 || this.currentIndex >= this.history.length - 1) {
-            // Si on est à la fin, on recommence au début
-            if (this.currentIndex >= this.history.length - 1) {
-                this.currentIndex = -1;
-            } else {
-                return;
-            }
+        // Sécurité : on vérifie que l'animation existe
+        if (!this.animation || this.animation.length === 0) return;
+
+        // Si on est à la fin, on recommence au début
+        if (this.currentIndex >= this.animation.length - 1) {
+            this.currentIndex = -1;
         }
         
         this.isPlaying = true;
@@ -150,7 +154,7 @@ class AnimationPlayer {
         if (this.btnPlay) this.btnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
 
         // Rendu immédiat de la première frame si on démarre
-        if (this.currentIndex === -1 && this.history.length > 0) {
+        if (this.currentIndex === -1 && this.animation.length > 0) {
             this.stepForward();
         }
 
@@ -158,7 +162,8 @@ class AnimationPlayer {
         const currentIntervalMs = this.baseSpeedMs / currentMultiplier;
 
         this.playInterval = setInterval(() => {
-            if (this.currentIndex >= this.history.length - 1) {
+            // On utilise bien this.animation.length ici
+            if (this.currentIndex >= this.animation.length - 1) {
                 this.pause();
             } else {
                 this.stepForward();
@@ -178,7 +183,8 @@ class AnimationPlayer {
     }
 
     stepForward() {
-        if (this.currentIndex < this.history.length - 1) {
+        // On vérifie par rapport à la taille de l'animation
+        if (this.animation && this.currentIndex < this.animation.length - 1) {
             this.currentIndex++;
             this.updateUI();
             this.renderCurrentState();
@@ -194,11 +200,26 @@ class AnimationPlayer {
     }
 
     goToStep(index) {
-        if (index >= -1 && index < this.history.length) {
-            this.currentIndex = index;
+        // 1. Sécurité : a-t-on une animation chargée ?
+        if (!this.animation || this.animation.length === 0) return;
+
+        if (index === -1) {
+            this.currentIndex = -1;
             this.updateUI();
             this.renderCurrentState();
         }
+
+        if (index < 0 || index >= this.animation.length) return;
+
+        this.currentIndex = index;
+        
+        // On récupère la frame
+        const frame = this.animation.getFrame(index);
+        
+        this.updateUI();
+        this.renderCurrentState();
+
+        if (!frame) return;
     }
 
     updateSpeed(multiplier) {
@@ -206,19 +227,22 @@ class AnimationPlayer {
             this.speedLabel.textContent = `x${multiplier.toFixed(2)}`;
         }
         // Si on est en train de lire, on relance avec la nouvelle vitesse dynamiquement
-        if (this.isPlaying && this.currentIndex < this.history.length - 1) {
+        if (this.isPlaying && this.animation && this.currentIndex < this.animation.length - 1) {
             this.pause();
             this.play();
         }
     }
 
     updateUI() {
+        // Sécurité
+        if (!this.animation) return; 
+
         // Mise à jour de la timeline
         if (this.timelineSlider) this.timelineSlider.value = this.currentIndex;
         
         // Mise à jour du texte Step X / Y
         if (this.stepCounter) {
-            this.stepCounter.textContent = `${this.currentIndex + 1} / ${this.history.length}`;
+            this.stepCounter.textContent = `${this.currentIndex + 1} / ${this.animation.length}`;
         }
 
         // Désactivation des boutons si on est aux extrémités
@@ -227,14 +251,27 @@ class AnimationPlayer {
             this.btnPrev.style.opacity = this.btnPrev.disabled ? "0.5" : "1";
         }
         if (this.btnNext) {
-            this.btnNext.disabled = (this.currentIndex >= this.history.length - 1);
+            this.btnNext.disabled = (this.currentIndex >= this.animation.length - 1);
             this.btnNext.style.opacity = this.btnNext.disabled ? "0.5" : "1";
         }
     }
 
     renderCurrentState() {
-        if (this.visualization) {
-            this.visualization.applyFrame(null, this.history, this.currentIndex);
+        if (!this.visualization || !this.animation) return;
+
+        // Si on est au tout début (reset), on nettoie juste
+        if (this.currentIndex === -1) {
+            this.visualization.clear();
+            return;
+        }
+        
+        // On récupère la frame pure
+        const currentFrame = this.animation.getFrame(this.currentIndex);
+        
+        if (currentFrame) {
+            // On donne la frame au visualiseur
+            // Attention: verify que ton PythonTraceVisualization attend bien (frame, currentIndex)
+            this.visualization.applyFrame(currentFrame, this.animation.frames, this.currentIndex); 
         }
     }
     
