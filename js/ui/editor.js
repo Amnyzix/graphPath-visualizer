@@ -3,12 +3,79 @@ let pythonEngine;
 let term;
 
 window.onload = function() {
+    // Détecte si le body a la classe de ton mode sombre (adapte 'dark-mode' selon ton CSS)
+    const isDarkMode = document.body.classList.contains('dark-mode');
+
+    const lightTheme = {
+        background: '#f8f9fa',       // Un gris ultra-léger (plus doux que le blanc pur)
+        foreground: '#383a42',       // Un gris anthracite bleuté pour le texte
+        cursor: '#526fff',           // Un curseur bleu moderne (plus élégant que noir)
+        cursorAccent: '#ffffff',
+        selectionBackground: '#dce2f2', // Couleur de sélection douce
+        
+        // Couleurs ANSI (Essentielles si ton moteur Python renvoie du texte coloré)
+        black: '#383a42',
+        red: '#e45649',              // Rouge plus doux pour les erreurs
+        green: '#50a14f',
+        yellow: '#986801',
+        blue: '#4078f2',
+        magenta: '#a626a4',
+        cyan: '#0184bc',
+        white: '#fafafa',
+        
+        // Versions "Bright"
+        brightBlack: '#a0a1a7',
+        brightRed: '#e06c75',
+        brightGreen: '#98c379',
+        brightYellow: '#d19a66',
+        brightBlue: '#61afef',
+        brightMagenta: '#c678dd',
+        brightCyan: '#56b6c2',
+        brightWhite: '#ffffff'
+    };
+
+    const darkTheme = {
+        background: '#1e1e1e',       // Un gris très foncé pour le fond
+        foreground: '#d4d4d4',       // Gris clair pour le texte
+        cursor: '#ffffff',           // Curseur blanc pour un contraste maximal
+        cursorAccent: '#000000',
+        selectionBackground: '#264f78', // Couleur de sélection bleue foncée
+        
+        // Couleurs ANSI
+        black: '#000000',
+        red: '#f44747',              // Rouge vif pour les erreurs
+        green: '#619955',
+        yellow: '#ffcc00',
+        blue: '#0a84ff',
+        magenta: '#c678dd',
+        cyan: '#56b6c2',
+        white: '#d4d4d4',
+        
+        // Versions "Bright"
+        brightBlack: '#666666',
+        brightRed: '#ff6c6b',
+        brightGreen: '#98c379',
+        brightYellow: '#e5c07b',
+        brightBlue: '#61afef',
+        brightMagenta: '#c678dd',
+        brightCyan: '#56b6c2',
+        brightWhite: '#ffffff'
+    };
+
+    const termContainer = document.getElementById('terminal-container');
+    if (termContainer) {
+        termContainer.style.backgroundColor = isDarkMode ? darkTheme.background : lightTheme.background;
+        // Optionnel : on adapte aussi la bordure pour un rendu propre
+        termContainer.style.borderColor = isDarkMode ? '#181a1f' : '#e1e4e8'; 
+    }
+
     // 1. Initialize CodeMirror
     const textArea = document.getElementById('script-input');
     codeEditor = CodeMirror.fromTextArea(textArea, {
         mode: "python",
         lineNumbers: true,
-        theme: "default",
+        // On utilise le bon thème d'entrée de jeu
+        theme: isDarkMode ? "dracula" : "default", 
         extraKeys: {
             Tab: function(cm) {
                 let spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
@@ -24,9 +91,11 @@ window.onload = function() {
         cursorBlink: true,
         fontFamily: 'Consolas, "Courier New", monospace',
         fontSize: 14,
-        theme: { background: '#1e1e1e', foreground: '#cccccc' },
+        // On utilise le bon thème d'entrée de jeu
+        theme: isDarkMode ? darkTheme : lightTheme,
         convertEol: true
     });
+    
     const fitAddon = new FitAddon.FitAddon();
     term.loadAddon(fitAddon);
     term.open(document.getElementById('terminal-container'));
@@ -36,8 +105,8 @@ window.onload = function() {
 
     // 3. Initialize the Python Engine with Terminal callbacks
     pythonEngine = new PythonEngine(
-        (text) => term.write(text),          // stdout
-        (text) => term.write(text)           // stderr (colorized in PythonEngine)
+        (text) => term.write(text),
+        (text) => term.write(text)
     );
     pythonEngine.init();
 };
@@ -46,6 +115,26 @@ function getActiveGraphEditor() {
     if (window.AppRegistry) return window.AppRegistry.get('graphs');
     if (window.graphsApp) return window.graphsApp;
     return null;
+}
+
+function updateEditorThemes(isDarkMode) {
+    if (!codeEditor || !term) return;
+
+    // 1. Thème CodeMirror
+    codeEditor.setOption("theme", isDarkMode ? "dracula" : "default");
+
+    // 2. Thème XTerm.js (On redéfinit ou on récupère les objets lightTheme/darkTheme)
+    const darkTheme = { background: '#1e1e1e', foreground: '#d4d4d4', cursor: '#ffffff' /* ... reste des couleurs ... */ };
+    const lightTheme = { background: '#f8f9fa', foreground: '#383a42', cursor: '#526fff' /* ... reste des couleurs ... */ };
+    
+    term.options.theme = isDarkMode ? darkTheme : lightTheme;
+
+    // 3. Mise à jour du conteneur parent
+    const termContainer = document.getElementById('terminal-container');
+    if (termContainer) {
+        termContainer.style.backgroundColor = isDarkMode ? darkTheme.background : lightTheme.background;
+        termContainer.style.borderColor = isDarkMode ? '#181a1f' : '#e1e4e8';
+    }
 }
 
 // =========================================
