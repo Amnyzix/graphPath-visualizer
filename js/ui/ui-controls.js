@@ -4,14 +4,9 @@ themeToggle.addEventListener('click', () => {
     document.documentElement.classList.toggle('dark');
     const isDark = document.documentElement.classList.contains('dark');
     
-    if (isDark) {
-        themeToggle.innerHTML = '<i class="fa-solid fa-sun" style="margin-right: 6px;"></i>Light Mode';
-    } else {
-        themeToggle.innerHTML = '<i class="fa-solid fa-moon" style="margin-right: 6px;"></i>Dark Mode';
-    }
-
-    if (typeof editor !== 'undefined') {
-        editor.setOption("theme", isDark ? "dracula" : "default");
+    // On met à jour l'éditeur et le terminal !
+    if (typeof updateEditorThemes === 'function') {
+        updateEditorThemes(isDark);
     }
 });
 

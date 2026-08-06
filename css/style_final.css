@@ -49,6 +49,7 @@
     /* Ombres */
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.05);
+
 }
 
 /* Thème Sombre */
@@ -636,3 +637,29 @@ textarea#script-input:focus, #data-input:focus { border-color: var(--brand-main)
 .algo-actions i.fa-play:hover { color: #10B981; transform: scale(1.1); }
 .algo-actions i.fa-file-code:hover { color: #3B82F6; transform: scale(1.1); }
 .algo-actions i.fa-book-open:hover { color: #F59E0B; transform: scale(1.1); }
+
+
+#terminal-container {
+    padding: 12px;
+    border-radius: 8px; /* Bords arrondis pour moderniser */
+    /* Transition douce pour le changement de thème */
+    transition: background-color 0.3s ease, border-color 0.3s ease; 
+}
+
+/* 1. On s'assure que le fond du conteneur change avec le thème */
+body:not(.dark-mode) #terminal-container {
+    background-color: #f8f9fa; /* La même couleur que ton lightTheme JS */
+    border: 1px solid #e1e4e8;
+}
+
+body.dark-mode #terminal-container {
+    background-color: #1e1e1e; /* La même couleur que ton darkTheme JS */
+    border: 1px solid #181a1f;
+}
+
+/* 2. On force les éléments internes de XTerm.js à être transparents 
+   pour laisser passer la couleur du conteneur parent */
+#terminal-container .xterm,
+#terminal-container .xterm-viewport {
+    background-color: transparent !important;
+}
