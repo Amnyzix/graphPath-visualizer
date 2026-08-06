@@ -493,6 +493,15 @@ text { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800; fil
 
 .fa-spin-hover:hover { animation: fa-spin 2s linear infinite; }
 
+.btn-render { 
+    background: #10b981 !important; 
+    color: #FFFFFF !important; 
+    border-color: #047857 !important; 
+    box-shadow: 0 4px 0 #047857 !important; 
+}
+.btn-render:hover { 
+    background: #059669 !important; 
+}
 
 /* =========================================
    7. INPUTS, TEXTAREA & TABS

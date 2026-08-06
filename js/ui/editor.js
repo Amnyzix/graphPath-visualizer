@@ -187,3 +187,96 @@ async function runScript(customCode = null) {
         if (compileBtn) compileBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run script';
     }
 }
+
+
+// =========================================
+//  UI HOOKS FOR GRAPH PARSER
+// =========================================
+window.parseGraphData = function() {
+    const textInput = document.getElementById('data-input').value;
+    const format = document.getElementById('data-format').value;
+    const isDirected = document.getElementById('data-directed').checked;
+    
+    if (!textInput.trim()) return;
+
+    // 1. Retrieve the active editor
+    const editor = typeof getActiveGraphEditor === 'function' ? getActiveGraphEditor() : null;
+    if (!editor) {
+        console.error("Graph editor not found. Cannot render graph.");
+        return;
+    }
+
+    // 2. Parse the pure text
+    const parsedData = GraphDataParser.textToGraph(textInput, format, isDirected);
+    if (!parsedData || parsedData.uniqueNodeIds.size === 0) return;
+
+    // 3. Calculate positions (Circle Layout)
+    const canvas = document.getElementById('graph-canvas'); 
+    const cx = canvas ? canvas.clientWidth / 2 : 400;
+    const cy = canvas ? canvas.clientHeight / 2 : 300;
+    const radius = Math.min(cx, cy) - 50;
+
+    const newNodes = [];
+    const nodeArray = Array.from(parsedData.uniqueNodeIds);
+    nodeArray.forEach((id, index) => {
+        const angle = (index * 2 * Math.PI) / nodeArray.length - Math.PI / 2;
+        newNodes.push({
+            id: id,
+            x: cx + radius * Math.cos(angle),
+            y: cy + radius * Math.sin(angle)
+        });
+    });
+
+    // 4. Update the Document cleanly (CORRECTED)
+    if (editor.document) {
+        // If a clean method exists, use it
+        if (typeof editor.document.clear === 'function') {
+            editor.document.clear();
+        } 
+        
+        // Ensure array references are kept but emptied
+        if (editor.document.nodes) editor.document.nodes.length = 0;
+        else editor.document.nodes = [];
+        
+        if (editor.document.edges) editor.document.edges.length = 0;
+        else editor.document.edges = [];
+
+        // Push new data into the existing array references
+        editor.document.nodes.push(...newNodes);
+        editor.document.edges.push(...parsedData.edges);
+    }
+
+    // 5. Force visual clearing and rendering
+    if (editor.visualization) {
+        if (typeof editor.visualization.clear === 'function') {
+            editor.visualization.clear();
+        }
+        editor.visualization.render();
+    }
+
+    // 6. Stop the animation player if we are loading a new graph
+    if (window.graphPlayer) {
+        window.graphPlayer.hide();
+    }
+};
+
+window.updateGraphDataText = function() {
+    const formatSelect = document.getElementById('data-format');
+    const inputField = document.getElementById('data-input');
+    
+    if (!formatSelect || !inputField) return;
+    
+    // Sécurité : ne pas écraser pendant que l'utilisateur écrit
+    if (document.activeElement === inputField) return;
+
+    // 1. Récupérer les données via la nouvelle architecture
+    const editor = typeof getActiveGraphEditor === 'function' ? getActiveGraphEditor() : null;
+    if (!editor) return;
+
+    const { nodes, edges } = editor.getGraphData();
+    const format = formatSelect.value;
+    
+    // 2. Générer et injecter le texte
+    const text = GraphDataParser.graphToText(nodes, edges, format);
+    inputField.value = text;
+};
