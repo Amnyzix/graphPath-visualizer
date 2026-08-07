@@ -1,167 +1,274 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AlgoQuest - Binary Search Tree</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/card-style.css">
-    <link rel="stylesheet" href="../css/learn-header.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/card-style.css" />
+    <link rel="stylesheet" href="../css/learn-header.css" />
     <script>
-        MathJax = {
-            tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']]
-            }
-        };
+      MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+        },
+      };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-</head>
-<body>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+    ></script>
+  </head>
+  <body>
     <div class="lesson-container">
-        <h1>Binary Search Tree (BST)</h1>
-        
-        <p>A <strong>Binary Search Tree</strong> is a fundamental node-based data structure used for fast data storage, retrieval, and sorting. It consists of a root node, where each node can have at most two children (left and right).</p>
+      <h1>Binary Search Tree (BST)</h1>
 
-        <div class="highlight-box">
-            <strong><i class="fa-solid fa-scale-balanced"></i> The Golden Rule:</strong><br> 
-            For any given node, all values in its <em>left subtree</em> must be strictly smaller than the node's value, and all values in its <em>right subtree</em> must be greater.
-        </div>
+      <p>
+        A <strong>Binary Search Tree</strong> is a fundamental node-based data structure used for
+        fast data storage, retrieval, and sorting. It consists of a root node, where each node can
+        have at most two children (left and right).
+      </p>
 
-        <h2><i class="fa-solid fa-gears"></i> Core Operations</h2>
-        
-        <h3>1. Search & Insertion</h3>
-        <p>Because of the Golden Rule, searching and inserting in a BST is highly efficient. At each step, you compare the target value with the current node:</p>
-        <ul>
-            <li>If the value is <strong>less</strong>, move to the left child.</li>
-            <li>If the value is <strong>greater</strong>, move to the right child.</li>
-            <li>Repeat this until you find the value (Search) or reach an empty spot (Insert).</li>
-        </ul>
+      <div class="highlight-box">
+        <strong><i class="fa-solid fa-scale-balanced"></i> The Golden Rule:</strong><br />
+        For any given node, all values in its <em>left subtree</em> must be strictly smaller than
+        the node's value, and all values in its <em>right subtree</em> must be greater.
+      </div>
 
-        <h3>2. Deletion</h3>
-        <p>Removing a node from a BST is more complex than inserting because you must preserve the Golden Rule. There are three distinct cases when deleting a target node:</p>
-        <ul>
-            <li><strong>Case 1: The node is a leaf (no children).</strong> Simply remove it from the tree.</li>
-            <li><strong>Case 2: The node has one child.</strong> Remove the node and replace it with its only child.</li>
-            <li><strong>Case 3: The node has two children.</strong> This requires a structural fix. You must find the node's <em>In-order Successor</em> (the smallest value in its right subtree) or <em>In-order Predecessor</em> (the largest value in its left subtree). Copy that successor's value to the target node, and then recursively delete the original successor node.</li>
-        </ul>
+      <h2><i class="fa-solid fa-gears"></i> Core Operations</h2>
 
-        <h2><i class="fa-solid fa-route"></i> Tree Traversals</h2>
-        <p>Unlike arrays, there are multiple ways to iterate through a tree depending on the order in which you visit the Root, Left, and Right nodes.</p>
-        
-        <p>Before exploring the traversal algorithms, it is important to understand how a single node is represented in code. In Python, each node is typically an object containing its value and pointers to its left and right children:</p>
-        
-<pre><code class="language-python">class Node:
+      <h3>1. Search & Insertion</h3>
+      <p>
+        Because of the Golden Rule, searching and inserting in a BST is highly efficient. At each
+        step, you compare the target value with the current node:
+      </p>
+      <ul>
+        <li>If the value is <strong>less</strong>, move to the left child.</li>
+        <li>If the value is <strong>greater</strong>, move to the right child.</li>
+        <li>Repeat this until you find the value (Search) or reach an empty spot (Insert).</li>
+      </ul>
+
+      <h3>2. Deletion</h3>
+      <p>
+        Removing a node from a BST is more complex than inserting because you must preserve the
+        Golden Rule. There are three distinct cases when deleting a target node:
+      </p>
+      <ul>
+        <li>
+          <strong>Case 1: The node is a leaf (no children).</strong> Simply remove it from the tree.
+        </li>
+        <li>
+          <strong>Case 2: The node has one child.</strong> Remove the node and replace it with its
+          only child.
+        </li>
+        <li>
+          <strong>Case 3: The node has two children.</strong> This requires a structural fix. You
+          must find the node's <em>In-order Successor</em> (the smallest value in its right subtree)
+          or <em>In-order Predecessor</em> (the largest value in its left subtree). Copy that
+          successor's value to the target node, and then recursively delete the original successor
+          node.
+        </li>
+      </ul>
+
+      <h2><i class="fa-solid fa-route"></i> Tree Traversals</h2>
+      <p>
+        Unlike arrays, there are multiple ways to iterate through a tree depending on the order in
+        which you visit the Root, Left, and Right nodes.
+      </p>
+
+      <p>
+        Before exploring the traversal algorithms, it is important to understand how a single node
+        is represented in code. In Python, each node is typically an object containing its value and
+        pointers to its left and right children:
+      </p>
+
+      <pre><code class="language-python">class Node:
     def __init__(self, value):
         self.value = value
         self.left = None
         self.right = None</code></pre>
-        
-        <h3>1. In-Order Traversal (Left, Root, Right)</h3>
-        <p>This method always visits nodes in ascending, sorted order. It is the most commonly used traversal for BSTs.</p>
-            <ul>
-                <li><strong>Step 1 (Left):</strong> The function recursively calls itself on the left child, diving down until it reaches the leftmost leaf (the absolutely smallest value in the tree).</li>
-                <li><strong>Step 2 (Root):</strong> Once the left side is exhausted, it processes (e.g., prints) the current node.</li>
-                <li><strong>Step 3 (Right):</strong> Finally, it moves to the right child and repeats the process.</li>
-            </ul>
-        <p><em>Why it works:</em> Because a BST stores smaller values on the left and larger on the right, forcing the algorithm to explore Left ➔ Root ➔ Right guarantees we read the data in perfectly sorted order.</p>
-<pre><code class="language-python">def in_order(node):
+
+      <h3>1. In-Order Traversal (Left, Root, Right)</h3>
+      <p>
+        This method always visits nodes in ascending, sorted order. It is the most commonly used
+        traversal for BSTs.
+      </p>
+      <ul>
+        <li>
+          <strong>Step 1 (Left):</strong> The function recursively calls itself on the left child,
+          diving down until it reaches the leftmost leaf (the absolutely smallest value in the
+          tree).
+        </li>
+        <li>
+          <strong>Step 2 (Root):</strong> Once the left side is exhausted, it processes (e.g.,
+          prints) the current node.
+        </li>
+        <li>
+          <strong>Step 3 (Right):</strong> Finally, it moves to the right child and repeats the
+          process.
+        </li>
+      </ul>
+      <p>
+        <em>Why it works:</em> Because a BST stores smaller values on the left and larger on the
+        right, forcing the algorithm to explore Left ➔ Root ➔ Right guarantees we read the data in
+        perfectly sorted order.
+      </p>
+      <pre><code class="language-python">def in_order(node):
     if node is not None:
         in_order(node.left)
         print(node.value, end=" ")
         in_order(node.right)</code></pre>
 
-        <h3>2. Pre-Order Traversal (Root, Left, Right)</h3>
-        <p>This method captures the top-down structure of the tree. It is mainly used for creating a copy of the tree or serializing it to save in a file.</p>
-        <ul>
-            <li><strong>Step 1 (Root):</strong> Process the current node <em>immediately</em> upon visiting it, before looking at any children.</li>
-            <li><strong>Step 2 (Left):</strong> Recursively process the entire left subtree.</li>
-            <li><strong>Step 3 (Right):</strong> Recursively process the entire right subtree.</li>
-        </ul>
-        <p><em>Why it works:</em> By recording the parent before its children, we capture the exact hierarchy. If you insert values into a new, empty tree following a pre-order sequence, you will perfectly recreate the original tree's shape.</p>
-<pre><code class="language-python">def pre_order(node):
+      <h3>2. Pre-Order Traversal (Root, Left, Right)</h3>
+      <p>
+        This method captures the top-down structure of the tree. It is mainly used for creating a
+        copy of the tree or serializing it to save in a file.
+      </p>
+      <ul>
+        <li>
+          <strong>Step 1 (Root):</strong> Process the current node <em>immediately</em> upon
+          visiting it, before looking at any children.
+        </li>
+        <li><strong>Step 2 (Left):</strong> Recursively process the entire left subtree.</li>
+        <li><strong>Step 3 (Right):</strong> Recursively process the entire right subtree.</li>
+      </ul>
+      <p>
+        <em>Why it works:</em> By recording the parent before its children, we capture the exact
+        hierarchy. If you insert values into a new, empty tree following a pre-order sequence, you
+        will perfectly recreate the original tree's shape.
+      </p>
+      <pre><code class="language-python">def pre_order(node):
     if node is not None:
         print(node.value, end=" ")
         pre_order(node.left)
         pre_order(node.right)</code></pre>
 
-        <h3>3. Post-Order Traversal (Left, Right, Root)</h3>
-        <p>This method dives all the way down to the leaves and processes nodes from the bottom up. It is strictly used for safely deleting a tree.</p>
-        <ul>
-            <li><strong>Step 1 (Left):</strong> Recursively process the entire left subtree.</li>
-            <li><strong>Step 2 (Right):</strong> Recursively process the entire right subtree.</li>
-            <li><strong>Step 3 (Root):</strong> Only after both left and right branches are fully resolved, process the current node.</li>
-        </ul>
-        <p><em>Why it works:</em> A node is processed <em>only after</em> all of its descendants have been processed. If you are freeing memory (deleting nodes), this ensures you never delete a parent node while it still holds active pointers to its children.</p>
-<pre><code class="language-python">def post_order(node):
+      <h3>3. Post-Order Traversal (Left, Right, Root)</h3>
+      <p>
+        This method dives all the way down to the leaves and processes nodes from the bottom up. It
+        is strictly used for safely deleting a tree.
+      </p>
+      <ul>
+        <li><strong>Step 1 (Left):</strong> Recursively process the entire left subtree.</li>
+        <li><strong>Step 2 (Right):</strong> Recursively process the entire right subtree.</li>
+        <li>
+          <strong>Step 3 (Root):</strong> Only after both left and right branches are fully
+          resolved, process the current node.
+        </li>
+      </ul>
+      <p>
+        <em>Why it works:</em> A node is processed <em>only after</em> all of its descendants have
+        been processed. If you are freeing memory (deleting nodes), this ensures you never delete a
+        parent node while it still holds active pointers to its children.
+      </p>
+      <pre><code class="language-python">def post_order(node):
     if node is not None:
         post_order(node.left)
         post_order(node.right)
         print(node.value, end=" ")</code></pre>
 
-        <div class="highlight-box">
-            <strong><i class="fa-solid fa-lightbulb"></i> Quick Comparison Example:</strong><br>
-            Imagine a simple Binary Search Tree structured like this:
-<pre style="background: transparent; padding: 10px 20px; margin: 10px 0; color: var(--text-primary); box-shadow: none; font-size: 1.1rem; line-height: 1.2;">
+      <div class="highlight-box">
+        <strong><i class="fa-solid fa-lightbulb"></i> Quick Comparison Example:</strong><br />
+        Imagine a simple Binary Search Tree structured like this:
+        <pre
+          style="
+            background: transparent;
+            padding: 10px 20px;
+            margin: 10px 0;
+            color: var(--text-primary);
+            box-shadow: none;
+            font-size: 1.1rem;
+            line-height: 1.2;
+          "
+        >
       4
     /   \
    2     6
   / \   / \
  1   3 5   7
 </pre>
-            Depending on the algorithm you choose, the output sequence will be completely different:
-            <ul style="margin-top: 10px;">
-                <li><strong>In-Order:</strong> <code>1, 2, 3, 4, 5, 6, 7</code> <em>(Perfectly sorted)</em></li>
-                <li><strong>Pre-Order:</strong> <code>4, 2, 1, 3, 6, 5, 7</code> <em>(Explores roots before leaves)</em></li>
-                <li><strong>Post-Order:</strong> <code>1, 3, 2, 5, 7, 6, 4</code> <em>(Explores leaves before roots)</em></li>
-            </ul>
-        </div>
+        Depending on the algorithm you choose, the output sequence will be completely different:
+        <ul style="margin-top: 10px">
+          <li>
+            <strong>In-Order:</strong> <code>1, 2, 3, 4, 5, 6, 7</code> <em>(Perfectly sorted)</em>
+          </li>
+          <li>
+            <strong>Pre-Order:</strong> <code>4, 2, 1, 3, 6, 5, 7</code>
+            <em>(Explores roots before leaves)</em>
+          </li>
+          <li>
+            <strong>Post-Order:</strong> <code>1, 3, 2, 5, 7, 6, 4</code>
+            <em>(Explores leaves before roots)</em>
+          </li>
+        </ul>
+      </div>
 
+      <h2><i class="fa-solid fa-triangle-exclamation"></i> The Balancing Problem</h2>
+      <p>
+        The efficiency of a BST depends entirely on its height. If you insert sorted data (e.g., 1,
+        2, 3, 4, 5) into a standard BST, every new node goes to the right. The tree becomes highly
+        lopsided, effectively degrading into a standard Linked List.
+      </p>
 
-        <h2><i class="fa-solid fa-triangle-exclamation"></i> The Balancing Problem</h2>
-        <p>The efficiency of a BST depends entirely on its height. If you insert sorted data (e.g., 1, 2, 3, 4, 5) into a standard BST, every new node goes to the right. The tree becomes highly lopsided, effectively degrading into a standard Linked List.</p>
-        
-        <div class="warning-box">
-            <strong><i class="fa-solid fa-skull"></i> Worst-Case Scenario:</strong> 
-            In a completely unbalanced tree, you can no longer skip half of the data. Searching for a value forces you to check every single node, causing the time complexity to drop from $O(\log n)$ to $O(n)$.
-        </div>
-        
-        <p>To prevent this, computer scientists use <strong>Self-Balancing Binary Search Trees</strong> (like <em>AVL Trees</em> or <em>Red-Black Trees</em>), which automatically rotate their nodes during insertion to keep the tree's height as short as possible.</p>
+      <div class="warning-box">
+        <strong><i class="fa-solid fa-skull"></i> Worst-Case Scenario:</strong>
+        In a completely unbalanced tree, you can no longer skip half of the data. Searching for a
+        value forces you to check every single node, causing the time complexity to drop from
+        $O(\log n)$ to $O(n)$.
+      </div>
 
-        <h2><i class="fa-solid fa-stopwatch"></i> Complexity Analysis</h2>
-        <table class="complexity-table">
-            <thead>
-                <tr>
-                    <th>Operation</th>
-                    <th>Average Case</th>
-                    <th>Worst Case (Unbalanced)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Access / Search</strong></td>
-                    <td>$O(\log n)$</td>
-                    <td>$O(n)$</td>
-                </tr>
-                <tr>
-                    <td><strong>Insertion</strong></td>
-                    <td>$O(\log n)$</td>
-                    <td>$O(n)$</td>
-                </tr>
-                <tr>
-                    <td><strong>Deletion</strong></td>
-                    <td>$O(\log n)$</td>
-                    <td>$O(n)$</td>
-                </tr>
-                <tr>
-                    <td><strong>Space Complexity</strong></td>
-                    <td>$O(n)$</td>
-                    <td>$O(n)$</td>
-                </tr>
-            </tbody>
-        </table>
+      <p>
+        To prevent this, computer scientists use
+        <strong>Self-Balancing Binary Search Trees</strong> (like <em>AVL Trees</em> or
+        <em>Red-Black Trees</em>), which automatically rotate their nodes during insertion to keep
+        the tree's height as short as possible.
+      </p>
+
+      <h2><i class="fa-solid fa-stopwatch"></i> Complexity Analysis</h2>
+      <table class="complexity-table">
+        <thead>
+          <tr>
+            <th>Operation</th>
+            <th>Average Case</th>
+            <th>Worst Case (Unbalanced)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Access / Search</strong></td>
+            <td>$O(\log n)$</td>
+            <td>$O(n)$</td>
+          </tr>
+          <tr>
+            <td><strong>Insertion</strong></td>
+            <td>$O(\log n)$</td>
+            <td>$O(n)$</td>
+          </tr>
+          <tr>
+            <td><strong>Deletion</strong></td>
+            <td>$O(\log n)$</td>
+            <td>$O(n)$</td>
+          </tr>
+          <tr>
+            <td><strong>Space Complexity</strong></td>
+            <td>$O(n)$</td>
+            <td>$O(n)$</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <script src="../js/ui/resolve_learn_header.js"></script>
-</body>
+  </body>
 </html>

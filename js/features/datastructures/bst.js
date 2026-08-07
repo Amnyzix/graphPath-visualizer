@@ -1,128 +1,136 @@
-// javascript/ui/bst-app.js
+import { BSTDocument } from "../../core/Documents/BSTDocument.js";
+import { BSTVisualization } from "../../visualizations/BSTVisualization.js";
+import { AnimationPlayer } from "../../animation/AnimationPlayer.js";
+import { BSTAlgorithms } from "../../algorithm/BSTAlgorithms.js";
 
 let bstEditor = null;
 let bstVisualization = null;
 let bstPlayer = null;
 
-window.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialisation de l'éditeur et du document
-    bstEditor = {
-        document: new BSTDocument()
-    };
-    
-    bstVisualization = new BSTVisualization(bstEditor);
-    
-    // Le lecteur est définitivement lié au BST
-    bstPlayer = new AnimationPlayer(bstVisualization,'bst');
-    console.log(bstPlayer)
+window.addEventListener("DOMContentLoaded", () => {
+  // 1. Initialisation de l'éditeur et du document
+  bstEditor = {
+    document: new BSTDocument(),
+  };
 
-    // 3. (Optionnel) Générer un arbre par défaut
-    generateRandomBST();
+  bstVisualization = new BSTVisualization(bstEditor);
+
+  // Le lecteur est définitivement lié au BST
+  bstPlayer = new AnimationPlayer(bstVisualization, "bst");
+  console.log(bstPlayer);
+
+  // 3. (Optionnel) Générer un arbre par défaut
+  generateRandomBST();
 });
 
 // --- ACTIONS UI ---
 
+export async function insertNode() {
+  const input = document.getElementById("ds-value-input");
+  const val = parseInt(input.value);
+  if (!isNaN(val)) {
+    window.activeVisualization = bstVisualization;
+    const { animation, newRoot } = BSTAlgorithms.insert(bstEditor.document.root, val);
 
-async function insertNode() {
-    const input = document.getElementById('ds-value-input');
-    const val = parseInt(input.value);
-    if (!isNaN(val)) {
-        window.activeVisualization = bstVisualization;
-        const { animation, newRoot } = BSTAlgorithms.insert(bstEditor.document.root, val);
-        
-        // On met à jour le Document réel pour les prochaines opérations !
-        bstEditor.document.root = newRoot; 
+    // On met à jour le Document réel pour les prochaines opérations !
+    bstEditor.document.root = newRoot;
 
-        bstPlayer.load(animation);
-        bstPlayer.play();
-        input.value = '';
-    }
-}
-
-async function searchNode() {
-    const input = document.getElementById('ds-value-input');
-    const val = parseInt(input.value);
-    if (!isNaN(val)) {
-        window.activeVisualization = bstVisualization;
-        const animation = BSTAlgorithms.search(bstEditor.document.root, val);
-        bstPlayer.load(animation);
-        bstPlayer.play();
-    }
-}
-
-async function deleteNode() {
-    const input = document.getElementById('ds-value-input');
-    const val = parseInt(input.value);
-    if (!isNaN(val)) {
-        window.activeVisualization = bstVisualization;
-        
-        const { animation, newRoot } = BSTAlgorithms.delete(bstEditor.document.root, val);
-        bstEditor.document.root = newRoot; // Mise à jour du Document
-        
-        bstPlayer.load(animation);
-        bstPlayer.play();
-        input.value = '';
-    }
-}
-
-function findBSTMin() {
-   window.activeVisualization = bstVisualization;
-    const animation = BSTAlgorithms.findMin(bstEditor.document.root);
     bstPlayer.load(animation);
     bstPlayer.play();
+    input.value = "";
+  }
 }
 
-function findBSTMax() {
+export async function searchNode() {
+  const input = document.getElementById("ds-value-input");
+  const val = parseInt(input.value);
+  if (!isNaN(val)) {
     window.activeVisualization = bstVisualization;
-    const animation = BSTAlgorithms.findMax(bstEditor.document.root);
+    const animation = BSTAlgorithms.search(bstEditor.document.root, val);
     bstPlayer.load(animation);
     bstPlayer.play();
+  }
 }
 
-function traverseBST(type) {
+export async function deleteNode() {
+  const input = document.getElementById("ds-value-input");
+  const val = parseInt(input.value);
+  if (!isNaN(val)) {
     window.activeVisualization = bstVisualization;
-    const animation = BSTAlgorithms.traverse(bstEditor.document.root, type);
+
+    const { animation, newRoot } = BSTAlgorithms.delete(bstEditor.document.root, val);
+    bstEditor.document.root = newRoot; // Mise à jour du Document
+
     bstPlayer.load(animation);
     bstPlayer.play();
+    input.value = "";
+  }
 }
 
-function generateRandomBST() {
-    window.activeVisualization = bstVisualization;
-    bstEditor.document.clear();
-    const count = 7;
-    const uniqueValues = new Set();
-    while (uniqueValues.size < count) {
-        uniqueValues.add(Math.floor(Math.random() * 99) + 1);
-    }
-    const valuesArray = Array.from(uniqueValues);
-    
-    // Insertion silencieuse dans le document
-    for (let value of valuesArray) {
-        // Logique d'insertion simple pour construire l'arbre initial sans animation
-        if (!bstEditor.document.root) {
-            bstEditor.document.root = { value, left: null, right: null, x:0, y:0 };
+export function findBSTMin() {
+  window.activeVisualization = bstVisualization;
+  const animation = BSTAlgorithms.findMin(bstEditor.document.root);
+  bstPlayer.load(animation);
+  bstPlayer.play();
+}
+
+export function findBSTMax() {
+  window.activeVisualization = bstVisualization;
+  const animation = BSTAlgorithms.findMax(bstEditor.document.root);
+  bstPlayer.load(animation);
+  bstPlayer.play();
+}
+
+export function traverseBST(type) {
+  window.activeVisualization = bstVisualization;
+  const animation = BSTAlgorithms.traverse(bstEditor.document.root, type);
+  bstPlayer.load(animation);
+  bstPlayer.play();
+}
+
+export function generateRandomBST() {
+  window.activeVisualization = bstVisualization;
+  bstEditor.document.clear();
+  const count = 7;
+  const uniqueValues = new Set();
+  while (uniqueValues.size < count) {
+    uniqueValues.add(Math.floor(Math.random() * 99) + 1);
+  }
+  const valuesArray = Array.from(uniqueValues);
+
+  // Insertion silencieuse dans le document
+  for (let value of valuesArray) {
+    // Logique d'insertion simple pour construire l'arbre initial sans animation
+    if (!bstEditor.document.root) {
+      bstEditor.document.root = { value, left: null, right: null, x: 0, y: 0 };
+    } else {
+      let current = bstEditor.document.root;
+      while (true) {
+        if (value < current.value) {
+          if (!current.left) {
+            current.left = { value, left: null, right: null, x: 0, y: 0 };
+            break;
+          }
+          current = current.left;
         } else {
-            let current = bstEditor.document.root;
-            while (true) {
-                if (value < current.value) {
-                    if (!current.left) { current.left = { value, left: null, right: null, x:0, y:0 }; break; }
-                    current = current.left;
-                } else {
-                    if (!current.right) { current.right = { value, left: null, right: null, x:0, y:0 }; break; }
-                    current = current.right;
-                }
-            }
+          if (!current.right) {
+            current.right = { value, left: null, right: null, x: 0, y: 0 };
+            break;
+          }
+          current = current.right;
         }
+      }
     }
-    
-    // Mise à jour visuelle
-    bstVisualization.render();
-    bstPlayer.hide(); // S'assure que le lecteur est masqué ou réinitialisé
+  }
+
+  // Mise à jour visuelle
+  bstVisualization.render();
+  bstPlayer.hide(); // S'assure que le lecteur est masqué ou réinitialisé
 }
 
-function clearDataStructure() {
-    bstEditor.document.clear();
-    bstVisualization.render();
-    const infoPanel = document.getElementById('ds-info-panel');
-    if (infoPanel) infoPanel.innerHTML = '';
+export function clearDataStructure() {
+  bstEditor.document.clear();
+  bstVisualization.render();
+  const infoPanel = document.getElementById("ds-info-panel");
+  if (infoPanel) infoPanel.innerHTML = "";
 }

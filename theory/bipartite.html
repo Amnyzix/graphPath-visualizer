@@ -1,185 +1,229 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AlgoQuest - Bipartite Graph Check</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/learn-header.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/learn-header.css" />
     <script>
-        MathJax = {
-            tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']]
-            }
-        };
+      MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+        },
+      };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-    
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+    ></script>
+
     <style>
-        :root {
-            --brand-main: #6366F1;
-            --brand-light: #E0E7FF;
-            --bg-main: #F4F6F9;
-            --container-bg: #FFFFFF;
-            --text-primary: #334155;
-            --text-muted: #64748B;
-            --border-color: #CBD5E1;
-            --code-bg: #1E293B;
-            --code-text: #F8FAFC;
-        }
+      :root {
+        --brand-main: #6366f1;
+        --brand-light: #e0e7ff;
+        --bg-main: #f4f6f9;
+        --container-bg: #ffffff;
+        --text-primary: #334155;
+        --text-muted: #64748b;
+        --border-color: #cbd5e1;
+        --code-bg: #1e293b;
+        --code-text: #f8fafc;
+      }
 
-        body {
-            font-family: 'Nunito', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
+      body {
+        font-family: "Nunito", sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
 
-        .lesson-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: var(--container-bg);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border: 2px solid var(--border-color);
-        }
+      .lesson-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: var(--container-bg);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border: 2px solid var(--border-color);
+      }
 
-        h1 {
-            color: var(--brand-main);
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-top: 0;
-            border-bottom: 3px solid var(--brand-light);
-            padding-bottom: 15px;
-        }
+      h1 {
+        color: var(--brand-main);
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-top: 0;
+        border-bottom: 3px solid var(--brand-light);
+        padding-bottom: 15px;
+      }
 
-        h2 {
-            color: var(--text-primary);
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-top: 35px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+      h2 {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 35px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-        h2 i {
-            color: var(--brand-main);
-        }
+      h2 i {
+        color: var(--brand-main);
+      }
 
-        p {
-            font-size: 1.05rem;
-            color: var(--text-primary);
-        }
+      p {
+        font-size: 1.05rem;
+        color: var(--text-primary);
+      }
 
-        .highlight-box {
-            background-color: var(--brand-light);
-            border-left: 5px solid var(--brand-main);
-            padding: 20px;
-            border-radius: 0 12px 12px 0;
-            margin: 25px 0;
-        }
+      .highlight-box {
+        background-color: var(--brand-light);
+        border-left: 5px solid var(--brand-main);
+        padding: 20px;
+        border-radius: 0 12px 12px 0;
+        margin: 25px 0;
+      }
 
-        .highlight-box strong {
-            color: var(--brand-main);
-        }
+      .highlight-box strong {
+        color: var(--brand-main);
+      }
 
-        ul {
-            font-size: 1.05rem;
-            padding-left: 20px;
-        }
+      ul {
+        font-size: 1.05rem;
+        padding-left: 20px;
+      }
 
-        li {
-            margin-bottom: 10px;
-        }
+      li {
+        margin-bottom: 10px;
+      }
 
-        pre {
-            background-color: var(--code-bg);
-            color: var(--code-text);
-            padding: 20px;
-            border-radius: 12px;
-            overflow-x: auto;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-        }
+      pre {
+        background-color: var(--code-bg);
+        color: var(--code-text);
+        padding: 20px;
+        border-radius: 12px;
+        overflow-x: auto;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
 
-        code {
-            font-family: 'Consolas', 'Monaco', monospace;
-            background-color: #E2E8F0;
-            color: #B91C1C;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
+      code {
+        font-family: "Consolas", "Monaco", monospace;
+        background-color: #e2e8f0;
+        color: #b91c1c;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+      }
 
-        pre code {
-            background-color: transparent;
-            color: inherit;
-            padding: 0;
-        }
+      pre code {
+        background-color: transparent;
+        color: inherit;
+        padding: 0;
+      }
 
-        .complexity-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+      .complexity-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
 
-        .complexity-table th, .complexity-table td {
-            text-align: left;
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
+      .complexity-table th,
+      .complexity-table td {
+        text-align: left;
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+      }
 
-        .complexity-table th {
-            background-color: var(--bg-main);
-            font-weight: 800;
-            color: var(--text-primary);
-        }
+      .complexity-table th {
+        background-color: var(--bg-main);
+        font-weight: 800;
+        color: var(--text-primary);
+      }
 
-        .color-badge {
-            display: inline-block;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
+      .color-badge {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
 
-        .blue-badge { background-color: #3B82F6; }
-        .yellow-badge { background-color: #FBBF24; }
-        .red-badge { background-color: #EF4444; }
-
+      .blue-badge {
+        background-color: #3b82f6;
+      }
+      .yellow-badge {
+        background-color: #fbbf24;
+      }
+      .red-badge {
+        background-color: #ef4444;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="lesson-container">
-        <h1>Bipartite Graph Check</h1>
-        
-        <p>A fundamental concept in graph theory is determining whether a graph can be perfectly divided into two distinct groups. This is known as checking if a graph is <strong>Bipartite</strong>.</p>
+      <h1>Bipartite Graph Check</h1>
 
-        <div class="highlight-box">
-            <strong><i class="fa-solid fa-lightbulb"></i> Definition:</strong> 
-            A graph is bipartite if its vertices can be divided into two disjoint and independent sets $U$ and $V$ such that every edge connects a vertex in $U$ to one in $V$. In simpler terms, you can color the entire graph using only <strong>two colors</strong> without any two adjacent nodes sharing the same color.
-        </div>
+      <p>
+        A fundamental concept in graph theory is determining whether a graph can be perfectly
+        divided into two distinct groups. This is known as checking if a graph is
+        <strong>Bipartite</strong>.
+      </p>
 
-        <h2><i class="fa-solid fa-palette"></i> The 2-Coloring Principle</h2>
-        <p>The most common way to check if a graph is bipartite is by using a Graph Traversal Algorithm, such as <strong>Breadth-First Search (BFS)</strong>, and attempting to color it:</p>
-        <ul>
-            <li>Start at an arbitrary node and color it <span class="color-badge blue-badge"></span><strong>Blue</strong>.</li>
-            <li>Look at all its immediate neighbors. Since they are connected to a Blue node, they must be colored <span class="color-badge yellow-badge"></span><strong>Yellow</strong>.</li>
-            <li>Move to those Yellow nodes, and color their uncolored neighbors <span class="color-badge blue-badge"></span><strong>Blue</strong>.</li>
-            <li>If, during this process, you find an edge that connects two nodes of the <strong>same color</strong> (<span class="color-badge red-badge"></span>Conflict!), the graph is not bipartite.</li>
-        </ul>
+      <div class="highlight-box">
+        <strong><i class="fa-solid fa-lightbulb"></i> Definition:</strong>
+        A graph is bipartite if its vertices can be divided into two disjoint and independent sets
+        $U$ and $V$ such that every edge connects a vertex in $U$ to one in $V$. In simpler terms,
+        you can color the entire graph using only <strong>two colors</strong> without any two
+        adjacent nodes sharing the same color.
+      </div>
 
-        <h2><i class="fa-solid fa-code"></i> Algorithm Walkthrough</h2>
-        <p>Below is the implementation used in our animation engine. It uses a queue to process nodes level by level (BFS) and visualizes the coloring process step-by-step.</p>
+      <h2><i class="fa-solid fa-palette"></i> The 2-Coloring Principle</h2>
+      <p>
+        The most common way to check if a graph is bipartite is by using a Graph Traversal
+        Algorithm, such as <strong>Breadth-First Search (BFS)</strong>, and attempting to color it:
+      </p>
+      <ul>
+        <li>
+          Start at an arbitrary node and color it <span class="color-badge blue-badge"></span
+          ><strong>Blue</strong>.
+        </li>
+        <li>
+          Look at all its immediate neighbors. Since they are connected to a Blue node, they must be
+          colored <span class="color-badge yellow-badge"></span><strong>Yellow</strong>.
+        </li>
+        <li>
+          Move to those Yellow nodes, and color their uncolored neighbors
+          <span class="color-badge blue-badge"></span><strong>Blue</strong>.
+        </li>
+        <li>
+          If, during this process, you find an edge that connects two nodes of the
+          <strong>same color</strong> (<span class="color-badge red-badge"></span>Conflict!), the
+          graph is not bipartite.
+        </li>
+      </ul>
 
-<pre><code>def bipartite():
+      <h2><i class="fa-solid fa-code"></i> Algorithm Walkthrough</h2>
+      <p>
+        Below is the implementation used in our animation engine. It uses a queue to process nodes
+        level by level (BFS) and visualizes the coloring process step-by-step.
+      </p>
+
+      <pre><code>def bipartite():
     color_map = {}
 
     # Colors for the two groups
@@ -231,31 +275,39 @@
 
 bipartite()</code></pre>
 
-        <h2><i class="fa-solid fa-stopwatch"></i> Complexity</h2>
-        <p>Because the algorithm relies on Breadth-First Search, it visits every node and evaluates every edge exactly once.</p>
-        <table class="complexity-table">
-            <thead>
-                <tr>
-                    <th>Metric</th>
-                    <th>Complexity</th>
-                    <th>Explanation</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Time Complexity</strong></td>
-                    <td>$O(V + E)$</td>
-                    <td>Where $V$ is the number of vertices (nodes) and $E$ is the number of edges. Every node and edge is processed linearly.</td>
-                </tr>
-                <tr>
-                    <td><strong>Space Complexity</strong></td>
-                    <td>$O(V)$</td>
-                    <td>The algorithm stores colors in the <code>color_map</code> dictionary and uses a <code>queue</code>, both of which will contain at most $V$ elements.</td>
-                </tr>
-            </tbody>
-        </table>
-
+      <h2><i class="fa-solid fa-stopwatch"></i> Complexity</h2>
+      <p>
+        Because the algorithm relies on Breadth-First Search, it visits every node and evaluates
+        every edge exactly once.
+      </p>
+      <table class="complexity-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Complexity</th>
+            <th>Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Time Complexity</strong></td>
+            <td>$O(V + E)$</td>
+            <td>
+              Where $V$ is the number of vertices (nodes) and $E$ is the number of edges. Every node
+              and edge is processed linearly.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Space Complexity</strong></td>
+            <td>$O(V)$</td>
+            <td>
+              The algorithm stores colors in the <code>color_map</code> dictionary and uses a
+              <code>queue</code>, both of which will contain at most $V$ elements.
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <script src="../js/ui/resolve_learn_header.js"></script>
-</body>
+  </body>
 </html>

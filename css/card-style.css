@@ -1,132 +1,132 @@
 :root {
-    --brand-main: #6366F1;
-    --brand-light: #E0E7FF;
-    --bg-main: #F4F6F9;
-    --container-bg: #FFFFFF;
-    --text-primary: #334155;
-    --text-muted: #64748B;
-    --border-color: #CBD5E1;
-    --code-bg: #1E293B;
-    --code-text: #F8FAFC;
+  --brand-main: #6366f1;
+  --brand-light: #e0e7ff;
+  --bg-main: #f4f6f9;
+  --container-bg: #ffffff;
+  --text-primary: #334155;
+  --text-muted: #64748b;
+  --border-color: #cbd5e1;
+  --code-bg: #1e293b;
+  --code-text: #f8fafc;
 }
 
 body {
-    font-family: 'Nunito', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
-    line-height: 1.6;
-    margin: 0;
-    padding: 40px 20px;
+  font-family: "Nunito", sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin: 0;
+  padding: 40px 20px;
 }
 
 .lesson-container {
-    max-width: 900px;
-    margin: 0 auto;
-    background: var(--container-bg);
-    border-radius: 16px;
-    padding: 40px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-    border: 2px solid var(--border-color);
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--container-bg);
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border: 2px solid var(--border-color);
 }
 
 h1 {
-    color: var(--brand-main);
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-top: 0;
-    border-bottom: 3px solid var(--brand-light);
-    padding-bottom: 15px;
+  color: var(--brand-main);
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-top: 0;
+  border-bottom: 3px solid var(--brand-light);
+  padding-bottom: 15px;
 }
 
 h2 {
-    color: var(--text-primary);
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-top: 35px;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 35px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 h2 i {
-    color: var(--brand-main);
+  color: var(--brand-main);
 }
 
 h3 {
-    color: var(--text-primary);
-    font-size: 1.2rem;
-    margin-top: 25px;
-    margin-bottom: 10px;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  margin-top: 25px;
+  margin-bottom: 10px;
 }
 
 p,
 ul {
-    font-size: 1.05rem;
-    color: var(--text-primary);
+  font-size: 1.05rem;
+  color: var(--text-primary);
 }
 
 li {
-    margin-bottom: 8px;
+  margin-bottom: 8px;
 }
 
 .highlight-box {
-    background-color: var(--brand-light);
-    border-left: 5px solid var(--brand-main);
-    padding: 20px;
-    border-radius: 0 12px 12px 0;
-    margin: 25px 0;
+  background-color: var(--brand-light);
+  border-left: 5px solid var(--brand-main);
+  padding: 20px;
+  border-radius: 0 12px 12px 0;
+  margin: 25px 0;
 }
 
 .highlight-box strong {
-    color: var(--brand-main);
+  color: var(--brand-main);
 }
 
 .warning-box {
-    background-color: #FEE2E2;
-    border-left: 5px solid #EF4444;
-    padding: 20px;
-    border-radius: 0 12px 12px 0;
-    margin: 25px 0;
+  background-color: #fee2e2;
+  border-left: 5px solid #ef4444;
+  padding: 20px;
+  border-radius: 0 12px 12px 0;
+  margin: 25px 0;
 }
 
 .warning-box strong {
-    color: #EF4444;
+  color: #ef4444;
 }
 
 pre {
-    background-color: var(--code-bg);
-    color: var(--code-text);
-    padding: 15px;
-    border-radius: 8px;
-    overflow-x: auto;
-    font-family: 'Consolas', monospace;
-    font-size: 0.95rem;
+  background-color: var(--code-bg);
+  color: var(--code-text);
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: "Consolas", monospace;
+  font-size: 0.95rem;
 }
 
 code.inline {
-    background-color: #E2E8F0;
-    color: #B91C1C;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'Consolas', monospace;
-    font-size: 0.9rem;
+  background-color: #e2e8f0;
+  color: #b91c1c;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "Consolas", monospace;
+  font-size: 0.9rem;
 }
 
 .complexity-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
 .complexity-table th,
 .complexity-table td {
-    text-align: left;
-    padding: 15px;
-    border-bottom: 1px solid var(--border-color);
+  text-align: left;
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .complexity-table th {
-    background-color: var(--bg-main);
-    font-weight: 800;
+  background-color: var(--bg-main);
+  font-weight: 800;
 }

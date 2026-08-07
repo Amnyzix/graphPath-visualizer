@@ -1,4 +1,4 @@
-const PYTHON_GRAPH_API = `
+export const PYTHON_GRAPH_API = `
 import json
 import sys
 

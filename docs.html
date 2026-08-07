@@ -1,231 +1,357 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GraphViz - API Documentation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        :root {
-            --bg-color: #0d1117;
-            --panel-bg: #161b22;
-            --text-main: #c9d1d9;
-            --text-muted: #8b949e;
-            --accent: #58a6ff;
-            --accent-hover: #3182ce;
-            --border-color: #30363d;
-            --code-bg: #1e1e1e;
-        }
+      :root {
+        --bg-color: #0d1117;
+        --panel-bg: #161b22;
+        --text-main: #c9d1d9;
+        --text-muted: #8b949e;
+        --accent: #58a6ff;
+        --accent-hover: #3182ce;
+        --border-color: #30363d;
+        --code-bg: #1e1e1e;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+      }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
 
-        h1, h2, h3 {
-            color: #ffffff;
-        }
+      h1,
+      h2,
+      h3 {
+        color: #ffffff;
+      }
 
-        h1 { font-size: 2.2rem; margin: 0; }
-        h2 { font-size: 1.5rem; margin-top: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        h3 { font-size: 1.2rem; color: var(--accent); margin-top: 30px; }
+      h1 {
+        font-size: 2.2rem;
+        margin: 0;
+      }
+      h2 {
+        font-size: 1.5rem;
+        margin-top: 40px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+      }
+      h3 {
+        font-size: 1.2rem;
+        color: var(--accent);
+        margin-top: 30px;
+      }
 
-        .btn-back {
-            background-color: var(--border-color);
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: background 0.2s;
-        }
+      .btn-back {
+        background-color: var(--border-color);
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background 0.2s;
+      }
 
-        .btn-back:hover {
-            background-color: #4b5563;
-        }
+      .btn-back:hover {
+        background-color: #4b5563;
+      }
 
-        code {
-            font-family: 'Consolas', 'Courier New', monospace;
-            background-color: rgba(110, 118, 129, 0.4);
-            padding: 2px 6px;
-            border-radius: 6px;
-            font-size: 0.9em;
-        }
+      code {
+        font-family: "Consolas", "Courier New", monospace;
+        background-color: rgba(110, 118, 129, 0.4);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.9em;
+      }
 
-        pre {
-            background-color: var(--code-bg);
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
-            border: 1px solid var(--border-color);
-        }
+      pre {
+        background-color: var(--code-bg);
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        border: 1px solid var(--border-color);
+      }
 
-        pre code {
-            background-color: transparent;
-            padding: 0;
-        }
+      pre code {
+        background-color: transparent;
+        padding: 0;
+      }
 
-        .api-card {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
+      .api-card {
+        background-color: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
 
-        .api-signature {
-            font-size: 1.1rem;
-            font-family: 'Consolas', monospace;
-            color: #d2a8ff;
-            margin-bottom: 10px;
-        }
+      .api-signature {
+        font-size: 1.1rem;
+        font-family: "Consolas", monospace;
+        color: #d2a8ff;
+        margin-bottom: 10px;
+      }
 
-        .api-signature span.keyword { color: #ff7b72; }
-        .api-signature span.func { color: #d2a8ff; }
-        .api-signature span.args { color: var(--text-main); }
+      .api-signature span.keyword {
+        color: #ff7b72;
+      }
+      .api-signature span.func {
+        color: #d2a8ff;
+      }
+      .api-signature span.args {
+        color: var(--text-main);
+      }
 
-        .tag {
-            display: inline-block;
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-right: 10px;
-            font-weight: 600;
-        }
+      .tag {
+        display: inline-block;
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-right: 10px;
+        font-weight: 600;
+      }
 
-        .tag.info { background-color: rgba(47, 129, 247, 0.2); color: #2f81f7; }
-        .tag.anim { background-color: rgba(46, 160, 67, 0.2); color: #3fb950; }
+      .tag.info {
+        background-color: rgba(47, 129, 247, 0.2);
+        color: #2f81f7;
+      }
+      .tag.anim {
+        background-color: rgba(46, 160, 67, 0.2);
+        color: #3fb950;
+      }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
 
-        th, td {
-            text-align: left;
-            padding: 8px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem;
-        }
+      th,
+      td {
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.9rem;
+      }
 
-        th {
-            color: var(--text-muted);
-            font-weight: normal;
-        }
+      th {
+        color: var(--text-muted);
+        font-weight: normal;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1><i class="fa-solid fa-book"></i> Scripting API Documentation</h1>
-            <a href="index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Back to Editor</a>
-        </header>
+      <header>
+        <h1><i class="fa-solid fa-book"></i> Scripting API Documentation</h1>
+        <a href="index.html" class="btn-back"
+          ><i class="fa-solid fa-arrow-left"></i> Back to Editor</a
+        >
+      </header>
 
-        <section>
-            <p>Welcome to the GraphViz Scripting API. You can write standard Python code to implement graph algorithms (like BFS, DFS, Dijkstra) and use the built-in functions below to interact with the canvas and animate your algorithm step-by-step.</p>
-        </section>
+      <section>
+        <p>
+          Welcome to the GraphViz Scripting API. You can write standard Python code to implement
+          graph algorithms (like BFS, DFS, Dijkstra) and use the built-in functions below to
+          interact with the canvas and animate your algorithm step-by-step.
+        </p>
+      </section>
 
-        <h2><i class="fa-solid fa-magnifying-glass-chart"></i> Graph Information</h2>
-        <p>Use these functions to read the structure and weights of the graph drawn on the canvas.</p>
+      <h2><i class="fa-solid fa-magnifying-glass-chart"></i> Graph Information</h2>
+      <p>Use these functions to read the structure and weights of the graph drawn on the canvas.</p>
 
-        <div class="api-card">
-            <div class="api-signature"><span class="keyword">def</span> <span class="func">neighbors</span><span class="args">(node)</span></div>
-            <span class="tag info">Read</span>
-            <p>Returns the neighbors of the specified node.</p>
-            <table>
-                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>node</code></td><td>int | str</td><td>The ID of the target node.</td></tr>
-            </table>
-            <p><strong>Returns:</strong> A dictionary (or iterable) of the node's neighbors.</p>
+      <div class="api-card">
+        <div class="api-signature">
+          <span class="keyword">def</span> <span class="func">neighbors</span
+          ><span class="args">(node)</span>
         </div>
+        <span class="tag info">Read</span>
+        <p>Returns the neighbors of the specified node.</p>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>node</code></td>
+            <td>int | str</td>
+            <td>The ID of the target node.</td>
+          </tr>
+        </table>
+        <p><strong>Returns:</strong> A dictionary (or iterable) of the node's neighbors.</p>
+      </div>
 
-        <div class="api-card">
-            <div class="api-signature"><span class="keyword">def</span> <span class="func">weight</span><span class="args">(node_a, node_b)</span></div>
-            <span class="tag info">Read</span>
-            <p>Returns the weight of the edge between <code>node_a</code> and <code>node_b</code>.</p>
-            <table>
-                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>node_a</code></td><td>int | str</td><td>The starting node.</td></tr>
-                <tr><td><code>node_b</code></td><td>int | str</td><td>The ending node.</td></tr>
-            </table>
-            <p><strong>Returns:</strong> A numeric value representing the weight. Returns <code>float('inf')</code> if no edge exists.</p>
+      <div class="api-card">
+        <div class="api-signature">
+          <span class="keyword">def</span> <span class="func">weight</span
+          ><span class="args">(node_a, node_b)</span>
         </div>
+        <span class="tag info">Read</span>
+        <p>Returns the weight of the edge between <code>node_a</code> and <code>node_b</code>.</p>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>node_a</code></td>
+            <td>int | str</td>
+            <td>The starting node.</td>
+          </tr>
+          <tr>
+            <td><code>node_b</code></td>
+            <td>int | str</td>
+            <td>The ending node.</td>
+          </tr>
+        </table>
+        <p>
+          <strong>Returns:</strong> A numeric value representing the weight. Returns
+          <code>float('inf')</code> if no edge exists.
+        </p>
+      </div>
 
+      <h2><i class="fa-solid fa-film"></i> Animation Controls</h2>
+      <p>
+        Use these functions to create visual steps in your animation player. Every call to these
+        functions creates a new "Step" in the timeline.
+      </p>
 
-        <h2><i class="fa-solid fa-film"></i> Animation Controls</h2>
-        <p>Use these functions to create visual steps in your animation player. Every call to these functions creates a new "Step" in the timeline.</p>
-
-        <div class="api-card">
-            <div class="api-signature"><span class="keyword">def</span> <span class="func">select</span><span class="args">(node)</span></div>
-            <span class="tag anim">Animation</span>
-            <p>Highlights a node to show it is currently selected (usually the node currently being processed in a loop).</p>
+      <div class="api-card">
+        <div class="api-signature">
+          <span class="keyword">def</span> <span class="func">select</span
+          ><span class="args">(node)</span>
         </div>
+        <span class="tag anim">Animation</span>
+        <p>
+          Highlights a node to show it is currently selected (usually the node currently being
+          processed in a loop).
+        </p>
+      </div>
 
-        <div class="api-card">
-            <div class="api-signature"><span class="keyword">def</span> <span class="func">visit</span><span class="args">(node, msg=None)</span></div>
-            <span class="tag anim">Animation</span>
-            <p>Marks a node as visited. Visited nodes generally keep a specific color state to show they have already been processed.</p>
-            <table>
-                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>msg</code></td><td>str (optional)</td><td>A message to display in the log console during this step.</td></tr>
-            </table>
+      <div class="api-card">
+        <div class="api-signature">
+          <span class="keyword">def</span> <span class="func">visit</span
+          ><span class="args">(node, msg=None)</span>
         </div>
+        <span class="tag anim">Animation</span>
+        <p>
+          Marks a node as visited. Visited nodes generally keep a specific color state to show they
+          have already been processed.
+        </p>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>msg</code></td>
+            <td>str (optional)</td>
+            <td>A message to display in the log console during this step.</td>
+          </tr>
+        </table>
+      </div>
 
-        <div class="api-card">
-            <div class="api-signature"><span class="keyword">def</span> <span class="func">color_node</span><span class="args">(node, color)</span></div>
-            <span class="tag anim">Animation</span>
-            <p>Forces a specific color onto a node.</p>
-            <table>
-                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>color</code></td><td>str</td><td>A valid CSS color (e.g., <code>"red"</code>, <code>"#3498db"</code>).</td></tr>
-            </table>
+      <div class="api-card">
+        <div class="api-signature">
+          <span class="keyword">def</span> <span class="func">color_node</span
+          ><span class="args">(node, color)</span>
         </div>
+        <span class="tag anim">Animation</span>
+        <p>Forces a specific color onto a node.</p>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>color</code></td>
+            <td>str</td>
+            <td>A valid CSS color (e.g., <code>"red"</code>, <code>"#3498db"</code>).</td>
+          </tr>
+        </table>
+      </div>
 
-        <div class="api-card">
-            <div class="api-signature"><span class="keyword">def</span> <span class="func">color_edge</span><span class="args">(u, v, color)</span></div>
-            <span class="tag anim">Animation</span>
-            <p>Colors the edge connecting node <code>u</code> and node <code>v</code>.</p>
-            <table>
-                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>color</code></td><td>str</td><td>A valid CSS color (e.g., <code>"blue"</code>, <code>"#2ecc71"</code>).</td></tr>
-            </table>
+      <div class="api-card">
+        <div class="api-signature">
+          <span class="keyword">def</span> <span class="func">color_edge</span
+          ><span class="args">(u, v, color)</span>
         </div>
+        <span class="tag anim">Animation</span>
+        <p>Colors the edge connecting node <code>u</code> and node <code>v</code>.</p>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>color</code></td>
+            <td>str</td>
+            <td>A valid CSS color (e.g., <code>"blue"</code>, <code>"#2ecc71"</code>).</td>
+          </tr>
+        </table>
+      </div>
 
-        <div class="api-card">
-            <div class="api-signature"><span class="keyword">def</span> <span class="func">draw_path</span><span class="args">(path, color="#e74c3c")</span></div>
-            <span class="tag anim">Animation</span>
-            <p>Draws a thick highlighted path connecting a sequence of nodes.</p>
-            <table>
-                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>path</code></td><td>list</td><td>A list of node IDs representing the path (e.g., <code>[1, 2, 5, 8]</code>).</td></tr>
-                <tr><td><code>color</code></td><td>str (optional)</td><td>The color of the path. Defaults to red.</td></tr>
-            </table>
+      <div class="api-card">
+        <div class="api-signature">
+          <span class="keyword">def</span> <span class="func">draw_path</span
+          ><span class="args">(path, color="#e74c3c")</span>
         </div>
+        <span class="tag anim">Animation</span>
+        <p>Draws a thick highlighted path connecting a sequence of nodes.</p>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>path</code></td>
+            <td>list</td>
+            <td>A list of node IDs representing the path (e.g., <code>[1, 2, 5, 8]</code>).</td>
+          </tr>
+          <tr>
+            <td><code>color</code></td>
+            <td>str (optional)</td>
+            <td>The color of the path. Defaults to red.</td>
+          </tr>
+        </table>
+      </div>
 
-        <h2><i class="fa-solid fa-code"></i> Example: BFS Algorithm</h2>
-        <p>Here is an example of how to combine standard Python code with the Graph API to visualize a Breadth-First Search.</p>
-        <pre><code>def bfs(start_node):
+      <h2><i class="fa-solid fa-code"></i> Example: BFS Algorithm</h2>
+      <p>
+        Here is an example of how to combine standard Python code with the Graph API to visualize a
+        Breadth-First Search.
+      </p>
+      <pre><code>def bfs(start_node):
     queue = [start_node]
     visited = set([start_node])
     
@@ -247,8 +373,6 @@
 
 # Start the algorithm (assuming node '1' exists in your graph)
 bfs('1')</code></pre>
-
     </div>
-
-</body>
+  </body>
 </html>

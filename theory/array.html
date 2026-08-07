@@ -1,155 +1,316 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AlgoQuest - Arrays & Sorting Algorithms</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/learn-header.css">
-    
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/learn-header.css" />
+
     <script>
-      MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+      MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+        },
+      };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+    ></script>
 
     <style>
-        :root { --brand-main: #6366F1; --brand-light: #E0E7FF; --bg-main: #F4F6F9; --container-bg: #FFFFFF; --text-primary: #334155; --text-muted: #64748B; --border-color: #CBD5E1; --code-bg: #1E293B; --code-text: #F8FAFC; }
-        body { font-family: 'Nunito', sans-serif; background-color: var(--bg-main); color: var(--text-primary); line-height: 1.6;  }
-        .lesson-container { max-width: 900px; margin: 0 auto; background: var(--container-bg); border-radius: 16px; padding: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px solid var(--border-color); }
-        h1 { color: var(--brand-main); font-size: 2.5rem; font-weight: 800; margin-top: 0; border-bottom: 3px solid var(--brand-light); padding-bottom: 15px; }
-        h2 { color: var(--text-primary); font-size: 1.5rem; font-weight: 700; margin-top: 35px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        h2 i { color: var(--brand-main); }
-        p, ul { font-size: 1.05rem; color: var(--text-primary); }
-        
-        .highlight-box { background-color: var(--brand-light); border-left: 5px solid var(--brand-main); padding: 20px; border-radius: 0 12px 12px 0; margin: 25px 0; }
-        
-        /* Cartes vers les sous-fiches de tri */
-        .algo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
-        .algo-card { background: var(--bg-main); border: 2px solid var(--border-color); border-radius: 12px; padding: 20px; text-decoration: none; color: var(--text-primary); transition: all 0.2s ease; display: flex; flex-direction: column; justify-content: space-between; }
-        .algo-card:hover { transform: translateY(-4px); border-color: var(--brand-main); box-shadow: 0 8px 16px rgba(99, 102, 241, 0.15); }
-        .algo-card h3 { margin: 0 0 8px 0; color: var(--brand-main); display: flex; align-items: center; justify-content: space-between; }
-        .algo-card p { font-size: 0.9rem; color: var(--text-muted); margin: 0 0 15px 0; }
-        .algo-card .badge { display: inline-block; font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: var(--brand-light); color: var(--brand-main); width: fit-content; }
+      :root {
+        --brand-main: #6366f1;
+        --brand-light: #e0e7ff;
+        --bg-main: #f4f6f9;
+        --container-bg: #ffffff;
+        --text-primary: #334155;
+        --text-muted: #64748b;
+        --border-color: #cbd5e1;
+        --code-bg: #1e293b;
+        --code-text: #f8fafc;
+      }
+      body {
+        font-family: "Nunito", sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
+      .lesson-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: var(--container-bg);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border: 2px solid var(--border-color);
+      }
+      h1 {
+        color: var(--brand-main);
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-top: 0;
+        border-bottom: 3px solid var(--brand-light);
+        padding-bottom: 15px;
+      }
+      h2 {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 35px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      h2 i {
+        color: var(--brand-main);
+      }
+      p,
+      ul {
+        font-size: 1.05rem;
+        color: var(--text-primary);
+      }
 
-        /* Tableau comparatif */
-        .complexity-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.95rem; }
-        .complexity-table th, .complexity-table td { text-align: center; padding: 12px; border-bottom: 1px solid var(--border-color); }
-        .complexity-table th { background-color: var(--bg-main); font-weight: 800; text-align: center; }
-        .complexity-table td:first-child { text-align: left; font-weight: 700; }
-        .tag-good { color: #10B981; font-weight: 800; }
-        .tag-bad { color: #EF4444; font-weight: 800; }
-        .tag-medium { color: #F59E0B; font-weight: 800; }
+      .highlight-box {
+        background-color: var(--brand-light);
+        border-left: 5px solid var(--brand-main);
+        padding: 20px;
+        border-radius: 0 12px 12px 0;
+        margin: 25px 0;
+      }
+
+      /* Cartes vers les sous-fiches de tri */
+      .algo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .algo-card {
+        background: var(--bg-main);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        text-decoration: none;
+        color: var(--text-primary);
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .algo-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--brand-main);
+        box-shadow: 0 8px 16px rgba(99, 102, 241, 0.15);
+      }
+      .algo-card h3 {
+        margin: 0 0 8px 0;
+        color: var(--brand-main);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .algo-card p {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin: 0 0 15px 0;
+      }
+      .algo-card .badge {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: var(--brand-light);
+        color: var(--brand-main);
+        width: fit-content;
+      }
+
+      /* Tableau comparatif */
+      .complexity-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        font-size: 0.95rem;
+      }
+      .complexity-table th,
+      .complexity-table td {
+        text-align: center;
+        padding: 12px;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .complexity-table th {
+        background-color: var(--bg-main);
+        font-weight: 800;
+        text-align: center;
+      }
+      .complexity-table td:first-child {
+        text-align: left;
+        font-weight: 700;
+      }
+      .tag-good {
+        color: #10b981;
+        font-weight: 800;
+      }
+      .tag-bad {
+        color: #ef4444;
+        font-weight: 800;
+      }
+      .tag-medium {
+        color: #f59e0b;
+        font-weight: 800;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="lesson-container">
-        <h1>Arrays & Sorting Overview</h1>
-        
-        <p>An <strong>Array</strong> is a fundamental linear data structure that stores collection of elements sequentially in contiguous memory locations. Because memory addresses are calculated directly via index math, accessing any item takes instant constant time $O(1)$.</p>
+      <h1>Arrays & Sorting Overview</h1>
 
-        <div class="highlight-box">
-            <strong><i class="fa-solid fa-bolt"></i> Key Array Characteristics:</strong>
-            <ul>
-                <li><strong>Direct Index Access:</strong> Accessing <code>array[i]</code> is $O(1)$.</li>
-                <li><strong>Insertion / Deletion:</strong> Inserting or deleting in the middle requires shifting elements: $O(n)$.</li>
-                <li><strong>Contiguous Memory:</strong> Elements are placed side-by-side in RAM, making arrays CPU-cache friendly.</li>
-            </ul>
-        </div>
+      <p>
+        An <strong>Array</strong> is a fundamental linear data structure that stores collection of
+        elements sequentially in contiguous memory locations. Because memory addresses are
+        calculated directly via index math, accessing any item takes instant constant time $O(1)$.
+      </p>
 
-        <h2><i class="fa-solid fa-arrow-down-a-z"></i> Explore Sorting Algorithms</h2>
-        <p>Click on any card below to open its dedicated deep-dive theory sheet with step-by-step code and execution details:</p>
+      <div class="highlight-box">
+        <strong><i class="fa-solid fa-bolt"></i> Key Array Characteristics:</strong>
+        <ul>
+          <li><strong>Direct Index Access:</strong> Accessing <code>array[i]</code> is $O(1)$.</li>
+          <li>
+            <strong>Insertion / Deletion:</strong> Inserting or deleting in the middle requires
+            shifting elements: $O(n)$.
+          </li>
+          <li>
+            <strong>Contiguous Memory:</strong> Elements are placed side-by-side in RAM, making
+            arrays CPU-cache friendly.
+          </li>
+        </ul>
+      </div>
 
-        <div class="algo-grid">
-            <a href="bubble-sort.html" class="algo-card">
-                <div>
-                    <h3>Bubble Sort <i class="fa-solid fa-arrow-right"></i></h3>
-                    <p>Repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order.</p>
-                </div>
-                <span class="badge">Simple • $O(n^2)$</span>
-            </a>
+      <h2><i class="fa-solid fa-arrow-down-a-z"></i> Explore Sorting Algorithms</h2>
+      <p>
+        Click on any card below to open its dedicated deep-dive theory sheet with step-by-step code
+        and execution details:
+      </p>
 
-            <a href="quick-sort.html" class="algo-card">
-                <div>
-                    <h3>Quick Sort <i class="fa-solid fa-arrow-right"></i></h3>
-                    <p>Divide-and-conquer algorithm that selects a 'pivot' element and partitions the array around it.</p>
-                </div>
-                <span class="badge">Fast • $O(n \log n)$</span>
-            </a>
+      <div class="algo-grid">
+        <a href="bubble-sort.html" class="algo-card">
+          <div>
+            <h3>Bubble Sort <i class="fa-solid fa-arrow-right"></i></h3>
+            <p>
+              Repeatedly steps through the list, compares adjacent elements, and swaps them if they
+              are in the wrong order.
+            </p>
+          </div>
+          <span class="badge">Simple • $O(n^2)$</span>
+        </a>
 
-            <a href="insertion-sort.html" class="algo-card">
-                <div>
-                    <h3>Insertion Sort <i class="fa-solid fa-arrow-right"></i></h3>
-                    <p>Builds the sorted array one item at a time. Extremely efficient for small or nearly-sorted datasets.</p>
-                </div>
-                <span class="badge">Adaptive • $O(n^2)$</span>
-            </a>
+        <a href="quick-sort.html" class="algo-card">
+          <div>
+            <h3>Quick Sort <i class="fa-solid fa-arrow-right"></i></h3>
+            <p>
+              Divide-and-conquer algorithm that selects a 'pivot' element and partitions the array
+              around it.
+            </p>
+          </div>
+          <span class="badge">Fast • $O(n \log n)$</span>
+        </a>
 
-            <a href="merge-sort.html" class="algo-card">
-                <div>
-                    <h3>Merge Sort <i class="fa-solid fa-arrow-right"></i></h3>
-                    <p>Recursively splits array in halves, sorts each half, and merges them back together predictably.</p>
-                </div>
-                <span class="badge">Stable • $O(n \log n)$</span>
-            </a>
-        </div>
+        <a href="insertion-sort.html" class="algo-card">
+          <div>
+            <h3>Insertion Sort <i class="fa-solid fa-arrow-right"></i></h3>
+            <p>
+              Builds the sorted array one item at a time. Extremely efficient for small or
+              nearly-sorted datasets.
+            </p>
+          </div>
+          <span class="badge">Adaptive • $O(n^2)$</span>
+        </a>
 
-        <h2><i class="fa-solid fa-table-list"></i> Sorting Algorithms Comparison</h2>
-        <p>Here is a summary of theoretical performance, space complexity, and properties across different algorithms:</p>
+        <a href="merge-sort.html" class="algo-card">
+          <div>
+            <h3>Merge Sort <i class="fa-solid fa-arrow-right"></i></h3>
+            <p>
+              Recursively splits array in halves, sorts each half, and merges them back together
+              predictably.
+            </p>
+          </div>
+          <span class="badge">Stable • $O(n \log n)$</span>
+        </a>
+      </div>
 
-        <table class="complexity-table">
-            <thead>
-                <tr>
-                    <th>Algorithm</th>
-                    <th>Best Time</th>
-                    <th>Average Time</th>
-                    <th>Worst Time</th>
-                    <th>Space</th>
-                    <th>Stable?</th>
-                    <th>In-Place?</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Bubble Sort</td>
-                    <td class="tag-good">$O(n)$</td>
-                    <td class="tag-bad">$O(n^2)$</td>
-                    <td class="tag-bad">$O(n^2)$</td>
-                    <td class="tag-good">$O(1)$</td>
-                    <td>Yes</td>
-                    <td>Yes</td>
-                </tr>
-                <tr>
-                    <td>Insertion Sort</td>
-                    <td class="tag-good">$O(n)$</td>
-                    <td class="tag-bad">$O(n^2)$</td>
-                    <td class="tag-bad">$O(n^2)$</td>
-                    <td class="tag-good">$O(1)$</td>
-                    <td>Yes</td>
-                    <td>Yes</td>
-                </tr>
-                <tr>
-                    <td>Quick Sort</td>
-                    <td class="tag-good">$O(n \log n)$</td>
-                    <td class="tag-good">$O(n \log n)$</td>
-                    <td class="tag-bad">$O(n^2)$</td>
-                    <td class="tag-medium">$O(\log n)$</td>
-                    <td>No</td>
-                    <td>Yes</td>
-                </tr>
-                <tr>
-                    <td>Merge Sort</td>
-                    <td class="tag-good">$O(n \log n)$</td>
-                    <td class="tag-good">$O(n \log n)$</td>
-                    <td class="tag-good">$O(n \log n)$</td>
-                    <td class="tag-bad">$O(n)$</td>
-                    <td>Yes</td>
-                    <td>No</td>
-                </tr>
-            </tbody>
-        </table>
+      <h2><i class="fa-solid fa-table-list"></i> Sorting Algorithms Comparison</h2>
+      <p>
+        Here is a summary of theoretical performance, space complexity, and properties across
+        different algorithms:
+      </p>
+
+      <table class="complexity-table">
+        <thead>
+          <tr>
+            <th>Algorithm</th>
+            <th>Best Time</th>
+            <th>Average Time</th>
+            <th>Worst Time</th>
+            <th>Space</th>
+            <th>Stable?</th>
+            <th>In-Place?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Bubble Sort</td>
+            <td class="tag-good">$O(n)$</td>
+            <td class="tag-bad">$O(n^2)$</td>
+            <td class="tag-bad">$O(n^2)$</td>
+            <td class="tag-good">$O(1)$</td>
+            <td>Yes</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Insertion Sort</td>
+            <td class="tag-good">$O(n)$</td>
+            <td class="tag-bad">$O(n^2)$</td>
+            <td class="tag-bad">$O(n^2)$</td>
+            <td class="tag-good">$O(1)$</td>
+            <td>Yes</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Quick Sort</td>
+            <td class="tag-good">$O(n \log n)$</td>
+            <td class="tag-good">$O(n \log n)$</td>
+            <td class="tag-bad">$O(n^2)$</td>
+            <td class="tag-medium">$O(\log n)$</td>
+            <td>No</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Merge Sort</td>
+            <td class="tag-good">$O(n \log n)$</td>
+            <td class="tag-good">$O(n \log n)$</td>
+            <td class="tag-good">$O(n \log n)$</td>
+            <td class="tag-bad">$O(n)$</td>
+            <td>Yes</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <script src="../js/ui/resolve_learn_header.js"></script>
-</body>
+  </body>
 </html>

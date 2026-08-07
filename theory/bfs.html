@@ -1,172 +1,208 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AlgoQuest - Breadth-First Search (BFS)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/learn-header.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/learn-header.css" />
     <script>
-        MathJax = {
-            tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']]
-            }
-        };
+      MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+        },
+      };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+    ></script>
 
     <style>
-        :root {
-            --brand-main: #6366F1;
-            --brand-light: #E0E7FF;
-            --bg-main: #F4F6F9;
-            --container-bg: #FFFFFF;
-            --text-primary: #334155;
-            --text-muted: #64748B;
-            --border-color: #CBD5E1;
-            --code-bg: #1E293B;
-            --code-text: #F8FAFC;
-        }
+      :root {
+        --brand-main: #6366f1;
+        --brand-light: #e0e7ff;
+        --bg-main: #f4f6f9;
+        --container-bg: #ffffff;
+        --text-primary: #334155;
+        --text-muted: #64748b;
+        --border-color: #cbd5e1;
+        --code-bg: #1e293b;
+        --code-text: #f8fafc;
+      }
 
-        body {
-            font-family: 'Nunito', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
+      body {
+        font-family: "Nunito", sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
 
-        .lesson-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: var(--container-bg);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border: 2px solid var(--border-color);
-        }
+      .lesson-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: var(--container-bg);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border: 2px solid var(--border-color);
+      }
 
-        h1 {
-            color: var(--brand-main);
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-top: 0;
-            border-bottom: 3px solid var(--brand-light);
-            padding-bottom: 15px;
-        }
+      h1 {
+        color: var(--brand-main);
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-top: 0;
+        border-bottom: 3px solid var(--brand-light);
+        padding-bottom: 15px;
+      }
 
-        h2 {
-            color: var(--text-primary);
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-top: 35px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+      h2 {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 35px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-        h2 i {
-            color: var(--brand-main);
-        }
+      h2 i {
+        color: var(--brand-main);
+      }
 
-        p {
-            font-size: 1.05rem;
-            color: var(--text-primary);
-        }
+      p {
+        font-size: 1.05rem;
+        color: var(--text-primary);
+      }
 
-        .highlight-box {
-            background-color: var(--brand-light);
-            border-left: 5px solid var(--brand-main);
-            padding: 20px;
-            border-radius: 0 12px 12px 0;
-            margin: 25px 0;
-        }
+      .highlight-box {
+        background-color: var(--brand-light);
+        border-left: 5px solid var(--brand-main);
+        padding: 20px;
+        border-radius: 0 12px 12px 0;
+        margin: 25px 0;
+      }
 
-        .highlight-box strong {
-            color: var(--brand-main);
-        }
+      .highlight-box strong {
+        color: var(--brand-main);
+      }
 
-        ul {
-            font-size: 1.05rem;
-            padding-left: 20px;
-        }
+      ul {
+        font-size: 1.05rem;
+        padding-left: 20px;
+      }
 
-        li {
-            margin-bottom: 10px;
-        }
+      li {
+        margin-bottom: 10px;
+      }
 
-        pre {
-            background-color: var(--code-bg);
-            color: var(--code-text);
-            padding: 20px;
-            border-radius: 12px;
-            overflow-x: auto;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-        }
+      pre {
+        background-color: var(--code-bg);
+        color: var(--code-text);
+        padding: 20px;
+        border-radius: 12px;
+        overflow-x: auto;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
 
-        code {
-            font-family: 'Consolas', 'Monaco', monospace;
-            background-color: #E2E8F0;
-            color: #B91C1C;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
+      code {
+        font-family: "Consolas", "Monaco", monospace;
+        background-color: #e2e8f0;
+        color: #b91c1c;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+      }
 
-        pre code {
-            background-color: transparent;
-            color: inherit;
-            padding: 0;
-        }
+      pre code {
+        background-color: transparent;
+        color: inherit;
+        padding: 0;
+      }
 
-        .complexity-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+      .complexity-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
 
-        .complexity-table th, .complexity-table td {
-            text-align: left;
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
+      .complexity-table th,
+      .complexity-table td {
+        text-align: left;
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+      }
 
-        .complexity-table th {
-            background-color: var(--bg-main);
-            font-weight: 800;
-            color: var(--text-primary);
-        }
+      .complexity-table th {
+        background-color: var(--bg-main);
+        font-weight: 800;
+        color: var(--text-primary);
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="lesson-container">
-        <h1>Breadth-First Search (BFS)</h1>
-        
-        <p>Breadth-First Search (BFS) is a foundational algorithm for searching and traversing graph data structures. Instead of diving deep into a specific path, BFS explores the graph <strong>layer by layer</strong>, moving outwards evenly from the starting node.</p>
+      <h1>Breadth-First Search (BFS)</h1>
 
-        <div class="highlight-box">
-            <strong><i class="fa-solid fa-layer-group"></i> Core Concept:</strong> 
-            BFS uses a <strong>Queue</strong> (First-In, First-Out or FIFO) to keep track of the nodes it needs to visit next. This guarantees that all nodes at the current "depth" (distance from the start) are fully explored before the algorithm moves on to nodes at the next depth level. It is the perfect algorithm for finding the <strong>shortest path</strong> in unweighted graphs.
-        </div>
+      <p>
+        Breadth-First Search (BFS) is a foundational algorithm for searching and traversing graph
+        data structures. Instead of diving deep into a specific path, BFS explores the graph
+        <strong>layer by layer</strong>, moving outwards evenly from the starting node.
+      </p>
 
-        <h2><i class="fa-solid fa-water"></i> The Ripple Effect Principle</h2>
-        <p>You can think of BFS like dropping a stone in a pond. The ripples expand uniformly in all directions. Here is how it operates:</p>
-        <ul>
-            <li>Start at your chosen root node, mark it as <code>visited</code>, and add it to the <code>queue</code>.</li>
-            <li>While the queue is not empty, remove (pop) the node at the <strong>front</strong> of the queue. This becomes your current node.</li>
-            <li>Look at all the immediate neighbors of this current node.</li>
-            <li>If a neighbor hasn't been visited yet, mark it as visited and add it to the <strong>back</strong> of the queue to be explored later.</li>
-            <li>Repeat this process until the queue is completely empty.</li>
-        </ul>
+      <div class="highlight-box">
+        <strong><i class="fa-solid fa-layer-group"></i> Core Concept:</strong>
+        BFS uses a <strong>Queue</strong> (First-In, First-Out or FIFO) to keep track of the nodes
+        it needs to visit next. This guarantees that all nodes at the current "depth" (distance from
+        the start) are fully explored before the algorithm moves on to nodes at the next depth
+        level. It is the perfect algorithm for finding the <strong>shortest path</strong> in
+        unweighted graphs.
+      </div>
 
-        <h2><i class="fa-solid fa-code"></i> Algorithm Walkthrough</h2>
-        <p>Below is the Python implementation used in our animation engine. Watch how the <code>queue</code> manages the order of exploration.</p>
+      <h2><i class="fa-solid fa-water"></i> The Ripple Effect Principle</h2>
+      <p>
+        You can think of BFS like dropping a stone in a pond. The ripples expand uniformly in all
+        directions. Here is how it operates:
+      </p>
+      <ul>
+        <li>
+          Start at your chosen root node, mark it as <code>visited</code>, and add it to the
+          <code>queue</code>.
+        </li>
+        <li>
+          While the queue is not empty, remove (pop) the node at the <strong>front</strong> of the
+          queue. This becomes your current node.
+        </li>
+        <li>Look at all the immediate neighbors of this current node.</li>
+        <li>
+          If a neighbor hasn't been visited yet, mark it as visited and add it to the
+          <strong>back</strong> of the queue to be explored later.
+        </li>
+        <li>Repeat this process until the queue is completely empty.</li>
+      </ul>
 
-<pre><code>def bfs(start_node):
+      <h2><i class="fa-solid fa-code"></i> Algorithm Walkthrough</h2>
+      <p>
+        Below is the Python implementation used in our animation engine. Watch how the
+        <code>queue</code> manages the order of exploration.
+      </p>
+
+      <pre><code>def bfs(start_node):
     queue = [start_node]
     visited = [start_node]
 
@@ -186,31 +222,41 @@
 # Run the algorithm starting from node '1'
 bfs("1")</code></pre>
 
-        <h2><i class="fa-solid fa-stopwatch"></i> Complexity</h2>
-        <p>BFS is highly efficient because it guarantees that no node or edge is processed more than once.</p>
-        <table class="complexity-table">
-            <thead>
-                <tr>
-                    <th>Metric</th>
-                    <th>Complexity</th>
-                    <th>Explanation</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Time Complexity</strong></td>
-                    <td>$O(V + E)$</td>
-                    <td>Where $V$ is the number of vertices and $E$ is the number of edges. Every vertex is enqueued and dequeued exactly once, and every edge is examined exactly once when its endpoints are visited.</td>
-                </tr>
-                <tr>
-                    <td><strong>Space Complexity</strong></td>
-                    <td>$O(V)$</td>
-                    <td>The algorithm requires extra memory for the <code>queue</code> and the <code>visited</code> list. In the worst-case scenario, the queue could hold nearly all vertices in the graph at once.</td>
-                </tr>
-            </tbody>
-        </table>
-
+      <h2><i class="fa-solid fa-stopwatch"></i> Complexity</h2>
+      <p>
+        BFS is highly efficient because it guarantees that no node or edge is processed more than
+        once.
+      </p>
+      <table class="complexity-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Complexity</th>
+            <th>Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Time Complexity</strong></td>
+            <td>$O(V + E)$</td>
+            <td>
+              Where $V$ is the number of vertices and $E$ is the number of edges. Every vertex is
+              enqueued and dequeued exactly once, and every edge is examined exactly once when its
+              endpoints are visited.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Space Complexity</strong></td>
+            <td>$O(V)$</td>
+            <td>
+              The algorithm requires extra memory for the <code>queue</code> and the
+              <code>visited</code> list. In the worst-case scenario, the queue could hold nearly all
+              vertices in the graph at once.
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <script src="../js/ui/resolve_learn_header.js"></script>
-</body>
+  </body>
 </html>
