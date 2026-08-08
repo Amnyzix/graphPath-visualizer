@@ -1,4 +1,4 @@
-export const PYTHON_GRAPH_API = `
+PYTHON_API_MOCK = """
 import json
 import sys
 
@@ -80,4 +80,4 @@ def select(node): _api.select(node)
 def neighbors(node): return _api.neighbors(node)
 def weight(a, b): return _api.weight(a, b)
 def get_all_nodes(): return _api.get_all_nodes()
-`;
+"""

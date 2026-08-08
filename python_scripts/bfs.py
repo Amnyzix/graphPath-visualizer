@@ -1,4 +1,10 @@
 def bfs(start_node):
+    existing_nodes = get_all_nodes()
+
+    # 2. Sécurité : si le nœud de départ n'existe pas, on arrête tout de suite !
+    if str(start_node) not in existing_nodes:
+        return
+
     queue = [start_node]
     visited = [start_node]
 
