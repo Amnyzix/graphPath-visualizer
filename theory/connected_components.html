@@ -1,175 +1,207 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoQuest - Connected Components</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AlgoVizor - Connected Components</title>
 
-    <link rel="stylesheet" href="../css/learn-header.css">
+    <link rel="stylesheet" href="../css/learn-header.css" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
     <script>
-        MathJax = {
-            tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']]
-            }
-        };
+      MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+        },
+      };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+    ></script>
 
     <style>
-        :root {
-            --brand-main: #6366F1;
-            --brand-light: #E0E7FF;
-            --bg-main: #F4F6F9;
-            --container-bg: #FFFFFF;
-            --text-primary: #334155;
-            --text-muted: #64748B;
-            --border-color: #CBD5E1;
-            --code-bg: #1E293B;
-            --code-text: #F8FAFC;
-        }
+      :root {
+        --brand-main: #6366f1;
+        --brand-light: #e0e7ff;
+        --bg-main: #f4f6f9;
+        --container-bg: #ffffff;
+        --text-primary: #334155;
+        --text-muted: #64748b;
+        --border-color: #cbd5e1;
+        --code-bg: #1e293b;
+        --code-text: #f8fafc;
+      }
 
-        body {
-            font-family: 'Nunito', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
+      body {
+        font-family: "Nunito", sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
 
-        .lesson-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: var(--container-bg);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border: 2px solid var(--border-color);
-        }
+      .lesson-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: var(--container-bg);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border: 2px solid var(--border-color);
+      }
 
-        h1 {
-            color: var(--brand-main);
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-top: 0;
-            border-bottom: 3px solid var(--brand-light);
-            padding-bottom: 15px;
-        }
+      h1 {
+        color: var(--brand-main);
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-top: 0;
+        border-bottom: 3px solid var(--brand-light);
+        padding-bottom: 15px;
+      }
 
-        h2 {
-            color: var(--text-primary);
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-top: 35px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+      h2 {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 35px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-        h2 i {
-            color: var(--brand-main);
-        }
+      h2 i {
+        color: var(--brand-main);
+      }
 
-        p {
-            font-size: 1.05rem;
-            color: var(--text-primary);
-        }
+      p {
+        font-size: 1.05rem;
+        color: var(--text-primary);
+      }
 
-        .highlight-box {
-            background-color: var(--brand-light);
-            border-left: 5px solid var(--brand-main);
-            padding: 20px;
-            border-radius: 0 12px 12px 0;
-            margin: 25px 0;
-        }
+      .highlight-box {
+        background-color: var(--brand-light);
+        border-left: 5px solid var(--brand-main);
+        padding: 20px;
+        border-radius: 0 12px 12px 0;
+        margin: 25px 0;
+      }
 
-        .highlight-box strong {
-            color: var(--brand-main);
-        }
+      .highlight-box strong {
+        color: var(--brand-main);
+      }
 
-        ul {
-            font-size: 1.05rem;
-            padding-left: 20px;
-        }
+      ul {
+        font-size: 1.05rem;
+        padding-left: 20px;
+      }
 
-        li {
-            margin-bottom: 10px;
-        }
+      li {
+        margin-bottom: 10px;
+      }
 
-        pre {
-            background-color: var(--code-bg);
-            color: var(--code-text);
-            padding: 20px;
-            border-radius: 12px;
-            overflow-x: auto;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-        }
+      pre {
+        background-color: var(--code-bg);
+        color: var(--code-text);
+        padding: 20px;
+        border-radius: 12px;
+        overflow-x: auto;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
 
-        code {
-            font-family: 'Consolas', 'Monaco', monospace;
-            background-color: #E2E8F0;
-            color: #B91C1C;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
+      code {
+        font-family: "Consolas", "Monaco", monospace;
+        background-color: #e2e8f0;
+        color: #b91c1c;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+      }
 
-        pre code {
-            background-color: transparent;
-            color: inherit;
-            padding: 0;
-        }
+      pre code {
+        background-color: transparent;
+        color: inherit;
+        padding: 0;
+      }
 
-        .complexity-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+      .complexity-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
 
-        .complexity-table th, .complexity-table td {
-            text-align: left;
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
+      .complexity-table th,
+      .complexity-table td {
+        text-align: left;
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+      }
 
-        .complexity-table th {
-            background-color: var(--bg-main);
-            font-weight: 800;
-            color: var(--text-primary);
-        }
+      .complexity-table th {
+        background-color: var(--bg-main);
+        font-weight: 800;
+        color: var(--text-primary);
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="lesson-container">
-        <h1>Connected Components</h1>
-        
-        <p>In graph theory, a <strong>Connected Component</strong> (or simply a component) of an undirected graph is a subgraph in which any two vertices are connected to each other by paths, and which is connected to no additional vertices in the supergraph. Think of them as isolated islands within an archipelago.</p>
+      <h1>Connected Components</h1>
 
-        <div class="highlight-box">
-            <strong><i class="fa-solid fa-network-wired"></i> Real-World Application:</strong> 
-            Finding connected components is fundamental in cluster analysis, computer vision (detecting distinct objects in an image), and network reliability (checking if a network has been split into disconnected subnetworks due to node failures).
-        </div>
+      <p>
+        In graph theory, a <strong>Connected Component</strong> (or simply a component) of an
+        undirected graph is a subgraph in which any two vertices are connected to each other by
+        paths, and which is connected to no additional vertices in the supergraph. Think of them as
+        isolated islands within an archipelago.
+      </p>
 
-        <h2><i class="fa-solid fa-compass"></i> The Algorithm Principle</h2>
-        <p>To identify all connected components, we can use a standard graph traversal algorithm like Breadth-First Search (BFS) or Depth-First Search (DFS). The logic is as follows:</p>
-        <ul>
-            <li>Iterate through every node in the graph.</li>
-            <li>If the node has not been visited yet, it means we have found a new, unmapped "island" (a new component).</li>
-            <li>Assign a new Component ID (and a specific color) to this node.</li>
-            <li>Launch a BFS/DFS starting from this node to discover all other nodes connected to it, assigning them the same Component ID.</li>
-            <li>Continue the iteration until all nodes in the graph have been visited.</li>
-        </ul>
+      <div class="highlight-box">
+        <strong><i class="fa-solid fa-network-wired"></i> Real-World Application:</strong>
+        Finding connected components is fundamental in cluster analysis, computer vision (detecting
+        distinct objects in an image), and network reliability (checking if a network has been split
+        into disconnected subnetworks due to node failures).
+      </div>
 
-        <h2><i class="fa-solid fa-code"></i> Algorithm Walkthrough</h2>
-        <p>In the script below, we use a BFS approach to map out each component, coloring them distinctively to easily visualize the disconnected subgraphs.</p>
+      <h2><i class="fa-solid fa-compass"></i> The Algorithm Principle</h2>
+      <p>
+        To identify all connected components, we can use a standard graph traversal algorithm like
+        Breadth-First Search (BFS) or Depth-First Search (DFS). The logic is as follows:
+      </p>
+      <ul>
+        <li>Iterate through every node in the graph.</li>
+        <li>
+          If the node has not been visited yet, it means we have found a new, unmapped "island" (a
+          new component).
+        </li>
+        <li>Assign a new Component ID (and a specific color) to this node.</li>
+        <li>
+          Launch a BFS/DFS starting from this node to discover all other nodes connected to it,
+          assigning them the same Component ID.
+        </li>
+        <li>Continue the iteration until all nodes in the graph have been visited.</li>
+      </ul>
 
-<pre><code>def connected_components():
+      <h2><i class="fa-solid fa-code"></i> Algorithm Walkthrough</h2>
+      <p>
+        In the script below, we use a BFS approach to map out each component, coloring them
+        distinctively to easily visualize the disconnected subgraphs.
+      </p>
+
+      <pre><code>def connected_components():
     all_nodes = get_all_nodes()
     visited = set()
     component_id = 0
@@ -193,31 +225,38 @@
 
 connected_components()</code></pre>
 
-        <h2><i class="fa-solid fa-stopwatch"></i> Complexity</h2>
-        <table class="complexity-table">
-            <thead>
-                <tr>
-                    <th>Metric</th>
-                    <th>Complexity</th>
-                    <th>Explanation</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Time Complexity</strong></td>
-                    <td>$O(V + E)$</td>
-                    <td>Where $V$ is the number of vertices and $E$ is the number of edges. We visit every vertex exactly once and traverse each edge a constant number of times during the BFS phase.</td>
-                </tr>
-                <tr>
-                    <td><strong>Space Complexity</strong></td>
-                    <td>$O(V)$</td>
-                    <td>The space is mainly determined by the <code>visited</code> set and the BFS <code>queue</code>, both of which will store up to $V$ vertices in the worst-case scenario.</td>
-                </tr>
-            </tbody>
-        </table>
-
+      <h2><i class="fa-solid fa-stopwatch"></i> Complexity</h2>
+      <table class="complexity-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Complexity</th>
+            <th>Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Time Complexity</strong></td>
+            <td>$O(V + E)$</td>
+            <td>
+              Where $V$ is the number of vertices and $E$ is the number of edges. We visit every
+              vertex exactly once and traverse each edge a constant number of times during the BFS
+              phase.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Space Complexity</strong></td>
+            <td>$O(V)$</td>
+            <td>
+              The space is mainly determined by the <code>visited</code> set and the BFS
+              <code>queue</code>, both of which will store up to $V$ vertices in the worst-case
+              scenario.
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <script src="../js/ui/resolve_learn_header.js"></script>
-</body>
+  </body>
 </html>

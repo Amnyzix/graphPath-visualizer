@@ -1,46 +1,138 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoQuest - Quick Sort</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/learn-header.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AlgoVizor - Quick Sort</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/learn-header.css" />
 
-    <script>MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };</script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+        },
+      };
+    </script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+    ></script>
 
     <style>
-        :root { --brand-main: #6366F1; --brand-light: #E0E7FF; --bg-main: #F4F6F9; --container-bg: #FFFFFF; --text-primary: #334155; --text-muted: #64748B; --border-color: #CBD5E1; --code-bg: #1E293B; --code-text: #F8FAFC; }
-        body { font-family: 'Nunito', sans-serif; background-color: var(--bg-main); color: var(--text-primary); line-height: 1.6;}
-        .lesson-container { max-width: 900px; margin: 0 auto; background: var(--container-bg); border-radius: 16px; padding: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px solid var(--border-color); }
-        .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--brand-main); font-weight: 700; text-decoration: none; margin-bottom: 20px; font-size: 0.95rem; }
-        .back-btn:hover { text-decoration: underline; }
-        h1 { color: var(--brand-main); font-size: 2.3rem; font-weight: 800; margin-top: 0; border-bottom: 3px solid var(--brand-light); padding-bottom: 15px; }
-        h2 { color: var(--text-primary); font-size: 1.4rem; font-weight: 700; margin-top: 30px; margin-bottom: 10px; }
-        pre { background-color: var(--code-bg); color: var(--code-text); padding: 18px; border-radius: 8px; overflow-x: auto; font-family: 'Consolas', monospace; font-size: 0.95rem; }
-        .highlight-box { background-color: var(--brand-light); border-left: 5px solid var(--brand-main); padding: 15px 20px; border-radius: 0 12px 12px 0; margin: 20px 0; }
+      :root {
+        --brand-main: #6366f1;
+        --brand-light: #e0e7ff;
+        --bg-main: #f4f6f9;
+        --container-bg: #ffffff;
+        --text-primary: #334155;
+        --text-muted: #64748b;
+        --border-color: #cbd5e1;
+        --code-bg: #1e293b;
+        --code-text: #f8fafc;
+      }
+      body {
+        font-family: "Nunito", sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
+      .lesson-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: var(--container-bg);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border: 2px solid var(--border-color);
+      }
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--brand-main);
+        font-weight: 700;
+        text-decoration: none;
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+      }
+      .back-btn:hover {
+        text-decoration: underline;
+      }
+      h1 {
+        color: var(--brand-main);
+        font-size: 2.3rem;
+        font-weight: 800;
+        margin-top: 0;
+        border-bottom: 3px solid var(--brand-light);
+        padding-bottom: 15px;
+      }
+      h2 {
+        color: var(--text-primary);
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-top: 30px;
+        margin-bottom: 10px;
+      }
+      pre {
+        background-color: var(--code-bg);
+        color: var(--code-text);
+        padding: 18px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: "Consolas", monospace;
+        font-size: 0.95rem;
+      }
+      .highlight-box {
+        background-color: var(--brand-light);
+        border-left: 5px solid var(--brand-main);
+        padding: 15px 20px;
+        border-radius: 0 12px 12px 0;
+        margin: 20px 0;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="lesson-container">
-        <a href="array.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Arrays & Sorting</a>
-        
-        <h1>Quick Sort</h1>
-        <p><strong>Quick Sort</strong> is a highly efficient, Divide-and-Conquer sorting algorithm. It selects a <em>pivot element</em> from the array and partitions the other elements into two sub-arrays according to whether they are less than or greater than the pivot.</p>
+      <a href="array.html" class="back-btn"
+        ><i class="fa-solid fa-arrow-left"></i> Back to Arrays & Sorting</a
+      >
 
-        <div class="highlight-box">
-            <strong><i class="fa-solid fa-bullseye"></i> The Partitioning Mechanism:</strong>
-            <ul>
-                <li><strong>Pick a Pivot:</strong> Choose an element (e.g., the last element).</li>
-                <li><strong>Partition:</strong> Reorder array so all elements smaller than pivot come before it, and all larger elements come after it.</li>
-                <li><strong>Recursion:</strong> Recursively apply the above steps to the sub-array of smaller elements and sub-array of larger elements.</li>
-            </ul>
-        </div>
+      <h1>Quick Sort</h1>
+      <p>
+        <strong>Quick Sort</strong> is a highly efficient, Divide-and-Conquer sorting algorithm. It
+        selects a <em>pivot element</em> from the array and partitions the other elements into two
+        sub-arrays according to whether they are less than or greater than the pivot.
+      </p>
 
-        <h2>Python Implementation (Lomuto Partition)</h2>
-<pre><code class="language-python">def quick_sort(arr, low, high):
+      <div class="highlight-box">
+        <strong><i class="fa-solid fa-bullseye"></i> The Partitioning Mechanism:</strong>
+        <ul>
+          <li><strong>Pick a Pivot:</strong> Choose an element (e.g., the last element).</li>
+          <li>
+            <strong>Partition:</strong> Reorder array so all elements smaller than pivot come before
+            it, and all larger elements come after it.
+          </li>
+          <li>
+            <strong>Recursion:</strong> Recursively apply the above steps to the sub-array of
+            smaller elements and sub-array of larger elements.
+          </li>
+        </ul>
+      </div>
+
+      <h2>Python Implementation (Lomuto Partition)</h2>
+      <pre><code class="language-python">def quick_sort(arr, low, high):
     if low < high:
         # pi is partitioning index, arr[pi] is now at right place
         pi = partition(arr, low, high)
@@ -61,15 +153,21 @@ def partition(arr, low, high):
     arr[i + 1], arr[high] = arr[high], arr[i + 1]
     return i + 1</code></pre>
 
-        <h2>Complexity Analysis</h2>
-        <ul>
-            <li><strong>Best & Average Case Time:</strong> $O(n \log n)$ — Occurs when the pivot splits array evenly into two halves.</li>
-            <li><strong>Worst Case Time:</strong> $O(n^2)$ — Occurs when the pivot is always the smallest or largest element (e.g., already sorted array with last element as pivot).</li>
-            <li><strong>Space Complexity:</strong> $O(\log n)$ due to recursive call stack.</li>
-            <li><strong>Stability:</strong> Unstable by default (swaps over long distances).</li>
-        </ul>
+      <h2>Complexity Analysis</h2>
+      <ul>
+        <li>
+          <strong>Best & Average Case Time:</strong> $O(n \log n)$ — Occurs when the pivot splits
+          array evenly into two halves.
+        </li>
+        <li>
+          <strong>Worst Case Time:</strong> $O(n^2)$ — Occurs when the pivot is always the smallest
+          or largest element (e.g., already sorted array with last element as pivot).
+        </li>
+        <li><strong>Space Complexity:</strong> $O(\log n)$ due to recursive call stack.</li>
+        <li><strong>Stability:</strong> Unstable by default (swaps over long distances).</li>
+      </ul>
     </div>
 
     <script src="../js/ui/resolve_learn_header.js"></script>
-</body>
+  </body>
 </html>

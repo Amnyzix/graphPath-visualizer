@@ -1,5 +1,11 @@
+import math
+
+
 def dijkstra_shortest_path(start_node, target_node):
-    import math
+
+    existing_nodes = get_all_nodes()
+    if str(start_node) not in existing_nodes or str(target_node) not in existing_nodes:
+        return
 
     distances = {}
     previous_nodes = {}
@@ -51,5 +57,4 @@ def dijkstra_shortest_path(start_node, target_node):
         visit(start_node, f"No path found between {start_node} and {target_node}")
 
 
-# Search path from node '1' to node '4'
 dijkstra_shortest_path("1", "2")

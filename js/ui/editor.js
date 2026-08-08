@@ -1,504 +1,294 @@
-let editor;
+import { PythonEngine } from "../engines/PythonEngine.js";
+import { PythonGraphAlgorithm } from "../algorithm/PythonGraphAlgorithm.js";
+import { GraphDataParser } from "../core/utils/graph-parser.js";
 
-window.onload = function() {
-    const textArea = document.getElementById('script-input');
-    editor = CodeMirror.fromTextArea(textArea, {
+export let codeEditor;
+let pythonEngine;
+let term;
+
+window.onload = function () {
+  // Détecte si le body a la classe de ton mode sombre (adapte 'dark-mode' selon ton CSS)
+  const isDarkMode = document.body.classList.contains("dark-mode");
+
+  const lightTheme = {
+    background: "#f8f9fa", // Un gris ultra-léger (plus doux que le blanc pur)
+    foreground: "#383a42", // Un gris anthracite bleuté pour le texte
+    cursor: "#526fff", // Un curseur bleu moderne (plus élégant que noir)
+    cursorAccent: "#ffffff",
+    selectionBackground: "#dce2f2", // Couleur de sélection douce
+
+    // Couleurs ANSI (Essentielles si ton moteur Python renvoie du texte coloré)
+    black: "#383a42",
+    red: "#e45649", // Rouge plus doux pour les erreurs
+    green: "#50a14f",
+    yellow: "#986801",
+    blue: "#4078f2",
+    magenta: "#a626a4",
+    cyan: "#0184bc",
+    white: "#fafafa",
+
+    // Versions "Bright"
+    brightBlack: "#a0a1a7",
+    brightRed: "#e06c75",
+    brightGreen: "#98c379",
+    brightYellow: "#d19a66",
+    brightBlue: "#61afef",
+    brightMagenta: "#c678dd",
+    brightCyan: "#56b6c2",
+    brightWhite: "#ffffff",
+  };
+
+  const darkTheme = {
+    background: "#1e1e1e", // Un gris très foncé pour le fond
+    foreground: "#d4d4d4", // Gris clair pour le texte
+    cursor: "#ffffff", // Curseur blanc pour un contraste maximal
+    cursorAccent: "#000000",
+    selectionBackground: "#264f78", // Couleur de sélection bleue foncée
+
+    // Couleurs ANSI
+    black: "#000000",
+    red: "#f44747", // Rouge vif pour les erreurs
+    green: "#619955",
+    yellow: "#ffcc00",
+    blue: "#0a84ff",
+    magenta: "#c678dd",
+    cyan: "#56b6c2",
+    white: "#d4d4d4",
+
+    // Versions "Bright"
+    brightBlack: "#666666",
+    brightRed: "#ff6c6b",
+    brightGreen: "#98c379",
+    brightYellow: "#e5c07b",
+    brightBlue: "#61afef",
+    brightMagenta: "#c678dd",
+    brightCyan: "#56b6c2",
+    brightWhite: "#ffffff",
+  };
+
+  const termContainer = document.getElementById("terminal-container");
+  if (termContainer) {
+    termContainer.style.backgroundColor = isDarkMode ? darkTheme.background : lightTheme.background;
+    // Optionnel : on adapte aussi la bordure pour un rendu propre
+    termContainer.style.borderColor = isDarkMode ? "#181a1f" : "#e1e4e8";
+  }
+
+  // 1. Initialize CodeMirror
+  const textArea = document.getElementById("script-input");
+  codeEditor = window.CodeMirror.fromTextArea(textArea, {
     mode: "python",
     lineNumbers: true,
-    theme: "default",
+    // On utilise le bon thème d'entrée de jeu
+    theme: isDarkMode ? "dracula" : "default",
     extraKeys: {
-        Tab: function(cm) {
-            let spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
-            cm.replaceSelection(spaces);
-        }
-    }
-});
-    editor.setSize("100%", "400px");
-    
-    editor.setValue("def main():\n   \nmain()");
-};
+      Tab: function (cm) {
+        let spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+        cm.replaceSelection(spaces);
+      },
+    },
+  });
+  codeEditor.setSize("100%", "400px");
+  codeEditor.setValue("def main():\n    pass\n\nmain()");
 
-
-
-const logDisplay = document.getElementById('log-display');
-
-function getGraphData() {
-    if (window.graphApp) {
-        return window.graphApp.getGraphData();
-    }
-    return { nodes: window.nodes || [], edges: window.edges || [], nodeIdCounter: window.nodeIdCounter || 1 };
-}
-
-// Initialisation du terminal
-const term = new Terminal({
+  // 2. Initialize XTerm.js
+  term = new window.Terminal({
     cursorBlink: true,
     fontFamily: 'Consolas, "Courier New", monospace',
     fontSize: 14,
-    theme: {
-        background: '#1e1e1e',
-        foreground: '#cccccc'
-    },
-    convertEol: true
-});
+    // On utilise le bon thème d'entrée de jeu
+    theme: isDarkMode ? darkTheme : lightTheme,
+    convertEol: true,
+  });
 
-const fitAddon = new FitAddon.FitAddon();
-term.loadAddon(fitAddon);
+  const fitAddon = new window.FitAddon.FitAddon();
+  term.loadAddon(fitAddon);
+  term.open(document.getElementById("terminal-container"));
+  fitAddon.fit();
 
-// Attacher le terminal au conteneur HTML
-term.open(document.getElementById('terminal-container'));
+  window.addEventListener("resize", () => fitAddon.fit());
 
-fitAddon.fit();
+  // 3. Initialize the Python Engine with Terminal callbacks
+  pythonEngine = new PythonEngine(
+    (text) => term.write(text),
+    (text) => term.write(text)
+  );
+  pythonEngine.init();
+};
 
-// 4. (Optionnel mais recommandé) Réajuster si l'utilisateur redimensionne la fenêtre
-window.addEventListener('resize', () => {
-    fitAddon.fit();
-});
+function getActiveGraphEditor() {
+  if (window.AppRegistry) return window.AppRegistry.get("graphs");
+  if (window.graphsApp) return window.graphsApp;
+  return null;
+}
 
+export function updateEditorThemes(isDarkMode) {
+  if (!codeEditor || !term) return;
 
+  // 1. Thème CodeMirror
+  codeEditor.setOption("theme", isDarkMode ? "dracula" : "default");
 
-// Variable globale pour stocker l'instance Python
-let pyodideReady = null;
+  // 2. Thème XTerm.js (On redéfinit ou on récupère les objets lightTheme/darkTheme)
+  const darkTheme = {
+    background: "#1e1e1e",
+    foreground: "#d4d4d4",
+    cursor: "#ffffff" /* ... reste des couleurs ... */,
+  };
+  const lightTheme = {
+    background: "#f8f9fa",
+    foreground: "#383a42",
+    cursor: "#526fff" /* ... reste des couleurs ... */,
+  };
 
-// ==========================================
-// 2. MODIFICATION DE INIT PYTHON ENGINE
-// ==========================================
-async function initPythonEngine() {
-    console.log("Chargement de Python...");
-    pyodideReady = await loadPyodide({
-        stdout: (text) => { 
-            term.write(text + '\r\n'); 
-        },
-        stderr: (text) => { 
-            term.write('\x1b[31m' + text + '\x1b[0m\r\n'); 
-        }
+  term.options.theme = isDarkMode ? darkTheme : lightTheme;
+
+  // 3. Mise à jour du conteneur parent
+  const termContainer = document.getElementById("terminal-container");
+  if (termContainer) {
+    termContainer.style.backgroundColor = isDarkMode ? darkTheme.background : lightTheme.background;
+    termContainer.style.borderColor = isDarkMode ? "#181a1f" : "#e1e4e8";
+  }
+}
+
+// =========================================
+// RUN EXECUTION
+// =========================================
+
+export async function runScript(customCode = null) {
+  const code = customCode !== null ? customCode : codeEditor.getValue();
+  const compileBtn = document.querySelector(".btn-compile");
+  const graphEditor = getActiveGraphEditor();
+
+  if (!graphEditor) {
+    console.error("Graph editor not found.");
+    return;
+  }
+
+  if (compileBtn) compileBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running...';
+  term.clear();
+
+  try {
+    // Retrieve current graph state
+    const { nodes, edges } = graphEditor.getGraphData();
+    const graphDocument = { nodes, edges };
+
+    // 1. On instancie notre Traducteur (qui encapsule le moteur Python)
+    const algorithm = new PythonGraphAlgorithm(pythonEngine, "Custom Python Script");
+
+    // 2. On récupère notre objet Animation "pur"
+    const animation = await algorithm.run(graphDocument, code);
+
+    // 3. On nettoie le canvas
+    window.activeVisualization = window.pythonTraceVis;
+    window.activeVisualization.clear();
+
+    // 4. On charge le BON objet !
+    if (window.graphPlayer) {
+      window.graphPlayer.load(animation); // <-- CORRECTION : 'animation' au lieu de 'animationData'
+      window.graphPlayer.play();
+    } else {
+      console.warn("Graph Animation player is not initialized.");
+    }
+  } catch (err) {
+    console.error(err);
+    const errorLines = err.toString().split("\n");
+    errorLines.forEach((line) => {
+      term.write("\x1b[31m" + line + "\x1b[0m\r\n");
     });
-    console.log("Python est prêt !");
+  } finally {
+    if (compileBtn) compileBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run script';
+  }
 }
 
-initPythonEngine();
+window.runScript = runScript;
 
-// La fonction pour extraire le dictionnaire d'adjacence pour Python
-function getGraphEdgesAsObject() {
-    const adjacencyList = {};
-    const currentNodes = window.graphApp ? window.graphApp.nodes : (window.nodes || []);
-    const currentEdges = window.graphApp ? window.graphApp.edges : (window.edges || []);
-    
-    currentNodes.forEach(node => {
-        adjacencyList[String(node.id)] = {};
+// =========================================
+//  UI HOOKS FOR GRAPH PARSER
+// =========================================
+window.parseGraphData = function () {
+  const textInput = document.getElementById("data-input").value;
+  const format = document.getElementById("data-format").value;
+  const isDirected = document.getElementById("data-directed").checked;
+
+  if (!textInput.trim()) return;
+
+  // 1. Retrieve the active editor
+  const editor = typeof getActiveGraphEditor === "function" ? getActiveGraphEditor() : null;
+  if (!editor) {
+    console.error("Graph editor not found. Cannot render graph.");
+    return;
+  }
+
+  // 2. Parse the pure text
+  const parsedData = GraphDataParser.textToGraph(textInput, format, isDirected);
+  if (!parsedData || parsedData.uniqueNodeIds.size === 0) return;
+
+  // 3. Calculate positions (Circle Layout)
+  const canvas = document.getElementById("graph-canvas");
+  const cx = canvas ? canvas.clientWidth / 2 : 400;
+  const cy = canvas ? canvas.clientHeight / 2 : 300;
+  const radius = Math.min(cx, cy) - 50;
+
+  const newNodes = [];
+  const nodeArray = Array.from(parsedData.uniqueNodeIds);
+  nodeArray.forEach((id, index) => {
+    const angle = (index * 2 * Math.PI) / nodeArray.length - Math.PI / 2;
+    newNodes.push({
+      id: id,
+      x: cx + radius * Math.cos(angle),
+      y: cy + radius * Math.sin(angle),
     });
+  });
 
-    currentEdges.forEach(edge => {
-        const source = String(edge.from || edge.source);
-        const target = String(edge.to || edge.target);
-        const edgeWeight = Number(edge.weight) || 1;
-        const directed = Boolean(edge.directed) || false;
-
-        if (adjacencyList[source]){
-            adjacencyList[source][target] = edgeWeight;
-            
-            if (!directed && adjacencyList[target]){
-                adjacencyList[target][source] = edgeWeight;
-            }
-        }
-        
-    });
-
-    return adjacencyList;
-}
-
-
-async function runScript(customCode = null) {
-    const code = customCode !== null ? customCode : editor.getValue();
-    const compileBtn = document.querySelector('.btn-compile');
-
-    if (compileBtn) compileBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running...';
-
-    try {
-        if (!pyodideReady) {
-            throw new Error("Le moteur Python est encore en cours de chargement...");
-        }
-
-        term.clear();
-
-        // 1. On récupère le graphe formaté pour l'API Python
-        const graphEdges = getGraphEdgesAsObject();
-
-        const graphData = getGraphData();
-        const graphNodesIds = graphData.nodes.map(node => String(node.id));
-
-        // 2. On prépare l'API cachée
-        const apiCode = `
-import json
-import sys
-
-# On injecte le graphe JS directement dans Python
-GRAPH_EDGES = ${JSON.stringify(graphEdges)}
-GRAPH_NODES = ${JSON.stringify(graphNodesIds)}
-
-class GraphAPI:
-    def __init__(self, edges, nodes):
-        self.edges = edges
-        self.nodes = nodes
-        self.history = []
-
-    def _capture_memory(self):
-        try:
-            frame = sys._getframe(2)
-            mem = {}
-            for key, val in frame.f_locals.items():
-                if isinstance(val, (int, float, str, list, dict, bool)):
-                    mem[key] = str(val)
-            return mem
-        except Exception:
-            return {}
-
-    def visit(self, node, message=None):
-        step = {"id": str(node), "action": "visit", "variables": self._capture_memory()}
-        if message: step["message"] = str(message)
-        self.history.append(step)
-    
-    def get_all_nodes(self):
-        return self.nodes
-    
-    def color_node(self, node, color,message=None):
-        step = {
-            "id": str(node), 
-            "action": "color_node", 
-            "color": color, 
-            "variables": self._capture_memory()
-        }
-        if message: 
-            step["message"] = str(message)
-        self.history.append(step)
-
-    def color_edge(self, u, v, color,message=None):
-        step = {
-            "id": str(u), 
-            "target": str(v), 
-            "action": "color_edge", 
-            "color": color, 
-            "variables": self._capture_memory()
-        }
-        if message: 
-            step["message"] = str(message)
-        self.history.append(step)
-
-    def draw_path(self, path, color):
-        self.history.append({"path": [str(p) for p in path], "action": "draw_path", "color": color, "variables": self._capture_memory()})
-
-    def select(self, node):
-        step = {"id": str(node), "action": "select", "variables": self._capture_memory()}
-        self.history.append(step)
-
-    def neighbors(self, node):
-        return self.edges.get(str(node), [])
-
-    def weight(self, node_a, node_b):
-        neighbors_dict = self.edges.get(str(node_a), {})
-        return neighbors_dict.get(str(node_b), float('inf'))
-
-_api = GraphAPI(GRAPH_EDGES, GRAPH_NODES)
-def visit(node, msg=None): _api.visit(node, msg)
-def color_node(node, color, msg=None): _api.color_node(node, color, msg)
-def color_edge(u, v, color, msg=None): _api.color_edge(u, v, color, msg)
-def draw_path(path, color="#e74c3c"): _api.draw_path(path, color)
-def select(node): _api.select(node)
-def neighbors(node): return _api.neighbors(node)
-def weight(a, b): return _api.weight(a, b)
-def get_all_nodes(): return _api.get_all_nodes()
-`;
-
-        // 3. On assemble l'API + le code utilisateur + le retour de l'historique
-        const fullCode = `
-${apiCode}
-
-# --- Code Utilisateur ---
-${code}
-
-# --- Retour ---
-json.dumps(_api.history)
-`;
-
-        // 4. Exécution dans Pyodide
-        const jsonTrace = await pyodideReady.runPythonAsync(fullCode);
-        
-        // 5. On parse le résultat et on l'envoie à ton lecteur
-        const animationData = JSON.parse(jsonTrace);
-        loadPlayer(animationData); 
-
-    } catch (err) {
-        console.error(err);
-        const errorLines = err.toString().split('\n');
-        errorLines.forEach(line => {
-            term.write('\x1b[31m' + line + '\x1b[0m\r\n');
-        });
-    } finally {
-        if (compileBtn) compileBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run script';
-    }
-}
-
-
-
-
-// --- LECTEUR D'ANIMATION ---
-let animationHistory = [];
-let currentStepIndex = -1;
-let playInterval = null;
-
-function loadPlayer(history) {
-    pauseAnimation();
-    animationHistory = history;
-    currentStepIndex = -1;
-    document.getElementById('player-controls').style.display = 'flex';
-    resetGraph(); 
-    updatePlayerUI();
-}
-
-function renderStateAtCurrentStep2() {
-    resetGraph();
-    if (currentStepIndex === -1) {
-        logDisplay.style.opacity = 0;
-        return;
+  // 4. Update the Document cleanly (CORRECTED)
+  if (editor.document) {
+    // If a clean method exists, use it
+    if (typeof editor.document.clear === "function") {
+      editor.document.clear();
     }
 
-    const action = typeof item === 'object' ? item.action : null;
-    const color = typeof item === 'object' ? item.color : null;
+    // Ensure array references are kept but emptied
+    if (editor.document.nodes) editor.document.nodes.length = 0;
+    else editor.document.nodes = [];
 
-    for (let i = 0; i <= currentStepIndex; i++) {
-        const item = animationHistory[i];
-        const nodeId = typeof item === 'object' ? item.id : item;
-        const message = typeof item === 'object' ? item.message : null;
-        const action = typeof item === 'object' ? item.action : null;
-        
-        const circle = document.querySelector(`circle[data-id="${nodeId}"]`);
-        if (!circle) continue;
+    if (editor.document.edges) editor.document.edges.length = 0;
+    else editor.document.edges = [];
 
-        //showOrderBadge(nodeId, i + 1);
+    // Push new data into the existing array references
+    editor.document.nodes.push(...newNodes);
+    editor.document.edges.push(...parsedData.edges);
+  }
 
-        if (i === currentStepIndex) {
-            if (action === 'select') circle.classList.add('selected');
-            else circle.classList.add('visited');
-            
-            if (message) {
-                logDisplay.textContent = message;
-                logDisplay.style.opacity = 1;
-            } else {
-                logDisplay.style.opacity = 0;
-            }
-        } else {
-            if (action === 'select') circle.classList.add('selected');
-            else circle.classList.add('visited');
-        }
-
-        if (action === 'color_node' && circle) {
-            circle.style.fill = color; // Change la couleur de remplissage
-            circle.style.stroke = color;
-        }
-        else if (action === 'color_edge') {
-            // Retrouve le path SVG selon le point de départ et d'arrivée (ou l'inverse si non orienté)
-            const edgePath = document.querySelector(`line.edge[data-from="${nodeId}"][data-to="${item.target}"], path.edge[data-from="${nodeId}"][data-to="${item.target}"]`) 
-                        || document.querySelector(`line.edge[data-from="${item.target}"][data-to="${nodeId}"], path.edge[data-from="${item.target}"][data-to="${nodeId}"]`);
-            if (edgePath) {
-                edgePath.style.stroke = color;
-                edgePath.style.strokeWidth = "4px"; // Rend l'arête un peu plus épaisse pour qu'elle ressorte
-            }
-        }
-        else if (action === 'draw_path' && item.path) {
-            // Parcourt le tableau de chemin et colore chaque segment
-            for (let j = 0; j < item.path.length - 1; j++) {
-                const u = item.path[j];
-                const v = item.path[j+1];
-                const edgePath = document.querySelector(`line.edge[data-from="${u}"][data-to="${v}"], path.edge[data-from="${u}"][data-to="${v}"]`) 
-                            || document.querySelector(`line.edge[data-from="${v}"][data-to="${u}"], path.edge[data-from="${v}"][data-to="${u}"]`);
-                if (edgePath) {
-                    edgePath.style.stroke = color || "#e74c3c"; // Rouge par défaut
-                    edgePath.style.strokeWidth = "5px";
-                }
-            }
-        }
+  // 5. Force visual clearing and rendering
+  if (editor.visualization) {
+    if (typeof editor.visualization.clear === "function") {
+      editor.visualization.clear();
     }
+    editor.visualization.render();
+  }
 
-    // ==========================================
-    // NOUVEAU : Inspection des variables en direct
-    // ==========================================
-    /*
-     currentStep = animationHistory[currentStepIndex];
-    const memoryPanel = document.getElementById('memory-panel');
-    
-    if (memoryPanel && currentStep && currentStep.variables) {
-        let htmlContent = "<h3><i class='fa-solid fa-memory'></i> Variables State</h3><ul>";
-        
-        for (const [varName, varValue] of Object.entries(currentStep.variables)) {
-            htmlContent += `<li><strong>${varName}</strong>: <code>${varValue}</code></li>`;
-        }
-        
-        htmlContent += "</ul>";
-        memoryPanel.innerHTML = htmlContent;
-    }
-    */
-}
+  // 6. Stop the animation player if we are loading a new graph
+  if (window.graphPlayer) {
+    window.graphPlayer.hide();
+  }
+};
 
+window.updateGraphDataText = function () {
+  const formatSelect = document.getElementById("data-format");
+  const inputField = document.getElementById("data-input");
 
-function renderStateAtCurrentStep() {
-    resetGraph();
-    if (currentStepIndex === -1) {
-        if (logDisplay) logDisplay.style.opacity = 0;
-        return;
-    }
+  if (!formatSelect || !inputField) return;
 
-    for (let i = 0; i <= currentStepIndex; i++) {
-        const item = animationHistory[i];
-        
-        // Extraction sécurisée
-        const action = typeof item === 'object' ? item.action : null;
-        const nodeId = typeof item === 'object' ? item.id : item;
-        const message = typeof item === 'object' ? item.message : null;
-        const color = typeof item === 'object' ? item.color : null;
+  // Sécurité : ne pas écraser pendant que l'utilisateur écrit
+  if (document.activeElement === inputField) return;
 
-        if (nodeId && (action === 'visit' || action === 'select' || action === 'color_node')) {
-            const circle = document.querySelector(`circle[data-id="${nodeId}"]`);
-            if (circle) {
+  // 1. Récupérer les données via la nouvelle architecture
+  const editor = typeof getActiveGraphEditor === "function" ? getActiveGraphEditor() : null;
+  if (!editor) return;
 
-                if (action === 'visit' || action === 'select') {
-                    circle.style.fill = '';
-                    circle.style.stroke = '';
-                }
+  const { nodes, edges } = editor.getGraphData();
+  const format = formatSelect.value;
 
-                if (i === currentStepIndex) {
-                    if (action === 'select') circle.classList.add('selected');
-                    else if (action === 'visit') circle.classList.add('visited');
-                    
-                    if (message && logDisplay) {
-                        logDisplay.textContent = message;
-                        logDisplay.style.opacity = 1;
-                    } else if (logDisplay) {
-                        logDisplay.style.opacity = 0;
-                    }
-                } else {
-                    if (action === 'select') circle.classList.add('selected');
-                    else if (action === 'visit') circle.classList.add('visited');
-                }
-
-                if (action === 'color_node' && color) {
-                    circle.style.fill = color;
-                    circle.style.stroke = `color-mix(in srgb, ${color}, black 30%)`;
-                    circle.style.strokeWidth = "3.5px";
-                }
-            }
-        }
-
-        if (action === 'color_edge' && item.target) {
-                console.debug('color_edge step:', nodeId, '->', item.target, 'color=', color);
-                const selector = [
-                    `line.edge[data-from="${nodeId}"][data-to="${item.target}"]`,
-                    `line.edge-line[data-from="${nodeId}"][data-to="${item.target}"]`,
-                    `line[data-from="${nodeId}"][data-to="${item.target}"]`,
-                    `path.edge[data-from="${nodeId}"][data-to="${item.target}"]`,
-                    `line.edge[data-from="${item.target}"][data-to="${nodeId}"]`,
-                    `line.edge-line[data-from="${item.target}"][data-to="${nodeId}"]`,
-                    `line[data-from="${item.target}"][data-to="${nodeId}"]`,
-                    `path.edge[data-from="${item.target}"][data-to="${nodeId}"]`
-                ].join(', ');
-                const edgePaths = Array.from(document.querySelectorAll(selector));
-                if (edgePaths.length === 0) {
-                    const allEdges = Array.from(document.querySelectorAll('line.edge, line.edge-line, path.edge, line')); 
-                    console.debug('available edges count:', allEdges.length, 'examples:', allEdges.slice(0,5).map(e => ({tag:e.tagName, from:e.getAttribute('data-from'), to:e.getAttribute('data-to'), classes:e.className})));
-                }
-                const highlightColor = color || "#3498db";
-                edgePaths.forEach(edgePath => {
-                    edgePath.style.stroke = highlightColor;
-                    edgePath.style.strokeWidth = "4px";
-                    edgePath.style.strokeLinecap = "round";
-                    edgePath.style.color = highlightColor;
-                });
-        }
-
-        if (action === 'draw_path' && item.path) {
-            for (let j = 0; j < item.path.length - 1; j++) {
-                const u = item.path[j];
-                const v = item.path[j+1];
-                const selector = [
-                    `line.edge[data-from="${u}"][data-to="${v}"]`,
-                    `line.edge-line[data-from="${u}"][data-to="${v}"]`,
-                    `line[data-from="${u}"][data-to="${v}"]`,
-                    `path.edge[data-from="${u}"][data-to="${v}"]`,
-                    `line.edge[data-from="${v}"][data-to="${u}"]`,
-                    `line.edge-line[data-from="${v}"][data-to="${u}"]`,
-                    `line[data-from="${v}"][data-to="${u}"]`,
-                    `path.edge[data-from="${v}"][data-to="${u}"]`
-                ].join(', ');
-                const edgePaths = Array.from(document.querySelectorAll(selector));
-                const highlightColor = color || "#e74c3c";
-                edgePaths.forEach(edgePath => {
-                    edgePath.style.stroke = highlightColor;
-                    edgePath.style.strokeWidth = "5px";
-                    edgePath.style.strokeLinecap = "round";
-                    edgePath.style.color = highlightColor;
-                });
-            }
-        }
-    }
-}
-
-
-function playAnimation() {
-    if (currentStepIndex >= animationHistory.length - 1) {
-        currentStepIndex = -1;
-    }
-    
-    const playBtn = document.getElementById('btn-play');
-    if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
-    
-    playInterval = setInterval(() => {
-        if (currentStepIndex < animationHistory.length - 1) {
-            currentStepIndex++;
-            renderStateAtCurrentStep();
-            updatePlayerUI();
-        } else {
-            pauseAnimation();
-        }
-    }, 800);
-}
-
-function pauseAnimation() {
-    if (playInterval) {
-        clearInterval(playInterval);
-        playInterval = null;
-    }
-    const playBtn = document.getElementById('btn-play');
-    if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-play"></i> Play';
-}
-
-document.getElementById('btn-play').addEventListener('click', () => {
-    if (playInterval) pauseAnimation();
-    else playAnimation();
-});
-
-document.getElementById('btn-next').addEventListener('click', () => {
-    pauseAnimation();
-    if (currentStepIndex < animationHistory.length - 1) {
-        currentStepIndex++;
-        renderStateAtCurrentStep();
-        updatePlayerUI();
-    }
-});
-
-document.getElementById('btn-prev').addEventListener('click', () => {
-    pauseAnimation();
-    if (currentStepIndex > -1) {
-        currentStepIndex--;
-        renderStateAtCurrentStep();
-        updatePlayerUI();
-    }
-});
-
-function updatePlayerUI() {
-    const counter = document.getElementById('step-counter');
-    const btnPrev = document.getElementById('btn-prev');
-    const btnNext = document.getElementById('btn-next');
-    counter.textContent = `Step ${currentStepIndex + 1} / ${animationHistory.length}`;
-    btnPrev.disabled = (currentStepIndex === -1);
-    btnNext.disabled = (currentStepIndex >= animationHistory.length - 1);
-    btnPrev.style.opacity = btnPrev.disabled ? 0.5 : 1;
-    btnNext.style.opacity = btnNext.disabled ? 0.5 : 1;
-}
+  // 2. Générer et injecter le texte
+  const text = GraphDataParser.graphToText(nodes, edges, format);
+  inputField.value = text;
+};

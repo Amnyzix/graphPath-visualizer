@@ -1,20 +1,20 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const isIframe = window.self !== window.top;
-    const isModalParam = window.location.search.includes('modal=true');
+document.addEventListener("DOMContentLoaded", () => {
+  const isIframe = window.self !== window.top;
+  const isModalParam = window.location.search.includes("modal=true");
 
-    const lessonContainer = document.querySelector('.lesson-container');
+  const lessonContainer = document.querySelector(".lesson-container");
 
-    if (isIframe || isModalParam) {
-        if (lessonContainer) {
-            lessonContainer.style.marginTop = '0';
-        }
-        return;
+  if (isIframe || isModalParam) {
+    if (lessonContainer) {
+      lessonContainer.style.marginTop = "0";
     }
+    return;
+  }
 
-    const headerHTML = `
+  const headerHTML = `
     <header id="theory-header" class="theory-navbar">
         <a href="../index.html" class="theory-brand">
-            <i class="fa-solid fa-diagram-project"></i> AlgoQuest
+            <i class="fa-solid fa-diagram-project"></i> AlgoVizor
         </a>
         <div class="theory-nav-links">
             <a href="../learn.html" class="nav-btn nav-btn-secondary">
@@ -27,5 +27,5 @@ document.addEventListener('DOMContentLoaded', () => {
     </header>
     `;
 
-    document.body.insertAdjacentHTML('afterbegin', headerHTML);
+  document.body.insertAdjacentHTML("afterbegin", headerHTML);
 });

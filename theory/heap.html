@@ -1,49 +1,77 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoQuest - Max Heap</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/card-style.css">
-    <link rel="stylesheet" href="../css/learn-header.css">
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AlgoVizor - Max Heap</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/card-style.css" />
+    <link rel="stylesheet" href="../css/learn-header.css" />
+
     <script>
-        MathJax = {
-            tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']]
-            }
-        };
+      MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+        },
+      };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-</head>
-<body>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+    ></script>
+  </head>
+  <body>
     <div class="lesson-container">
-        <h1>Max Heap</h1>
-        
-        <p>A <strong>Max Heap</strong> is a specialized tree-based data structure that is heavily used to implement Priority Queues. It is always a <em>complete binary tree</em>, meaning every level is fully filled except possibly the last one, which is filled strictly from left to right.</p>
+      <h1>Max Heap</h1>
 
-        <div class="highlight-box">
-            <strong><i class="fa-solid fa-crown"></i> The Heap Property:</strong><br> 
-            In a Max Heap, the value of any given node is always <strong>greater than or equal to</strong> the values of its children. This guarantees that the absolute largest value in the structure is always positioned at the Root.
-        </div>
+      <p>
+        A <strong>Max Heap</strong> is a specialized tree-based data structure that is heavily used
+        to implement Priority Queues. It is always a <em>complete binary tree</em>, meaning every
+        level is fully filled except possibly the last one, which is filled strictly from left to
+        right.
+      </p>
 
-        <h2><i class="fa-solid fa-calculator"></i> The Array Magic</h2>
-        <p>Because a Heap is a complete tree, we do not need to create Node objects with "left" and "right" pointers in memory. We can flatten the entire tree into a standard Array. The relationships are calculated using simple math on the indices.</p>
-        
-        <p>If a parent node is located at index $i$:</p>
-        <ul>
-            <li>Its <strong>Left Child</strong> is at index: $2i + 1$</li>
-            <li>Its <strong>Right Child</strong> is at index: $2i + 2$</li>
-            <li>Its <strong>Parent</strong> can be found at: $\lfloor(i - 1) / 2\rfloor$</li>
-        </ul>
+      <div class="highlight-box">
+        <strong><i class="fa-solid fa-crown"></i> The Heap Property:</strong><br />
+        In a Max Heap, the value of any given node is always
+        <strong>greater than or equal to</strong> the values of its children. This guarantees that
+        the absolute largest value in the structure is always positioned at the Root.
+      </div>
 
-        <h2><i class="fa-solid fa-gears"></i> Core Operations</h2>
-        
-        <h3>1. Insertion (Bubble Up / Sift Up)</h3>
-        <p>When you insert a new value, it is first added to the very end of the array (the bottom-right of the tree). Then, it compares itself to its parent. If it is larger, they swap. This "bubbling up" continues until the Heap Property is restored.</p>
-<pre><code class="language-python">def insert(heap, value):
+      <h2><i class="fa-solid fa-calculator"></i> The Array Magic</h2>
+      <p>
+        Because a Heap is a complete tree, we do not need to create Node objects with "left" and
+        "right" pointers in memory. We can flatten the entire tree into a standard Array. The
+        relationships are calculated using simple math on the indices.
+      </p>
+
+      <p>If a parent node is located at index $i$:</p>
+      <ul>
+        <li>Its <strong>Left Child</strong> is at index: $2i + 1$</li>
+        <li>Its <strong>Right Child</strong> is at index: $2i + 2$</li>
+        <li>Its <strong>Parent</strong> can be found at: $\lfloor(i - 1) / 2\rfloor$</li>
+      </ul>
+
+      <h2><i class="fa-solid fa-gears"></i> Core Operations</h2>
+
+      <h3>1. Insertion (Bubble Up / Sift Up)</h3>
+      <p>
+        When you insert a new value, it is first added to the very end of the array (the
+        bottom-right of the tree). Then, it compares itself to its parent. If it is larger, they
+        swap. This "bubbling up" continues until the Heap Property is restored.
+      </p>
+      <pre><code class="language-python">def insert(heap, value):
     heap.append(value)
     index = len(heap) - 1
     
@@ -56,22 +84,37 @@
         else:
             break</code></pre>
 
-        <h3>2. Extract Max (Bubble Down / Sift Down)</h3>
-        <p>Removing the maximum value (the Root) creates a hole at the top of the tree. To fix this:</p>
-        <ul>
-            <li>Take the very last element of the heap and move it to the Root.</li>
-            <li>Compare this new Root with its two children.</li>
-            <li>Swap it with the <strong>larger</strong> of the two children.</li>
-            <li>Repeat this "bubbling down" process until it is larger than both children or it reaches the bottom.</li>
-        </ul>
+      <h3>2. Extract Max (Bubble Down / Sift Down)</h3>
+      <p>
+        Removing the maximum value (the Root) creates a hole at the top of the tree. To fix this:
+      </p>
+      <ul>
+        <li>Take the very last element of the heap and move it to the Root.</li>
+        <li>Compare this new Root with its two children.</li>
+        <li>Swap it with the <strong>larger</strong> of the two children.</li>
+        <li>
+          Repeat this "bubbling down" process until it is larger than both children or it reaches
+          the bottom.
+        </li>
+      </ul>
 
-        <h3>3. Arbitrary Deletion</h3>
-        <p>Deleting a specific value anywhere in the heap combines both mechanics. First, we must search for the value and swap it with the last element in the array. Once the last element takes the target's place, it might violate the heap property in <em>either</em> direction!</p>
-        <ul>
-            <li>If the new value is <strong>greater</strong> than its new parent, it must <strong>Bubble Up</strong>.</li>
-            <li>If the new value is <strong>smaller</strong> than its new children, it must <strong>Bubble Down</strong>.</li>
-        </ul>
-<pre><code class="language-python">def delete_value(heap, value):
+      <h3>3. Arbitrary Deletion</h3>
+      <p>
+        Deleting a specific value anywhere in the heap combines both mechanics. First, we must
+        search for the value and swap it with the last element in the array. Once the last element
+        takes the target's place, it might violate the heap property in <em>either</em> direction!
+      </p>
+      <ul>
+        <li>
+          If the new value is <strong>greater</strong> than its new parent, it must
+          <strong>Bubble Up</strong>.
+        </li>
+        <li>
+          If the new value is <strong>smaller</strong> than its new children, it must
+          <strong>Bubble Down</strong>.
+        </li>
+      </ul>
+      <pre><code class="language-python">def delete_value(heap, value):
     try:
         index = heap.index(value) # O(n) search
     except ValueError:
@@ -92,40 +135,51 @@
     else:
         heap.pop() # Target was already the last element</code></pre>
 
-        <h2><i class="fa-solid fa-stopwatch"></i> Complexity Analysis</h2>
-        <table class="complexity-table">
-            <thead>
-                <tr>
-                    <th>Operation</th>
-                    <th>Time Complexity</th>
-                    <th>Explanation</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Find Max (Peek)</strong></td>
-                    <td>$O(1)$</td>
-                    <td>The maximum is always instantly accessible at index 0.</td>
-                </tr>
-                <tr>
-                    <td><strong>Insert</strong></td>
-                    <td>$O(\log n)$</td>
-                    <td>In the worst case, the new value bubbles up from the very bottom to the root, which equals the height of the tree.</td>
-                </tr>
-                <tr>
-                    <td><strong>Extract Max</strong></td>
-                    <td>$O(\log n)$</td>
-                    <td>The swapped bottom element must bubble down to the bottom, taking time proportional to the tree's height.</td>
-                </tr>
-                <tr>
-                    <td><strong>Search / Arbitrary Delete</strong></td>
-                    <td>$O(n)$</td>
-                    <td>Because an array-based heap is only partially ordered (parents > children, but no left/right rules), finding a specific value requires scanning the entire array in $O(n)$ time. The deletion itself takes $O(\log n)$, but the search dominates the complexity.</td>
-                </tr>
-            </tbody>
-        </table>
+      <h2><i class="fa-solid fa-stopwatch"></i> Complexity Analysis</h2>
+      <table class="complexity-table">
+        <thead>
+          <tr>
+            <th>Operation</th>
+            <th>Time Complexity</th>
+            <th>Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Find Max (Peek)</strong></td>
+            <td>$O(1)$</td>
+            <td>The maximum is always instantly accessible at index 0.</td>
+          </tr>
+          <tr>
+            <td><strong>Insert</strong></td>
+            <td>$O(\log n)$</td>
+            <td>
+              In the worst case, the new value bubbles up from the very bottom to the root, which
+              equals the height of the tree.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Extract Max</strong></td>
+            <td>$O(\log n)$</td>
+            <td>
+              The swapped bottom element must bubble down to the bottom, taking time proportional to
+              the tree's height.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Search / Arbitrary Delete</strong></td>
+            <td>$O(n)$</td>
+            <td>
+              Because an array-based heap is only partially ordered (parents > children, but no
+              left/right rules), finding a specific value requires scanning the entire array in
+              $O(n)$ time. The deletion itself takes $O(\log n)$, but the search dominates the
+              complexity.
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <script src="../js/ui/resolve_learn_header.js"></script>
-</body>
+  </body>
 </html>
