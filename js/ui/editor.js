@@ -112,6 +112,8 @@ window.onload = function () {
     (text) => term.write(text),
     (text) => term.write(text)
   );
+  window.pythonEngine = pythonEngine;
+
   pythonEngine.init();
 };
 

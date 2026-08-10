@@ -12,6 +12,7 @@ import "./core/ExportManager.js"; // Export utilities
 import "./core/recorder.js"; // recording helpers
 import "./features/graphs/graphGenerator.js"; // openGeneratorModal
 import "./core/storage.js";
+import "./features/compression/CompressionEditor.js";
 
 // Re-attach AppRegistry just in case
 window.AppRegistry = AppRegistry;
