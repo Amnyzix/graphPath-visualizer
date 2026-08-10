@@ -262,8 +262,16 @@ export class GraphEditor extends CanvasEngine {
     this.nodeCounter = 1;
     this.selectedNodes.clear();
     this.selectedNodeId = null;
+
     const playerControls = document.getElementById("player-controls");
     if (playerControls) playerControls.style.display = "none";
+
+    // for compression (TODO : could be refactored)
+    const hud = document.getElementById("comp-player-controls");
+    if (hud) {
+      hud.style.display = "none";
+    }
+
     this.startNode = null;
     this.tempEdge = null;
     this.render();
@@ -524,7 +532,7 @@ export class GraphEditor extends CanvasEngine {
       text.setAttribute("y", node.y);
       text.setAttribute("text-anchor", "middle");
       text.setAttribute("dominant-baseline", "middle");
-      text.textContent = node.id;
+      text.textContent = node.label || node.id;
 
       group.appendChild(circle);
       group.appendChild(text);
