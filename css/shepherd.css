@@ -1,0 +1,28 @@
+.shepherd-element {
+  background: var(--container-bg);
+  border: 2px solid var(--brand-main);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+.shepherd-title {
+  color: var(--brand-main);
+  font-weight: bold;
+}
+.shepherd-text {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.shepherd-button {
+  background: var(--brand-main);
+  color: white;
+  border-radius: 6px;
+  transition: transform 0.1s;
+}
+.shepherd-button:hover {
+  transform: scale(1.05);
+}
+.shepherd-button-secondary {
+  background: var(--border-color);
+  color: var(--text-primary);
+}

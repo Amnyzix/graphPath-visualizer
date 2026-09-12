@@ -5,9 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/save-svg-as-png/1.4.17/saveSvgAsPng.min.js"></script>
     <link rel="stylesheet" href="css/style_final.css" />
+    <link rel="stylesheet" href="css/shepherd.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/shepherd.js@15.2.2/dist/css/shepherd.css"
     />
 
     <title>AlgoVizor - Algorithm & Data Structure Visualizer</title>
@@ -286,6 +292,10 @@
                   <i class="fa-solid fa-share"></i>
                 </button>
               </div>
+
+              <button class="top-btn" onclick="window.startTutorial()">
+                <i class="fa-solid fa-circle-question" style="margin-right: 6px"></i> Tutoriel
+              </button>
 
               <!-- 2. DROPDOWN MENUS -->
               <div class="dropdown">
@@ -2472,5 +2482,6 @@ this is an example of a huffman tree</textarea>
 
     <!-- legacy storage stays classic, other internal scripts loaded from ES module bootstrap -->
     <script type="module" src="js/bootstrap.js"></script>
+    <script type="module" src="js/ui/graph-tutorial.js"></script>
   </body>
 </html>
