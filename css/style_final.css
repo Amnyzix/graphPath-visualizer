@@ -1300,3 +1300,69 @@ body.dark-mode #terminal-container {
 #terminal-container .xterm-viewport {
   background-color: transparent !important;
 }
+
+/* Le bouton flottant est caché par défaut sur grand écran */
+#toggle-drawer-btn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 2000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Comportement sur petit écran (moins de 1024px) */
+@media (max-width: 1366px) {
+  /* Afficher le bouton flottant */
+  #toggle-drawer-btn {
+    display: flex;
+  }
+
+  /* Transformer le panneau en tiroir rétractable */
+  .editor-panel {
+    position: fixed;
+    top: 0;
+    left: -100%; /* Masqué hors de l'écran par défaut */
+    height: 100vh;
+    z-index: 1500;
+    transition: left 0.3s ease; /* Animation fluide de glissement */
+    width: 400px; /* Occupe presque tout l'écran */
+    max-width: 85vw;
+    border-radius: 0;
+    margin: 0;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+  }
+
+  /* La classe qui sera ajoutée en JS pour faire entrer le panneau */
+  .editor-panel.open {
+    left: 0;
+  }
+}
+
+@media (max-width: 1280px) {
+  .mode-tabs {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 5px;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 1280px) {
+  .mode-tab-btn {
+    font-size: 0; /* Masque le texte brut */
+    padding: 10px;
+    transition:
+      font-size 0.2s ease-in-out,
+      padding 0.2s ease-in-out;
+  }
+  .mode-tab-btn i {
+    font-size: 1rem; /* Maintient l'icône visible */
+  }
+
+  .mode-tab-btn:hover {
+    font-size: 0.9rem; /* Restaure la taille du texte */
+    padding: 10px 15px; /* Redonne de l'espace autour du texte */
+  }
+}

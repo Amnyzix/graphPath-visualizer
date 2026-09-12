@@ -158,3 +158,21 @@ export function exportCurrentAnimation(format) {
 }
 
 window.exportCurrentAnimation = exportCurrentAnimation;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById("toggle-drawer-btn");
+  const editorPanel = document.querySelector(".editor-panel");
+
+  if (toggleBtn && editorPanel) {
+    toggleBtn.addEventListener("click", () => {
+      // Ajoute ou enlève la classe "open" au clic
+      editorPanel.classList.toggle("open");
+
+      // Change l'icône du bouton selon l'état
+      const isOpen = editorPanel.classList.contains("open");
+      toggleBtn.innerHTML = isOpen
+        ? '<i class="fa-solid fa-times"></i> Close'
+        : '<i class="fa-solid fa-code"></i> Editor';
+    });
+  }
+});
