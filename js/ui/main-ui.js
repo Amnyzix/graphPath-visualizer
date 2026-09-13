@@ -17,6 +17,11 @@ function switchGlobalMode(mode) {
   const targetView = document.getElementById(`view-${mode}`);
   if (targetView) targetView.classList.add("active-view");
 
+  const editorToggleBtn = document.getElementById("toggle-drawer-btn");
+  if (editorToggleBtn) {
+    editorToggleBtn.style.display = mode === "graphs" ? "flex" : "none";
+  }
+
   const editor = window.AppRegistry.get(mode);
 
   if (editor) {
@@ -74,21 +79,31 @@ document.addEventListener("DOMContentLoaded", () => {
   if (payload) {
     const editor = window.AppRegistry.get(payload.type);
     if (editor) {
+      // 1. On affiche l'onglet pour que le SVG ait une vraie taille (quitte le display: none)
       switchGlobalMode(payload.type);
 
-      editor.nodes = payload.data.nodes || [];
-      editor.edges = payload.data.edges || [];
-
-      if (editor.nodes.length > 0) {
-        const maxId = Math.max(...editor.nodes.map((n) => parseInt(n.id, 10) || 0));
-        editor.nodeCounter = maxId + 1;
-      }
-
-      window.__legacyEdges = editor.edges;
-
+      // 2. On attend un court instant pour laisser le navigateur calculer les dimensions de l'écran
       setTimeout(() => {
-        editor.render();
-      }, 10);
+        const nodes = payload.data.nodes || [];
+        const edges = payload.data.edges || [];
+        const maxId = nodes.length > 0 ? Math.max(...nodes.map((n) => parseInt(n.id, 10) || 0)) : 0;
+
+        // 3. On injecte les données via la méthode officielle de l'éditeur
+        if (typeof editor.setGraphData === "function") {
+          editor.setGraphData({
+            nodes: nodes,
+            edges: edges,
+            nodeIdCounter: maxId + 1,
+          });
+        } else {
+          // Fallback au cas où c'est un vieil éditeur non migré
+          editor.nodes = nodes;
+          editor.edges = edges;
+          editor.nodeCounter = maxId + 1;
+          window.__legacyEdges = edges;
+          if (editor.render) editor.render();
+        }
+      }, 50); // 50ms est suffisant pour que l'interface soit bien rendue avant de dessiner
     }
   } else {
     const defaultMode = "graphs";
@@ -124,7 +139,7 @@ export function handleShareButtonClick(event) {
       setTimeout(() => {
         actualBtn.innerHTML = originalContent;
         actualBtn.disabled = false;
-      }, 2000);
+      }, 1000);
     })
     .catch((err) => {
       console.error("Copy error : ", err);

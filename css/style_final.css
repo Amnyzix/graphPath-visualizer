@@ -781,6 +781,11 @@ text {
   background: #059669 !important;
 }
 
+#share-btn {
+  white-space: nowrap;
+  min-width: max-content;
+}
+
 /* =========================================
    7. INPUTS, TEXTAREA & TABS
    ========================================= */
