@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AlgoVizor - Huffman Coding</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/learn-header.css" />
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+        },
+      };
+    </script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+    ></script>
+
+    <style>
+      :root {
+        --brand-main: #6366f1;
+        --brand-light: #e0e7ff;
+        --bg-main: #f4f6f9;
+        --container-bg: #ffffff;
+        --text-primary: #334155;
+        --text-muted: #64748b;
+        --border-color: #cbd5e1;
+        --code-bg: #1e293b;
+        --code-text: #f8fafc;
+      }
+
+      body {
+        font-family: "Nunito", sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
+
+      .lesson-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: var(--container-bg);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border: 2px solid var(--border-color);
+      }
+
+      h1 {
+        color: var(--brand-main);
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-top: 0;
+        border-bottom: 3px solid var(--brand-light);
+        padding-bottom: 15px;
+      }
+
+      h2 {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 35px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      h2 i {
+        color: var(--brand-main);
+      }
+
+      p {
+        font-size: 1.05rem;
+        color: var(--text-primary);
+      }
+
+      .highlight-box {
+        background-color: var(--brand-light);
+        border-left: 5px solid var(--brand-main);
+        padding: 20px;
+        border-radius: 0 12px 12px 0;
+        margin: 25px 0;
+      }
+
+      .highlight-box strong {
+        color: var(--brand-main);
+      }
+
+      ul {
+        font-size: 1.05rem;
+        padding-left: 20px;
+      }
+
+      li {
+        margin-bottom: 10px;
+      }
+
+      pre {
+        background-color: var(--code-bg);
+        color: var(--code-text);
+        padding: 20px;
+        border-radius: 12px;
+        overflow-x: auto;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      code {
+        font-family: "Consolas", "Monaco", monospace;
+        background-color: #e2e8f0;
+        color: #b91c1c;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+      }
+
+      pre code {
+        background-color: transparent;
+        color: inherit;
+        padding: 0;
+      }
+
+      .complexity-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      .complexity-table th,
+      .complexity-table td {
+        text-align: left;
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .complexity-table th {
+        background-color: var(--bg-main);
+        font-weight: 800;
+        color: var(--text-primary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="lesson-container">
+      <h1>Huffman Coding</h1>
+
+      <p>
+        Huffman coding is a lossless data compression algorithm. In standard character encoding
+        schemes, such as ASCII, each character typically occupies a fixed number of bits (often 8
+        bits). Developed by David A. Huffman in 1952, this algorithm assigns variable-length codes
+        to characters based on their frequency of occurrence: frequently occurring characters are
+        assigned shorter codes, whereas rarer characters receive longer codes.
+      </p>
+
+      <div class="highlight-box">
+        <strong><i class="fa-solid fa-file-zipper"></i> Core Concept: Prefix Code</strong><br />
+        To enable the decoding of texts utilizing variable-length codes (e.g., <code>0</code> for
+        'A', <code>110</code> for 'B'), the algorithm ensures the generation of a
+        <strong>prefix code</strong>. A prefix code is a coding system where no entire code word is
+        a prefix of any other code word in the system. This property guarantees that the encoded
+        data can be parsed unambiguously during the decoding phase.
+      </div>
+
+      <h2><i class="fa-solid fa-sitemap"></i> Tree Construction</h2>
+      <p>
+        To determine the optimal code assignments, a binary tree (the Huffman Tree) is constructed
+        using a bottom-up approach. The process operates as follows:
+      </p>
+      <ul>
+        <li>
+          <strong>Analysis:</strong> Calculate the frequency of occurrence for each character within
+          the target text.
+        </li>
+        <li>
+          <strong>Initialization:</strong> Create a leaf node for each character and insert them
+          into a priority queue (min-heap), ordered by frequency from lowest to highest.
+        </li>
+        <li>
+          <strong>Merging Process:</strong> While there is more than one node remaining in the
+          priority queue, extract the two nodes with the lowest frequencies.
+        </li>
+        <li>
+          Create a new internal node containing these two extracted nodes as children. Its frequency
+          is set to the sum of the frequencies of its children. Insert this new parent node back
+          into the priority queue.
+        </li>
+        <li>
+          <strong>Code Assignment:</strong> Once the tree is fully constructed, traverse from the
+          root to each leaf. Assigning a <code>0</code> for each left branch and a
+          <code>1</code> for each right branch generates the binary code for each character.
+        </li>
+      </ul>
+
+      <h2><i class="fa-solid fa-code"></i> Python Implementation</h2>
+      <p>
+        Below is a standard implementation utilizing a <code>Min-Heap</code> data structure, which
+        allows for the efficient extraction of minimal frequencies during each iteration.
+      </p>
+
+      <pre><code>import heapq
+
+class Node:
+    def __init__(self, char, freq):
+        self.char = char
+        self.freq = freq
+        self.left = None
+        self.right = None
+
+    # Allows the heapq module to compare nodes based on frequency
+    def __lt__(self, other):
+        return self.freq < other.freq
+
+def build_huffman_tree(text):
+    # 1. Calculate character frequencies
+    frequencies = {c: text.count(c) for c in set(text)}
+    
+    # 2. Initialize the priority queue (min-heap)
+    heap = [Node(char, freq) for char, freq in frequencies.items()]
+    heapq.heapify(heap)
+    
+    # 3. Construct the Huffman tree
+    while len(heap) > 1:
+        left = heapq.heappop(heap)   # Node with the lowest frequency
+        right = heapq.heappop(heap)  # Node with the second lowest frequency
+        
+        # Create a new internal node
+        merged = Node(None, left.freq + right.freq)
+        merged.left = left
+        merged.right = right
+        
+        heapq.heappush(heap, merged)
+        
+    return heap[0] # Return the root of the tree
+
+# 4. Generate the dictionary of binary codes
+def get_codes(node, current_code="", codes=None):
+    if codes is None:
+        codes = {}
+        
+    if node is None:
+        return
+    if node.char is not None:
+        codes[node.char] = current_code
+        
+    get_codes(node.left, current_code + "0", codes)
+    get_codes(node.right, current_code + "1", codes)
+    return codes</code></pre>
+
+      <h2><i class="fa-solid fa-stopwatch"></i> Complexity Analysis</h2>
+      <p>
+        The Huffman algorithm achieves high efficiency primarily through the use of a binary heap
+        data structure.
+      </p>
+      <table class="complexity-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Complexity</th>
+            <th>Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Time Complexity</strong></td>
+            <td>$O(N \log N)$</td>
+            <td>
+              Where $N$ represents the number of unique characters. Extracting the minimum elements
+              and inserting the new parent node into the min-heap requires $O(\log N)$ time. This
+              operation is repeated $N-1$ times. (Note: the initial frequency counting process
+              requires $O(L)$ time, where $L$ is the total length of the text).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Space Complexity</strong></td>
+            <td>$O(N)$</td>
+            <td>
+              The resulting binary tree will contain exactly $2N - 1$ nodes, requiring memory
+              proportional to the number of unique characters in the dictionary. The priority queue
+              also stores up to $N$ nodes.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <script src="../js/ui/resolve_learn_header.js"></script>
+  </body>
+</html>

@@ -175,6 +175,10 @@ export function openDSTheory() {
   }
 }
 
+export function openHuffmanTheory() {
+  window.openTheory("huffman");
+}
+
 window.toggleHeapType = toggleHeapType;
 window.handleDynamicInsert = handleDynamicInsert;
 window.handleDynamicDelete = handleDynamicDelete;
@@ -185,3 +189,4 @@ window.handleDynamicFindMin = handleDynamicFindMin;
 window.handleDynamicFindMax = handleDynamicFindMax;
 window.handleDynamicTraverse = handleDynamicTraverse;
 window.openDSTheory = openDSTheory;
+window.openHuffmanTheory = openHuffmanTheory;

@@ -910,10 +910,23 @@ textarea#script-input:focus,
   z-index: 1000;
   margin-top: 8px;
 }
+
+.dropdown::after {
+  content: "";
+  position: absolute;
+  top: 100%; /* Démarre exactement à la base du bouton */
+  left: 0;
+  width: 100%;
+  height: 12px; /* Couvre largement le margin-top de 8px */
+  background: transparent;
+  z-index: 1000;
+}
+
 .dropdown:hover .dropdown-content,
 .dropdown-content.show {
   display: block;
 }
+
 .dropdown-content a {
   color: var(--text-primary);
   padding: 12px 16px;
@@ -925,16 +938,19 @@ textarea#script-input:focus,
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 .dropdown-content a i {
   width: 24px;
   color: var(--text-muted);
   transition: color 0.2s ease;
 }
+
 .dropdown-content a:hover {
   background-color: var(--brand-light);
   color: var(--brand-dark);
   padding-left: 20px;
 }
+
 .dropdown-content a:hover i {
   color: var(--brand-main);
 }
@@ -952,6 +968,64 @@ textarea#script-input:focus,
 }
 .dropdown-content::-webkit-scrollbar-thumb:hover {
   background-color: var(--text-muted);
+}
+
+/* S'applique à tous les boutons équipés de data-tooltip */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 115%;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  background-color: var(--text-primary);
+  color: var(--container-bg);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  z-index: 2000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+[data-tooltip]::before {
+  content: "";
+  position: absolute;
+  bottom: 115%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--text-primary) transparent transparent transparent;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+[data-tooltip]:hover::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(5px);
 }
 
 /* Menus contextuels & Logs */
@@ -1228,7 +1302,7 @@ textarea#script-input:focus,
   transition: background-color 0.2s ease;
 }
 .algo-item:hover {
-  background-color: var(--editor-bg);
+  background-color: var(--brand-light);
 }
 .algo-name {
   cursor: pointer;
@@ -1242,9 +1316,16 @@ textarea#script-input:focus,
 .algo-name i {
   width: 20px;
   text-align: center;
-  color: var(--text-primary);
+  color: var(--text-muted);
 }
-.algo-name:hover {
+
+/* Le texte change de couleur quand la ligne entière est survolée */
+.algo-item:hover .algo-name {
+  color: var(--brand-dark);
+}
+
+/* L'icône change de couleur en même temps */
+.algo-item:hover .algo-name i {
   color: var(--brand-main);
 }
 
@@ -1299,4 +1380,96 @@ body.dark-mode #terminal-container {
 #terminal-container .xterm,
 #terminal-container .xterm-viewport {
   background-color: transparent !important;
+}
+
+/* Le bouton flottant est caché par défaut sur grand écran */
+#toggle-drawer-btn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 2000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Comportement sur petit écran (moins de 1024px) */
+@media (max-width: 1366px) {
+  /* Afficher le bouton flottant */
+  #toggle-drawer-btn {
+    display: flex;
+  }
+
+  /* Transformer le panneau en tiroir rétractable */
+  .editor-panel {
+    position: fixed;
+    top: 0;
+    left: -100%; /* Masqué hors de l'écran par défaut */
+    height: 100vh;
+    z-index: 1500;
+    transition: left 0.3s ease; /* Animation fluide de glissement */
+    width: 400px; /* Occupe presque tout l'écran */
+    max-width: 85vw;
+    border-radius: 0;
+    margin: 0;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+
+    /* Modifications clés */
+    width: 100%; /* Remplit le #left-panel sans forcer 480px */
+    min-width: 250px; /* Aligné avec le min-width de #left-panel */
+    box-sizing: border-box;
+    flex-shrink: 1; /* Permet au panneau de rétrécir */
+    overflow-x: hidden;
+  }
+
+  /* La classe qui sera ajoutée en JS pour faire entrer le panneau */
+  .editor-panel.open {
+    left: 0;
+  }
+}
+
+@media (max-width: 1280px) {
+  .mode-tabs {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 5px;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 1280px) {
+  .mode-tab-btn {
+    font-size: 0; /* Masque le texte brut */
+    padding: 10px;
+    transition:
+      font-size 0.2s ease-in-out,
+      padding 0.2s ease-in-out;
+  }
+  .mode-tab-btn i {
+    font-size: 1rem; /* Maintient l'icône visible */
+  }
+
+  .mode-tab-btn:hover {
+    font-size: 0.9rem; /* Restaure la taille du texte */
+    padding: 10px 15px; /* Redonne de l'espace autour du texte */
+  }
+}
+
+/* Guide visuel sur canevas vide */
+.canvas-empty-hint {
+  user-select: none;
+}
+
+.canvas-empty-hint .hint-title {
+  fill: var(--text-muted, #94a3b8);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.canvas-empty-hint .hint-subtitle {
+  fill: var(--text-muted, #94a3b8);
+  font-size: 0.85rem;
+  font-weight: 400;
+  opacity: 0.8;
 }

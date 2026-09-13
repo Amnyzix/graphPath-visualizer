@@ -193,7 +193,8 @@ export class CanvasEngine {
           const dx = pos.x - last.x;
           const dy = pos.y - last.y;
           this.draggingNode.ids.forEach((id) => {
-            const n = this.nodes.find((n) => n.id === id);
+            const list = this.document && this.document.nodes ? this.document.nodes : this.nodes;
+            const n = list.find((node) => String(node.id) === String(id));
             if (n) {
               n.x += dx;
               n.y += dy;
@@ -201,8 +202,15 @@ export class CanvasEngine {
           });
           this.draggingNode.lastPos = pos;
         } else {
-          this.draggingNode.x = pos.x;
-          this.draggingNode.y = pos.y;
+          const singleNode =
+            this.document && this.document.nodes
+              ? this.document.nodes.find((n) => String(n.id) === String(this.draggingNode.id))
+              : this.draggingNode;
+
+          if (singleNode) {
+            singleNode.x = pos.x;
+            singleNode.y = pos.y;
+          }
         }
         this.render();
       } else if (

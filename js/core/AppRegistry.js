@@ -5,6 +5,7 @@ import { AutomataEditor } from "../features/automata/AutomataEditor.js";
 import { MinimaxEditor } from "../features/ai/MinimaxEditor.js";
 import { KMeansEditor } from "../features/ai/KMeansEditor.js";
 import { KNNEditor } from "../features/ai/KNNEditor.js";
+import { CompressionEditor } from "../features/compression/CompressionEditor.js";
 
 export const AppRegistry = {
   editors: {}, // Stockera tes instances : { graphs: ..., automata: ... }
@@ -27,6 +28,7 @@ export const AppRegistry = {
     this.register("minimax", new MinimaxEditor("ai-svg-main"));
     this.register("kmeans", new KMeansEditor("ai-svg-main"));
     this.register("knn", new KNNEditor("ai-svg-main"));
+    this.register("compression", new CompressionEditor());
 
     // Pointeur dynamique global pour la vue IA (par défaut : Minimax)
     window.aiApp = this.get("minimax");

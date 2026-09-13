@@ -36,6 +36,8 @@ export class GraphEditor extends CanvasEngine {
     // Undo / Redo history
     this.undoStack = [];
     this.redoStack = [];
+
+    this.showEmptyStateHint = true;
   }
 
   // =========================================
@@ -262,8 +264,16 @@ export class GraphEditor extends CanvasEngine {
     this.nodeCounter = 1;
     this.selectedNodes.clear();
     this.selectedNodeId = null;
+
     const playerControls = document.getElementById("player-controls");
     if (playerControls) playerControls.style.display = "none";
+
+    // for compression (TODO : could be refactored)
+    const hud = document.getElementById("comp-player-controls");
+    if (hud) {
+      hud.style.display = "none";
+    }
+
     this.startNode = null;
     this.tempEdge = null;
     this.render();
@@ -503,6 +513,23 @@ export class GraphEditor extends CanvasEngine {
       this.container.appendChild(tempPath);
     }
 
+    if (this.showEmptyStateHint && (!this.document.nodes || this.document.nodes.length === 0)) {
+      const hintGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      hintGroup.setAttribute("class", "canvas-empty-hint");
+      hintGroup.setAttribute("pointer-events", "none");
+
+      hintGroup.innerHTML = `
+        <text x="50%" y="45%" text-anchor="middle" dominant-baseline="central" class="hint-title">
+          Click anywhere to create a node
+        </text>
+        <text x="50%" y="52%" text-anchor="middle" dominant-baseline="central" class="hint-subtitle">
+          Or use the Generate / Algorithms menu above
+        </text>
+      `;
+
+      this.container.appendChild(hintGroup);
+    }
+
     // C) DRAW NODES
     this.document.nodes.forEach((node) => {
       const group = document.createElementNS(svgNS, "g");
@@ -524,7 +551,7 @@ export class GraphEditor extends CanvasEngine {
       text.setAttribute("y", node.y);
       text.setAttribute("text-anchor", "middle");
       text.setAttribute("dominant-baseline", "middle");
-      text.textContent = node.id;
+      text.textContent = node.label || node.id;
 
       group.appendChild(circle);
       group.appendChild(text);
