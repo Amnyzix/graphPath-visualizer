@@ -36,6 +36,8 @@ export class GraphEditor extends CanvasEngine {
     // Undo / Redo history
     this.undoStack = [];
     this.redoStack = [];
+
+    this.showEmptyStateHint = true;
   }
 
   // =========================================
@@ -509,6 +511,23 @@ export class GraphEditor extends CanvasEngine {
       tempPath.setAttribute("opacity", "0.9");
       tempPath.style.pointerEvents = "none";
       this.container.appendChild(tempPath);
+    }
+
+    if (this.showEmptyStateHint && (!this.document.nodes || this.document.nodes.length === 0)) {
+      const hintGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      hintGroup.setAttribute("class", "canvas-empty-hint");
+      hintGroup.setAttribute("pointer-events", "none");
+
+      hintGroup.innerHTML = `
+        <text x="50%" y="45%" text-anchor="middle" dominant-baseline="central" class="hint-title">
+          Click anywhere to create a node
+        </text>
+        <text x="50%" y="52%" text-anchor="middle" dominant-baseline="central" class="hint-subtitle">
+          Or use the Generate / Algorithms menu above
+        </text>
+      `;
+
+      this.container.appendChild(hintGroup);
     }
 
     // C) DRAW NODES

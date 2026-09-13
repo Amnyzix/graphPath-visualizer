@@ -4,6 +4,8 @@ export class CompressionEditor extends GraphEditor {
   constructor() {
     super("compression-svg-main");
 
+    this.showEmptyStateHint = false;
+
     this.frames = [];
     this.currentStep = 0;
     this.timer = null;

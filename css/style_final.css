@@ -1412,6 +1412,13 @@ body.dark-mode #terminal-container {
     border-radius: 0;
     margin: 0;
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+
+    /* Modifications clés */
+    width: 100%; /* Remplit le #left-panel sans forcer 480px */
+    min-width: 250px; /* Aligné avec le min-width de #left-panel */
+    box-sizing: border-box;
+    flex-shrink: 1; /* Permet au panneau de rétrécir */
+    overflow-x: hidden;
   }
 
   /* La classe qui sera ajoutée en JS pour faire entrer le panneau */
@@ -1446,4 +1453,23 @@ body.dark-mode #terminal-container {
     font-size: 0.9rem; /* Restaure la taille du texte */
     padding: 10px 15px; /* Redonne de l'espace autour du texte */
   }
+}
+
+/* Guide visuel sur canevas vide */
+.canvas-empty-hint {
+  user-select: none;
+}
+
+.canvas-empty-hint .hint-title {
+  fill: var(--text-muted, #94a3b8);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.canvas-empty-hint .hint-subtitle {
+  fill: var(--text-muted, #94a3b8);
+  font-size: 0.85rem;
+  font-weight: 400;
+  opacity: 0.8;
 }
