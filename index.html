@@ -884,42 +884,32 @@
                 </button>
               </div>
 
-              <div
-                class="controls"
-                style="
-                  margin-top: 20px;
-                  border-top: 1px solid var(--border-color);
-                  padding-top: 20px;
-                  display: flex;
-                  flex-direction: column;
-                  gap: 10px;
-                  align-items: center;
-                "
-              >
+              <div style="display: flex; gap: 10px; margin-top: 15px">
                 <button
                   class="player-btn"
                   onclick="removeEpsilonFromAutomaton()"
-                  title="Supprimer les transitions vides"
-                  style="width: 100%; justify-content: center"
+                  title="Remove ε-transitions"
+                  style="flex: 1; padding: 10px 5px; font-size: 0.8rem; justify-content: center"
                 >
-                  <i class="fa-solid fa-eraser"></i> Remove ε-transitions
+                  <i class="fa-solid fa-eraser"></i> Remove ε
                 </button>
-
                 <button
                   class="player-btn"
                   onclick="determinizeAutomaton()"
-                  title="Convertir en Automate Déterministe"
-                  style="width: 100%; justify-content: center"
+                  title="Determinize NFA"
+                  style="flex: 1; padding: 10px 5px; font-size: 0.8rem; justify-content: center"
                 >
-                  <i class="fa-solid fa-filter"></i> Determinize NFA
+                  <i class="fa-solid fa-filter"></i> Determinize
                 </button>
               </div>
             </div>
           </div>
 
-          <div class="panel-card">
-            <h3><i class="fa-solid fa-circle-info"></i> Guide</h3>
-            <ul class="guide-list">
+          <details class="panel-card" style="cursor: pointer; padding: 15px">
+            <summary style="font-weight: bold; outline: none">
+              <i class="fa-solid fa-circle-info"></i> Guide
+            </summary>
+            <ul class="guide-list" style="margin-top: 15px; cursor: default">
               <li>
                 <i class="fa-solid fa-mouse-pointer"></i> <strong>Click</strong> to create a new
                 state.
@@ -948,7 +938,7 @@
                 state to reposition it.
               </li>
             </ul>
-          </div>
+          </details>
         </div>
 
         <div class="automata-canvas-panel">
