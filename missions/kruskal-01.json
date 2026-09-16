@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "title": "Level 6: The Kruskal Cable",
+    "description": "You need to connect all servers with the absolute minimum amount of cable. Do not create loops!",
+    "instruction": "Click the edges in the exact order Kruskal's Algorithm would select them.",
+    "type": "edge-click",
+    "errorMessage": "Wrong edge! Remember: Kruskal picks the globally lightest available edge that doesn't form a cycle."
+  },
+  "solutionSequence": ["2-3", "1-2", "2-4", "3-5", "4-6"],
+  "graphData": {
+    "nodes": [
+      { "id": "1", "x": 100, "y": 150, "label": "1" },
+      { "id": "2", "x": 250, "y": 50, "label": "2" },
+      { "id": "3", "x": 250, "y": 250, "label": "3" },
+      { "id": "4", "x": 400, "y": 50, "label": "4" },
+      { "id": "5", "x": 400, "y": 250, "label": "5" },
+      { "id": "6", "x": 550, "y": 150, "label": "6" }
+    ],
+    "edges": [
+      { "from": "1", "to": "2", "weight": 2, "isDirected": false },
+      { "from": "1", "to": "3", "weight": 3, "isDirected": false },
+      { "from": "2", "to": "3", "weight": 1, "isDirected": false },
+      { "from": "2", "to": "4", "weight": 4, "isDirected": false },
+      { "from": "3", "to": "4", "weight": 5, "isDirected": false },
+      { "from": "3", "to": "5", "weight": 6, "isDirected": false },
+      { "from": "4", "to": "6", "weight": 7, "isDirected": false },
+      { "from": "5", "to": "6", "weight": 8, "isDirected": false }
+    ]
+  }
+}

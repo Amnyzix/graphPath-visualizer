@@ -764,6 +764,18 @@ text {
   background: #7c3aed !important;
 }
 
+/* Style Gamifié du bouton Quests */
+.btn-quests {
+  background: #f59e0b !important; /* Ambre doré */
+  color: #ffffff !important;
+  border-color: #b45309 !important; /* Bordure bronze/marron */
+  box-shadow: 0 4px 0 #b45309 !important; /* Effet 3D bronze */
+}
+
+.btn-quests:hover {
+  background: #d97706 !important; /* Assombrissement au survol */
+}
+
 .btn-play-active {
   background: var(--brand-main) !important;
   color: #ffffff !important;

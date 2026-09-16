@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "id": "dijkstra-01",
+    "title": "Level 3: Dijkstra's Path",
+    "type": "multi-part",
+    "startingNode": "1",
+    "errorMessage": "Dijkstra strictly minimizes the cumulative path weight. Check your math."
+  },
+  "graphData": {
+    "nodes": [
+      { "id": "1", "x": 300, "y": 300 },
+      { "id": "2", "x": 600, "y": 150 },
+      { "id": "3", "x": 600, "y": 450 },
+      { "id": "4", "x": 900, "y": 300 }
+    ],
+    "edges": [
+      { "from": "1", "to": "2", "directed": true, "weight": 2 },
+      { "from": "1", "to": "3", "directed": true, "weight": 5 },
+      { "from": "2", "to": "4", "directed": true, "weight": 4 },
+      { "from": "3", "to": "4", "directed": true, "weight": 1 }
+    ],
+    "nodeIdCounter": 5
+  },
+  "solutionPhases": [
+    {
+      "type": "text-input",
+      "answer": "6",
+      "instruction": "Calculate the total weight of the shortest path from node 1 to node 4. Enter the final integer cost below."
+    },
+    {
+      "type": "node-click",
+      "sequence": ["1", "2", "4"],
+      "instruction": "Identify the route. Click the exact sequence of nodes that forms this shortest path."
+    }
+  ]
+}

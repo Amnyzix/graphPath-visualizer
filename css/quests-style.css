@@ -1,0 +1,364 @@
+:root {
+  --map-bg: #eef2f7;
+  --map-paper: #f7f4ea;
+
+  --map-purple: #6366f1;
+  --map-purple-soft: #818cf8;
+
+  --map-teal: #14b8a6;
+  --map-gold: #f5b942;
+
+  --map-green: #65a30d;
+
+  --map-road: #d2a85a;
+  --map-road-shadow: rgba(83, 65, 35, 0.18);
+
+  --map-text: #475569;
+}
+
+/* Plein écran pour la page de quêtes */
+body {
+  margin: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--bg-main);
+}
+
+/* La fenêtre (Viewport) est FIXE à l'écran et cache ce qui dépasse */
+.map-viewport {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+
+  cursor: grab;
+
+  background-color: var(--map-bg);
+
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.08), transparent 25%),
+    radial-gradient(circle at 80% 30%, rgba(20, 184, 166, 0.08), transparent 25%),
+    radial-gradient(circle at 60% 80%, rgba(245, 185, 66, 0.1), transparent 30%),
+    linear-gradient(135deg, #f5f6f8, #eef2f5);
+
+  border-top: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.map-viewport:active {
+  cursor: grabbing;
+}
+
+.map-viewport::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  z-index: 8;
+
+  box-shadow:
+    inset 0 0 120px rgba(63, 50, 30, 0.1),
+    inset 0 0 40px rgba(15, 23, 42, 0.05);
+}
+
+/* Le conteneur de la carte est grand (1400x1000) et se déplace par transform: translate() */
+.map-container {
+  position: absolute;
+
+  width: 1400px;
+  height: 1000px;
+
+  top: 0;
+  left: 0;
+
+  transform-origin: 0 0;
+
+  user-select: none;
+
+  will-change: transform;
+}
+
+/* Le chemin SVG dessiné en arrière-plan */
+.map-path {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+
+  z-index: 1;
+}
+
+/* ==========================================
+   MONDE DE LA CARTE
+   ========================================== */
+
+.map-world {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  z-index: 0;
+}
+
+/* ==========================================
+   RÉGIONS
+   ========================================== */
+
+.map-region {
+  position: absolute;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+/* Forêt */
+
+.region-forest {
+  width: 430px;
+  height: 280px;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(101, 163, 13, 0.18),
+    rgba(101, 163, 13, 0.04) 65%,
+    transparent 72%
+  );
+}
+
+/* Plaines */
+
+.region-plains {
+  width: 500px;
+  height: 300px;
+
+  background: radial-gradient(ellipse at center, rgba(245, 185, 66, 0.12), transparent 70%);
+}
+
+/* Montagnes */
+
+.region-mountains {
+  width: 500px;
+  height: 350px;
+
+  background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.13), transparent 70%);
+}
+
+/* Citadelle */
+
+.region-citadel {
+  width: 450px;
+  height: 350px;
+
+  background: radial-gradient(ellipse at center, rgba(20, 184, 166, 0.12), transparent 70%);
+}
+
+/* Un niveau sur la carte */
+.quest-node {
+  position: absolute;
+
+  width: 68px;
+  height: 68px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 1.4rem;
+
+  color: white;
+
+  border: 5px solid rgba(255, 255, 255, 0.95);
+
+  box-shadow:
+    0 0 0 3px rgba(148, 163, 184, 0.2),
+    0 8px 0 rgba(15, 23, 42, 0.12),
+    0 12px 25px rgba(15, 23, 42, 0.12);
+
+  transform: translate(-50%, -50%);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  z-index: 2;
+}
+
+.quest-node:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.quest-node:active {
+  transform: translate(-50%, calc(-50% + 4px)) scale(1.1);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* État : Terminé (Vert Menthe) */
+.node-completed {
+  background: var(--visited-fill, #10b981);
+}
+
+/* État : Actif / Jouable (Jaune Soleil avec Pulsation) */
+.node-active {
+  background: linear-gradient(145deg, #fcd34d, #f59e0b);
+
+  color: white;
+
+  box-shadow:
+    0 0 0 4px rgba(251, 191, 36, 0.18),
+    0 8px 0 rgba(180, 83, 9, 0.25),
+    0 15px 30px rgba(245, 158, 11, 0.25);
+
+  animation: pulse 2s infinite;
+}
+
+/* État : Verrouillé (Gris) */
+.node-locked {
+  background: linear-gradient(145deg, #cbd5e1, #94a3b8);
+
+  cursor: not-allowed;
+
+  opacity: 0.78;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(251, 191, 36, 0.7),
+      0 8px 0 rgba(0, 0, 0, 0.15);
+  }
+  70% {
+    box-shadow:
+      0 0 0 20px rgba(251, 191, 36, 0),
+      0 8px 0 rgba(0, 0, 0, 0.15);
+  }
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(251, 191, 36, 0),
+      0 8px 0 rgba(0, 0, 0, 0.15);
+  }
+}
+
+.level-title {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 800;
+  white-space: nowrap;
+  background: var(--container-bg);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.map-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  pointer-events: none;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+
+/* =========================================
+   THEORY DRAWER
+   ========================================= */
+
+.theory-drawer {
+  position: fixed;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 58vh;
+
+  background: var(--container-bg);
+
+  border-top: 2px solid var(--border-color);
+
+  box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.12);
+
+  z-index: 2000;
+
+  display: flex;
+  flex-direction: column;
+
+  /* Fermé par défaut */
+  transform: translateY(100%);
+
+  transition: transform 0.35s ease;
+
+  visibility: hidden;
+}
+
+/* Drawer ouvert */
+.theory-drawer.open {
+  transform: translateY(0);
+
+  visibility: visible;
+}
+
+/* Header fixe du drawer */
+.drawer-header {
+  flex: 0 0 auto;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px 18px;
+
+  background: var(--container-bg);
+
+  border-bottom: 2px solid var(--border-color);
+
+  z-index: 2;
+}
+
+/* Iframe = tout l'espace restant */
+#theory-frame {
+  flex: 1;
+
+  width: 100%;
+
+  min-height: 0;
+
+  border: none;
+
+  background: white;
+}
+
+#toggle-theory-btn {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+body.theory-open #toggle-theory-btn {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
+}

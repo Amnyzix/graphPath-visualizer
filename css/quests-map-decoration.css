@@ -1,0 +1,280 @@
+/* ==========================================
+   DÉCOR DE LA CARTE
+   ========================================== */
+
+.map-world {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  z-index: 0;
+}
+
+/* ==========================================
+   RÉGIONS
+   ========================================== */
+
+.map-region {
+  position: absolute;
+
+  pointer-events: none;
+
+  border-radius: 50%;
+
+  filter: blur(2px);
+}
+
+/* ---------------------------
+   Forêt de départ
+   --------------------------- */
+
+.region-forest {
+  width: 520px;
+  height: 360px;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(34, 197, 94, 0.16) 0%,
+    rgba(34, 197, 94, 0.08) 45%,
+    transparent 72%
+  );
+}
+
+/* ---------------------------
+   Plaines centrales
+   --------------------------- */
+
+.region-plains {
+  width: 620px;
+  height: 360px;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(245, 158, 11, 0.12) 0%,
+    rgba(245, 158, 11, 0.05) 45%,
+    transparent 72%
+  );
+}
+
+/* ---------------------------
+   Montagnes
+   --------------------------- */
+
+.region-mountains {
+  width: 520px;
+  height: 380px;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(99, 102, 241, 0.13) 0%,
+    rgba(99, 102, 241, 0.05) 45%,
+    transparent 72%
+  );
+}
+
+/* ---------------------------
+   Région finale
+   --------------------------- */
+
+.region-citadel {
+  width: 500px;
+  height: 420px;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(20, 184, 166, 0.14) 0%,
+    rgba(20, 184, 166, 0.05) 45%,
+    transparent 72%
+  );
+}
+
+/* ==========================================
+   DÉCORATIONS
+   ========================================== */
+
+.landmark {
+  position: absolute;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 7px;
+
+  transform: translate(-50%, -50%);
+
+  color: #64748b;
+
+  opacity: 0.28;
+
+  font-size: 3rem;
+
+  pointer-events: none;
+}
+
+.landmark span {
+  font-size: 0.62rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 2px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+
+  color: #64748b;
+}
+
+/* ==========================================
+   FORÊT
+   ========================================== */
+
+.forest {
+  position: absolute;
+
+  display: flex;
+  align-items: flex-end;
+
+  gap: 2px;
+
+  color: #4d7c0f;
+
+  opacity: 0.24;
+
+  font-size: 2.2rem;
+
+  filter: saturate(0.8);
+}
+
+.forest span:nth-child(1) {
+  transform: translateY(10px);
+}
+
+.forest span:nth-child(2) {
+  transform: translateY(-5px);
+}
+
+.forest span:nth-child(3) {
+  transform: translateY(7px);
+}
+
+.forest span:nth-child(4) {
+  transform: translateY(-10px);
+}
+
+.forest span:nth-child(5) {
+  transform: translateY(5px);
+}
+
+/* ==========================================
+   MONTAGNES
+   ========================================== */
+
+.mountains {
+  position: absolute;
+
+  display: flex;
+  align-items: flex-end;
+
+  color: #64748b;
+
+  opacity: 0.2;
+
+  font-size: 5rem;
+
+  letter-spacing: -28px;
+}
+
+.mountains span:nth-child(1) {
+  transform: translateY(18px);
+}
+
+.mountains span:nth-child(2) {
+  font-size: 6rem;
+}
+
+.mountains span:nth-child(3) {
+  transform: translateY(25px);
+}
+
+/* ==========================================
+   TITRES DES RÉGIONS
+   ========================================== */
+
+.region-title {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  white-space: nowrap;
+
+  color: #64748b;
+
+  font-size: 0.7rem;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 2.5px;
+
+  opacity: 0.38;
+}
+
+/* ==========================================
+   CITADELLE FINALE
+   ========================================== */
+
+.citadel {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  width: 110px;
+  height: 110px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  color: var(--map-purple);
+
+  font-size: 4rem;
+
+  opacity: 0.2;
+
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.2),
+    rgba(99, 102, 241, 0.05) 50%,
+    transparent 72%
+  );
+}
+
+/* ==========================================
+   PETITES DÉCORATIONS
+   ========================================== */
+
+.tiny-decoration {
+  position: absolute;
+
+  display: flex;
+
+  gap: 7px;
+
+  color: #64748b;
+
+  opacity: 0.15;
+
+  font-size: 1.8rem;
+}

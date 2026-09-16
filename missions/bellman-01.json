@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "title": "Level 5: The Time Paradox",
+    "description": "Bellman-Ford is hunting for anomalies. There is a negative-weight cycle in this network that allows infinite energy generation.",
+    "instruction": "Identify the negative cycle.",
+    "type": "multi-part",
+    "errorMessage": "Incorrect. Check the sum of the edge weights!"
+  },
+  "solutionPhases": [
+    {
+      "type": "edge-click",
+      "instruction": "Click the 3 edges that form the negative weight cycle.",
+      "sequence": ["2-4", "4-3", "3-2"]
+    },
+    {
+      "type": "text-input",
+      "instruction": "What is the total weight of this negative cycle?",
+      "answer": "-1"
+    }
+  ],
+  "graphData": {
+    "nodes": [
+      { "id": "1", "x": 100, "y": 150, "label": "1" },
+      { "id": "2", "x": 250, "y": 50, "label": "2" },
+      { "id": "3", "x": 250, "y": 250, "label": "3" },
+      { "id": "4", "x": 400, "y": 150, "label": "4" }
+    ],
+    "edges": [
+      { "from": "1", "to": "2", "weight": 5, "isDirected": true },
+      { "from": "1", "to": "3", "weight": 2, "isDirected": true },
+      { "from": "2", "to": "4", "weight": 2, "isDirected": true },
+      { "from": "4", "to": "3", "weight": -6, "isDirected": true },
+      { "from": "3", "to": "2", "weight": 3, "isDirected": true }
+    ]
+  }
+}

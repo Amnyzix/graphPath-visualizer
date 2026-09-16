@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "id": "basics-01",
+    "title": "Level 1: The Basics",
+    "type": "node-click",
+    "instruction": "Trace the direct path by clicking nodes 1, 2, and 3 in sequential order.",
+    "startingNode": "1",
+    "errorMessage": "Follow the directed edges precisely."
+  },
+  "graphData": {
+    "nodes": [
+      { "id": "1", "x": 300, "y": 200 },
+      { "id": "2", "x": 600, "y": 200 },
+      { "id": "3", "x": 900, "y": 200 }
+    ],
+    "edges": [
+      { "from": "1", "to": "2", "directed": true, "weight": 1 },
+      { "from": "2", "to": "3", "directed": true, "weight": 1 }
+    ],
+    "nodeIdCounter": 4
+  },
+  "solutionSequence": ["1", "2", "3"]
+}

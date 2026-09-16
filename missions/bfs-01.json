@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "id": "bfs-01",
+    "title": "Level 1: The BFS Maze",
+    "instruction": "Starting from node 1, predict the exact order the BFS algorithm will visit the nodes.",
+    "theoryFile": "bfs.html",
+    "startingNode": "1",
+    "errorMessage": "Incorrect! Remember that BFS explores level by level using a queue."
+  },
+  "graphData": {
+    "nodes": [
+      { "id": "1", "x": 400, "y": 100 },
+      { "id": "2", "x": 250, "y": 250 },
+      { "id": "3", "x": 550, "y": 250 },
+      { "id": "4", "x": 150, "y": 400 },
+      { "id": "5", "x": 350, "y": 400 },
+      { "id": "6", "x": 650, "y": 400 }
+    ],
+    "edges": [
+      { "from": "1", "to": "2", "directed": true },
+      { "from": "1", "to": "3", "directed": true },
+      { "from": "2", "to": "4", "directed": true },
+      { "from": "2", "to": "5", "directed": true },
+      { "from": "3", "to": "6", "directed": true }
+    ],
+    "nodeIdCounter": 7
+  },
+  "solutionSequence": ["1", "2", "3", "4", "5", "6"]
+}

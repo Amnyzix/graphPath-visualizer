@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "title": "Level 7: The Infinite Loop",
+    "description": "A background process is stuck in an infinite loop. We need to trace the execution and sever the link.",
+    "instruction": "Find the cycle.",
+    "type": "multi-part",
+    "startingNode": "1",
+    "errorMessage": "Path incorrect. Follow the standard DFS rule (prioritize lower IDs) and find the back-edge."
+  },
+  "solutionPhases": [
+    {
+      "type": "node-click",
+      "instruction": "Perform a DFS starting from Node 1. (Prioritize lower numbers).",
+      "sequence": ["2", "4", "5"]
+    },
+    {
+      "type": "edge-click",
+      "instruction": "Excellent. Now click the 'Back-Edge' that causes the infinite loop.",
+      "sequence": ["5-2"]
+    }
+  ],
+  "graphData": {
+    "nodes": [
+      { "id": "1", "x": 100, "y": 150, "label": "1" },
+      { "id": "2", "x": 250, "y": 150, "label": "2" },
+      { "id": "3", "x": 250, "y": 280, "label": "3" },
+      { "id": "4", "x": 400, "y": 50, "label": "4" },
+      { "id": "5", "x": 400, "y": 250, "label": "5" }
+    ],
+    "edges": [
+      { "from": "1", "to": "2", "weight": 0, "isDirected": true },
+      { "from": "1", "to": "3", "weight": 0, "isDirected": true },
+      { "from": "2", "to": "4", "weight": 0, "isDirected": true },
+      { "from": "4", "to": "5", "weight": 0, "isDirected": true },
+      { "from": "5", "to": "2", "weight": 0, "isDirected": true }
+    ]
+  }
+}

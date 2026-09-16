@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "title": "Level 9: The A* Heuristic",
+    "description": "A* uses heuristics (h) to guess the distance to the target. It evaluates nodes based on f = g + h.",
+    "instruction": "Target is Node 5.",
+    "type": "multi-part",
+    "startingNode": "1",
+    "errorMessage": "Incorrect. Remember the formula: f-score = cost so far (g) + heuristic (h)."
+  },
+  "solutionPhases": [
+    {
+      "type": "text-input",
+      "instruction": "What is the f-score of Node 3 if we move there directly from Node 1?",
+      "answer": "6"
+    },
+    {
+      "type": "node-click",
+      "instruction": "Click the next node A* will expand after Node 1.",
+      "sequence": ["3"]
+    },
+    {
+      "type": "node-click",
+      "instruction": "Click the final node A* expands to reach the target.",
+      "sequence": ["5"]
+    }
+  ],
+  "graphData": {
+    "nodes": [
+      { "id": "1", "x": 100, "y": 150, "label": "1 (h=6)" },
+      { "id": "2", "x": 250, "y": 50, "label": "2 (h=5)" },
+      { "id": "3", "x": 250, "y": 250, "label": "3 (h=2)" },
+      { "id": "4", "x": 400, "y": 50, "label": "4 (h=3)" },
+      { "id": "5", "x": 500, "y": 150, "label": "5 (h=0)" }
+    ],
+    "edges": [
+      { "from": "1", "to": "2", "weight": 2, "isDirected": true },
+      { "from": "1", "to": "3", "weight": 4, "isDirected": true },
+      { "from": "2", "to": "4", "weight": 3, "isDirected": true },
+      { "from": "2", "to": "3", "weight": 1, "isDirected": true },
+      { "from": "3", "to": "5", "weight": 3, "isDirected": true },
+      { "from": "4", "to": "5", "weight": 5, "isDirected": true }
+    ]
+  }
+}

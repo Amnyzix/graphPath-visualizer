@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "title": "Level 8: Dependency Hell",
+    "description": "You need to compile a software project, but some modules depend on others.",
+    "instruction": "Select the modules in a valid Topological Sort order. If there is a tie (in-degree 0), prioritize the lowest number.",
+    "type": "node-click",
+    "errorMessage": "Dependency error! You cannot compile this module yet, its prerequisites are not met."
+  },
+  "solutionSequence": ["1", "2", "3", "4", "5", "6"],
+  "graphData": {
+    "nodes": [
+      { "id": "1", "x": 100, "y": 50, "label": "1" },
+      { "id": "2", "x": 100, "y": 250, "label": "2" },
+      { "id": "3", "x": 250, "y": 150, "label": "3" },
+      { "id": "4", "x": 400, "y": 50, "label": "4" },
+      { "id": "5", "x": 400, "y": 250, "label": "5" },
+      { "id": "6", "x": 550, "y": 150, "label": "6" }
+    ],
+    "edges": [
+      { "from": "1", "to": "3", "weight": 0, "isDirected": true },
+      { "from": "2", "to": "3", "weight": 0, "isDirected": true },
+      { "from": "3", "to": "4", "weight": 0, "isDirected": true },
+      { "from": "3", "to": "5", "weight": 0, "isDirected": true },
+      { "from": "4", "to": "6", "weight": 0, "isDirected": true },
+      { "from": "5", "to": "6", "weight": 0, "isDirected": true }
+    ]
+  }
+}

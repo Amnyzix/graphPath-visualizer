@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AlgoVizor - The Graph Realm (Quests)</title>
+    <link rel="stylesheet" href="css/style_final.css" />
+    <link rel="stylesheet" href="css/quests-style.css" />
+    <link rel="stylesheet" href="css/quests-map-decoration.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* Style pour le sélecteur de chapitre */
+      .chapter-nav {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 10px 20px;
+        border-radius: 30px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        backdrop-filter: blur(5px);
+      }
+      .chapter-btn {
+        background: var(--brand-main, #6366f1);
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: transform 0.2s;
+      }
+      .chapter-btn:hover {
+        transform: scale(1.1);
+      }
+      .chapter-btn:disabled {
+        background: #cbd5e1;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Cacher les maps inactives */
+      .map-container {
+        display: none;
+      }
+      .map-container.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Unified Gamified Header -->
+    <header
+      class="theory-navbar"
+      style="
+        background: var(--container-bg);
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid var(--border-color);
+      "
+    >
+      <!-- Logo / Titre principal à gauche -->
+      <a
+        href="index.html"
+        style="
+          text-decoration: none;
+          font-weight: 800;
+          font-size: 1.5rem;
+          color: var(--brand-main);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        "
+      >
+        <i class="fa-solid fa-diagram-project"></i> AlgoVizor
+      </a>
+
+      <!-- Titre et description des quêtes au centre -->
+      <!-- Titre et description des quêtes au centre -->
+      <div style="text-align: center">
+        <h1
+          id="chapter-title"
+          style="color: var(--text-primary); font-size: 1.4rem; font-weight: 800; margin: 0"
+        >
+          Chapter 1: The Graph Realm
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 2px 0 0 0">
+          Click and drag inside the map to explore
+        </p>
+      </div>
+
+      <!-- Bouton de retour à droite -->
+      <div>
+        <button class="action-btn" onclick="window.location.href = 'index.html'">
+          <i class="fa-solid fa-arrow-left"></i> Back to Editor
+        </button>
+      </div>
+    </header>
+
+    <!-- Le Viewport est FIXE à l'écran, il sert de fenêtre de vision -->
+    <div class="map-viewport" id="mapViewport">
+      <!-- Le Container est la grande map qui se déplace à l'intérieur -->
+      <div class="map-container active" id="chapter-1">
+        <div class="tiny-decoration" style="left: 180px; top: 580px">
+          <i class="fa-solid fa-tree"></i>
+          <i class="fa-solid fa-tree"></i>
+          <i class="fa-solid fa-tree"></i>
+        </div>
+
+        <div class="tiny-decoration" style="left: 1040px; top: 620px">
+          <i class="fa-solid fa-cloud"></i>
+        </div>
+
+        <div class="tiny-decoration" style="left: 780px; top: 180px">
+          <i class="fa-solid fa-mountain"></i>
+        </div>
+
+        <div class="tiny-decoration" style="left: 1200px; top: 700px">
+          <i class="fa-solid fa-compass"></i>
+        </div>
+
+        <!-- SVG Path connecting the 10 nodes (relié de 1 à 10 proprement) -->
+        <svg class="map-path" viewBox="0 0 1400 1000" xmlns="http://www.w3.org/2000/svg">
+          <!-- Ombre du chemin -->
+          <path
+            d="M 150 800
+           C 250 700, 300 650, 400 600
+           C 550 520, 600 700, 750 620
+           C 900 540, 950 400, 1100 450
+           C 1250 500, 1300 300, 1150 220
+           C 1000 140, 850 300, 700 250
+           C 550 200, 450 120, 300 180
+           C 180 230, 150 350, 250 420
+           C 350 480, 450 400, 550 380
+           C 650 360, 800 300, 950 320"
+            fill="none"
+            stroke="#6b6c61"
+            stroke-width="16"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity="0.12"
+          />
+
+          <!-- Chemin principal -->
+          <path
+            d="M 150 800
+           C 250 700, 300 650, 400 600
+           C 550 520, 600 700, 750 620
+           C 900 540, 950 400, 1100 450
+           C 1250 500, 1300 300, 1150 220
+           C 1000 140, 850 300, 700 250
+           C 550 200, 450 120, 300 180
+           C 180 230, 150 350, 250 420
+           C 350 480, 450 400, 550 380
+           C 650 360, 800 300, 950 320"
+            fill="none"
+            stroke="#6b6c61"
+            stroke-width="8"
+            stroke-dasharray="6 14"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity="0.9"
+          />
+        </svg>
+
+        <!-- 1. The Basics (Niveau 1 - Actuel par défaut) -->
+        <div
+          class="quest-node"
+          style="left: 150px; top: 800px"
+          data-mission="basics-01"
+          data-level="1"
+        >
+          <i class="fa-solid fa-play"></i>
+          <span class="level-title">1. Basics</span>
+        </div>
+
+        <!-- 2. BFS Maze -->
+        <div
+          class="quest-node"
+          style="left: 400px; top: 600px"
+          data-mission="bfs-01"
+          data-level="2"
+        >
+          <i class="fa-solid fa-lock"></i>
+          <span class="level-title">2. BFS Maze</span>
+        </div>
+
+        <!-- 3. Dijkstra's Path -->
+        <div
+          class="quest-node"
+          style="left: 750px; top: 620px"
+          data-mission="dijkstra-01"
+          data-level="3"
+        >
+          <i class="fa-solid fa-lock"></i>
+          <span class="level-title">3. Dijkstra</span>
+        </div>
+
+        <!-- 4. DFS Trail -->
+        <div
+          class="quest-node"
+          style="left: 1100px; top: 450px"
+          data-mission="dfs-01"
+          data-level="4"
+        >
+          <i class="fa-solid fa-lock"></i>
+          <span class="level-title">4. DFS Trail</span>
+        </div>
+
+        <!-- 5. Bellman-Ford -->
+        <div
+          class="quest-node"
+          style="left: 1150px; top: 220px"
+          data-mission="bellman-01"
+          data-level="5"
+        >
+          <i class="fa-solid fa-lock"></i>
+          <span class="level-title">5. Bellman</span>
+        </div>
+
+        <!-- 6. Kruskal MST -->
+        <div
+          class="quest-node"
+          style="left: 700px; top: 250px"
+          data-mission="kruskal-01"
+          data-level="6"
+        >
+          <i class="fa-solid fa-lock"></i>
+          <span class="level-title">6. Kruskal</span>
+        </div>
+
+        <!-- 7. Cycle Detection -->
+        <div
+          class="quest-node"
+          style="left: 300px; top: 180px"
+          data-mission="cycle-01"
+          data-level="7"
+        >
+          <i class="fa-solid fa-lock"></i>
+          <span class="level-title">7. Cycles</span>
+        </div>
+
+        <!-- 8. Topological Sort -->
+        <div
+          class="quest-node"
+          style="left: 250px; top: 420px"
+          data-mission="topo-01"
+          data-level="8"
+        >
+          <i class="fa-solid fa-lock"></i>
+          <span class="level-title">8. TopoSort</span>
+        </div>
+
+        <!-- 9. A* Search -->
+        <div
+          class="quest-node"
+          style="left: 550px; top: 380px"
+          data-mission="astar-01"
+          data-level="9"
+        >
+          <i class="fa-solid fa-lock"></i>
+          <span class="level-title">9. A* Search</span>
+        </div>
+
+        <!-- 10. Boss Quest -->
+        <div
+          class="quest-node"
+          style="left: 950px; top: 320px"
+          data-mission="boss-01"
+          data-level="10"
+        >
+          <i class="fa-solid fa-crown"></i>
+          <span class="level-title">10. Boss Quest</span>
+        </div>
+      </div>
+
+      <div class="map-container" id="chapter-2">
+        <!-- Ici, tu dessines un NOUVEAU path SVG et places de nouveaux noeuds -->
+        <div
+          class="quest-node"
+          style="left: 200px; top: 500px"
+          data-mission="dijkstra-02"
+          data-level="11"
+        >
+          <i class="fa-solid fa-lock"></i> <span class="level-title">11. Advanced Dijkstra</span>
+        </div>
+      </div>
+
+      <!-- Navigation UI -->
+      <div class="chapter-nav">
+        <button class="chapter-btn" id="prev-chapter" disabled>
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <span id="chapter-indicator" style="font-weight: bold; color: #1e293b">Realm 1 of 2</span>
+        <button class="chapter-btn" id="next-chapter">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function startLevel(missionId) {
+        window.location.href = `quest-play.html?mission=${missionId}`;
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- 1. INITIALISATION DES NIVEAUX (Déverrouillage) ---
+        const unlockedLevel = parseInt(localStorage.getItem("algoquest_unlocked")) || 1;
+        const nodes = document.querySelectorAll(".quest-node");
+
+        nodes.forEach((node) => {
+          const levelId = parseInt(node.getAttribute("data-level"));
+          const missionId = node.getAttribute("data-mission");
+
+          node.classList.remove("node-completed", "node-active", "node-locked");
+          node.onclick = null;
+
+          const icon = node.querySelector("i");
+
+          if (
+            localStorage.getItem(`algoquest_completed_${levelId}`) === "true" ||
+            levelId < unlockedLevel
+          ) {
+            node.classList.add("node-completed");
+            if (icon) icon.className = "fa-solid fa-check";
+            node.onclick = () => startLevel(missionId);
+          } else if (levelId === unlockedLevel) {
+            node.classList.add("node-active");
+            if (icon && !icon.classList.contains("fa-crown")) {
+              icon.className = "fa-solid fa-play";
+            }
+            node.onclick = () => startLevel(missionId);
+          } else {
+            node.classList.add("node-locked");
+            if (icon && !icon.classList.contains("fa-crown")) {
+              icon.className = "fa-solid fa-lock";
+            }
+          }
+        });
+
+        // --- 2. LOGIQUE DE NAVIGATION ENTRE CHAPITRES ---
+        const chapters = [
+          { id: "chapter-1", title: "Chapter 1: The Graph Realm" },
+          { id: "chapter-2", title: "Chapter 2: Advanced Pathfinding" },
+        ];
+        let currentChapterIndex = 0;
+
+        const titleEl = document.getElementById("chapter-title");
+        const indicatorEl = document.getElementById("chapter-indicator");
+        const prevBtn = document.getElementById("prev-chapter");
+        const nextBtn = document.getElementById("next-chapter");
+
+        function updateChapterView() {
+          // Met à jour les classes actives
+          document.querySelectorAll(".map-container").forEach((map, index) => {
+            map.classList.toggle("active", index === currentChapterIndex);
+          });
+
+          // Met à jour l'UI
+          titleEl.innerText = chapters[currentChapterIndex].title;
+          indicatorEl.innerText = `Realm ${currentChapterIndex + 1} of ${chapters.length}`;
+          prevBtn.disabled = currentChapterIndex === 0;
+          nextBtn.disabled = currentChapterIndex === chapters.length - 1;
+
+          // Au changement de chapitre, on recentre la map
+          centerMap();
+        }
+
+        prevBtn.addEventListener("click", () => {
+          if (currentChapterIndex > 0) {
+            currentChapterIndex--;
+            updateChapterView();
+          }
+        });
+
+        nextBtn.addEventListener("click", () => {
+          if (currentChapterIndex < chapters.length - 1) {
+            currentChapterIndex++;
+            updateChapterView();
+          }
+        });
+
+        // --- 3. LOGIQUE DE DÉPLACEMENT INTERNE (PAN) ---
+        const viewport = document.getElementById("mapViewport");
+
+        const MAP_WIDTH = 1400;
+        const MAP_HEIGHT = 1000;
+
+        let isDragging = false;
+        let startX, startY;
+
+        let scale = 1.08;
+        let translateX = 0;
+        let translateY = 0;
+
+        function updateTransform() {
+          // NOUVEAU : On récupère dynamiquement le chapitre actuellement affiché
+          const activeContainer = document.querySelector(".map-container.active");
+          if (activeContainer) {
+            activeContainer.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+          }
+        }
+
+        function centerMap() {
+          const viewportWidth = viewport.clientWidth;
+          const viewportHeight = viewport.clientHeight;
+
+          scale = Math.min(1.15, Math.max(0.95, viewportHeight / 850));
+          translateX = (viewportWidth - MAP_WIDTH * scale) / 2;
+          translateY = (viewportHeight - MAP_HEIGHT * scale) / 2 + 20;
+
+          // On s'assure que toutes les maps sont réinitialisées, pas juste l'active
+          document.querySelectorAll(".map-container").forEach((map) => {
+            map.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+          });
+        }
+
+        // Initialisation de la vue
+        centerMap();
+        // Force l'état initial des boutons
+        updateChapterView();
+
+        viewport.addEventListener("mousedown", (e) => {
+          if (e.target.closest(".quest-node") || e.target.closest(".chapter-nav")) return;
+
+          isDragging = true;
+          startX = e.clientX - translateX;
+          startY = e.clientY - translateY;
+          viewport.classList.add("dragging");
+        });
+
+        window.addEventListener("mousemove", (e) => {
+          if (!isDragging) return;
+          translateX = e.clientX - startX;
+          translateY = e.clientY - startY;
+          updateTransform();
+        });
+
+        window.addEventListener("mouseup", () => {
+          isDragging = false;
+          viewport.classList.remove("dragging");
+        });
+
+        window.addEventListener("resize", centerMap);
+      });
+    </script>
+  </body>
+</html>

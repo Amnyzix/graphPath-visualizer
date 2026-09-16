@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "id": "dfs-01",
+    "title": "Level 4: DFS Trail",
+    "type": "text-sequence",
+    "instruction": "Type the exact sequence of nodes visited by a DFS starting from 1 (e.g., 1,2,3). Explore smaller IDs first.",
+    "startingNode": "1",
+    "errorMessage": "DFS dives deep first! Verify your backtracking order."
+  },
+  "graphData": {
+    "nodes": [
+      { "id": "1", "x": 300, "y": 200 },
+      { "id": "2", "x": 500, "y": 100 },
+      { "id": "3", "x": 500, "y": 300 },
+      { "id": "4", "x": 700, "y": 100 }
+    ],
+    "edges": [
+      { "from": "1", "to": "2", "directed": true },
+      { "from": "1", "to": "3", "directed": true },
+      { "from": "2", "to": "4", "directed": true }
+    ],
+    "nodeIdCounter": 5
+  },
+  "solutionSequence": "1,2,4,3"
+}

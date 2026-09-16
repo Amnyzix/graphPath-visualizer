@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AlgoVizor - Mission</title>
+    <link rel="stylesheet" href="css/style_final.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+      /* --- NEW UI LAYOUT STYLES --- */
+      body {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+        font-family: sans-serif;
+        background: var(--bg-main, #f8fafc);
+      }
+
+      .main-workspace {
+        display: flex;
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Mission Panel (S'adapte dynamiquement à la taille de l'écran) */
+      .mission-panel {
+        /* clamp(min, ideal, max) : 380px minimum, 25% de l'écran, 550px maximum */
+        width: clamp(380px, 25vw, 550px);
+        background: #ffffff;
+        border-right: 2px solid #e2e8f0;
+        padding: clamp(25px, 3vh, 40px); /* Le padding grandit aussi un peu en hauteur */
+        display: flex;
+        flex-direction: column;
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.03);
+        z-index: 10;
+      }
+
+      .mission-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 0 5px 0;
+      }
+      .mission-context {
+        font-size: 0.95rem;
+        color: #64748b;
+        line-height: 1.5;
+        margin-bottom: 25px;
+      }
+
+      /* The Task Card (The most intuitive part) */
+      .task-card {
+        background: #8b5cf6; /* Violet doux et lumineux */
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.25);
+        margin-bottom: 25px;
+        border: 2px solid #7c3aed; /* Légèrement plus foncé pour le contraste */
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .task-card.success-pulse {
+        background: #10b981 !important; /* Success Green */
+        border-color: #059669 !important;
+        transform: scale(1.02);
+        box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
+      }
+
+      .task-badge,
+      .task-instruction {
+        transition: opacity 0.3s ease;
+      }
+
+      .fade-out {
+        opacity: 0 !important;
+      }
+
+      .task-card::before {
+        content: "\f140";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        right: -15px;
+        top: -15px;
+        font-size: 6rem;
+        opacity: 0.15;
+        transform: rotate(-15deg);
+      }
+      .task-badge {
+        font-size: 0.75rem;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 8px;
+      }
+      .task-instruction {
+        font-size: 1.15rem;
+        font-weight: 400;
+        line-height: 1.4;
+        margin: 0;
+      }
+
+      /* Progress Section */
+      .progress-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #475569;
+        margin-bottom: 8px;
+      }
+      .progress-track {
+        width: 100%;
+        height: 12px;
+        background: #e2e8f0;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: #10b981;
+        transition: width 0.4s ease-out;
+      }
+
+      /* Theory Integration inside panel */
+      .theory-action-btn {
+        margin-top: auto;
+        width: 100%;
+        padding: 15px;
+        background: #f1f5f9;
+        color: #475569;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+      .theory-action-btn:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+      }
+
+      /* Right-Side Theory Panel */
+      /* Right-Side Theory Panel */
+      .theory-side-panel {
+        position: absolute;
+        top: 0;
+        right: -600px;
+        width: 550px;
+        height: 100%;
+        background: #ffffff;
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+      }
+      .theory-side-panel.open {
+        right: 0;
+      }
+      .theory-header {
+        padding: 20px;
+        background: #f8fafc;
+        border-bottom: 2px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+      #theory-frame {
+        flex: 1;
+        width: 100%;
+        border: none;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #64748b;
+      }
+      .close-btn:hover {
+        color: #ef4444;
+      }
+
+      /* Feedback Messages */
+      #feedback-message {
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: bold;
+        text-align: center;
+        display: none;
+        margin-top: 15px;
+      }
+
+      /* 1. Le conteneur lui-même n'a plus de fond, il sert juste de cadre */
+      #quiz-canvas-container {
+        z-index: 1; /* Crée un contexte d'empilement */
+        overflow: hidden;
+      }
+
+      /* 2. Le calque indépendant qui dessine la grille */
+      #quiz-canvas-container::before {
+        content: "";
+        position: absolute;
+        inset: 0; /* S'étire automatiquement aux 4 coins du conteneur (top, left, right, bottom) */
+
+        /* Le style de laboratoire */
+        background-color: #f8fafc;
+        background-image: radial-gradient(#cbd5e1 2px, transparent 2px);
+        background-size: 30px 30px;
+
+        z-index: -1; /* Se place tout au fond, derrière le graphe */
+        pointer-events: none; /* Assure que la grille ne bloque aucun clic sur le graphe */
+      }
+
+      #quiz-svg-main {
+        overflow: visible !important;
+        width: 100%;
+        height: 100%;
+        display: block"
+      }
+
+      /* Animations de validation (Flash) */
+      .node-flash-success circle {
+        fill: #11cc8e !important; /* Vert succès */
+        stroke: #059669 !important;
+        transition: fill 0.1s, stroke 0.1s !important;
+      }
+
+      .node-flash-error circle {
+        fill: #ef4444 !important; /* Rouge erreur */
+        stroke: #b91c1c !important;
+        transition: fill 0.1s, stroke 0.1s !important;
+      }
+
+      /* Transition pour le retour en douceur à l'état normal */
+      #quiz-svg-main circle {
+        transition: fill 0.8s ease-out, stroke 0.8s ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Gamified Header -->
+    <header
+      style="
+        background: white;
+        padding: 12px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #e2e8f0;
+      "
+    >
+      <div style="font-weight: 600; font-size: 1.2rem; color: #1e293b">
+        <i class="fa-solid fa-route" style="color: #6366f1"></i> AlgoVizor Quest
+      </div>
+      <button
+        class="action-btn"
+        onclick="window.location.href = 'quests.html'"
+        style="
+          background: #ef4444;
+          color: white;
+          border: none;
+          padding: 8px 15px;
+          border-radius: 6px;
+          font-weight: bold;
+          cursor: pointer;
+        "
+      >
+        <i class="fa-solid fa-right-from-bracket"></i> Abort Mission
+      </button>
+    </header>
+
+    <div class="main-workspace">
+      <!-- Left: Mission Control -->
+      <div class="mission-panel">
+        <h2 id="quiz-title" class="mission-title">Loading...</h2>
+        <p id="quiz-context" class="mission-context">Fetching mission brief...</p>
+
+        <!-- INTUITIVE TASK UI -->
+        <div class="task-card">
+          <div class="task-badge" id="task-phase-badge">Current Objective</div>
+          <p id="current-objective" class="task-instruction">Waiting for instructions...</p>
+        </div>
+
+        <div id="progress-container">
+          <div class="progress-header">
+            <span>Completion</span>
+            <span><span id="score">0</span> / <span id="score-total">0</span></span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="mission-progress"></div></div>
+        </div>
+
+        <div id="feedback-message"></div>
+        <div id="quiz-dynamic-inputs"></div>
+        <!-- For text inputs if needed -->
+
+        <!-- Theory Trigger -->
+        <button id="toggle-theory-btn" class="theory-action-btn">
+          <i class="fa-solid fa-book-open"></i> Field Manual & Theory
+        </button>
+      </div>
+
+      <!-- Center: The Canvas -->
+      <div id="quiz-canvas-container" style="flex: 1; position: relative">
+        <svg id="quiz-svg-main"></svg>
+      </div>
+
+      <!-- Right: Sliding Theory Panel -->
+      <div id="theory-side-panel" class="theory-side-panel">
+        <div class="theory-header">
+          <span
+            ><i class="fa-solid fa-graduation-cap" style="color: #6366f1"></i> Theory
+            Reference</span
+          >
+          <button id="close-theory-btn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <iframe id="theory-frame" title="Theory lesson"></iframe>
+      </div>
+    </div>
+
+    <!-- Victory Modal (kept similar, just centered) -->
+    <div
+      id="victory-modal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <div
+        style="
+          background: white;
+          padding: 40px;
+          border-radius: 15px;
+          text-align: center;
+          max-width: 400px;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        "
+      >
+        <h2 style="color: #10b981; font-size: 2rem; margin-top: 0">
+          <i class="fa-solid fa-trophy"></i> Mission Cleared!
+        </h2>
+        <p style="color: #64748b; margin-bottom: 25px">Excellent work executing the algorithm.</p>
+        <button
+          onclick="window.location.href = 'quests.html'"
+          style="
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            width: 100%;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+          "
+        >
+          Return to Map
+        </button>
+      </div>
+    </div>
+
+    <script type="module">
+      import { GraphQuizEditor } from "./js/features/graphs/GraphQuizEditor.js";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const missionId = urlParams.get("mission") || "bfs-01";
+
+        window.activeQuiz = new GraphQuizEditor("quiz-svg-main");
+        window.activeQuiz.loadMissionFromJson(missionId);
+
+        // --- DYNAMIC THEORY LOGIC ---
+        const theoryPanel = document.getElementById("theory-side-panel");
+        const theoryFrame = document.getElementById("theory-frame");
+        const toggleBtn = document.getElementById("toggle-theory-btn");
+        const closeBtn = document.getElementById("close-theory-btn");
+
+        let theoryLoaded = false;
+
+        // Ouvrir la théorie
+        toggleBtn.addEventListener("click", () => {
+          if (!theoryLoaded) {
+            const algoBaseName = missionId.split("-")[0];
+            theoryFrame.src = `theory/${algoBaseName}.html`;
+            theoryLoaded = true;
+          }
+          theoryPanel.classList.add("open");
+        });
+
+        // Fermer via la croix
+        closeBtn.addEventListener("click", () => {
+          theoryPanel.classList.remove("open");
+        });
+
+        // NOUVEAU : Fermer en cliquant en dehors
+        document.addEventListener("click", (event) => {
+          // Si le panneau est ouvert
+          if (theoryPanel.classList.contains("open")) {
+            // Et que le clic n'est NI dans le panneau de théorie, NI sur le bouton pour l'ouvrir
+            if (!theoryPanel.contains(event.target) && !toggleBtn.contains(event.target)) {
+              theoryPanel.classList.remove("open");
+            }
+          }
+        });
+
+        document.getElementById("quiz-dynamic-inputs").addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            document.getElementById("quiz-text-submit").click();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
