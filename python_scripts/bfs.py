@@ -1,24 +1,28 @@
 def bfs(start_node):
     existing_nodes = get_all_nodes()
 
-    # 2. Sécurité : si le nœud de départ n'existe pas, on arrête tout de suite !
     if str(start_node) not in existing_nodes:
         return
 
     queue = [start_node]
     visited = [start_node]
 
-    visit(start_node, f"Starting BFS from node {start_node}")
+    # Le nœud de départ passe en vert
+    color_node(start_node, "#2ecc71", f"Starting BFS from node {start_node}")
 
     while len(queue) > 0:
-        # Pop from the front of the list (Queue behavior)
         current = queue.pop(0)
 
         for neighbor in neighbors(current):
             if neighbor not in visited:
                 visited.append(neighbor)
                 queue.append(neighbor)
-                visit(neighbor, f"Exploring {neighbor} from {current}")
+
+                # Le parcours est animé en coloriant l'arête empruntée
+                color_edge(current, neighbor, "#3498db", f"Traversing to {neighbor}")
+
+                # Le nouveau nœud visité passe en vert
+                color_node(neighbor, "#2ecc71", f"Visited node {neighbor}")
 
 
 # Run the algorithm starting from node '1'

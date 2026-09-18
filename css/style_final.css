@@ -632,6 +632,8 @@ path.edge-line {
 }
 .edge-hit {
   pointer-events: stroke;
+  stroke: transparent !important;
+  fill: none;
 }
 .edge-weight {
   pointer-events: auto;

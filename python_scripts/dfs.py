@@ -1,24 +1,25 @@
 def dfs(start_node):
     existing_nodes = get_all_nodes()
+
     if str(start_node) not in existing_nodes:
         return
 
-    stack = [start_node]
     visited = []
 
-    while len(stack) > 0:
-        # Pop from the end of the list (Stack behavior)
-        current = stack.pop()
+    def explore(current):
+        visited.append(current)
+        # Le nœud exploré passe en vert
+        color_node(current, "#2ecc71", f"Visited node {current}")
 
-        if current not in visited:
-            visited.append(current)
-            visit(current, f"Diving into node {current}")
+        for neighbor in neighbors(current):
+            if neighbor not in visited:
+                # On anime l'arête avant de plonger récursivement vers le voisin
+                color_edge(current, neighbor, "#3498db", f"Traversing to {neighbor}")
+                explore(neighbor)
 
-            # On cast en liste pour éviter les erreurs avec reversed() sur les dictionnaires Pyodide
-            for neighbor in reversed(list(neighbors(current))):
-                if neighbor not in visited:
-                    stack.append(neighbor)
+    # Lancement de la récursion
+    explore(start_node)
 
 
-# Run the algorithm
+# Run the algorithm starting from node '1'
 dfs("1")

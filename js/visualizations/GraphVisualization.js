@@ -13,15 +13,20 @@ export class GraphVisualization extends Visualization {
       c.style.strokeWidth = "";
     });
 
-    // Nettoyer les arêtes
-    this.svg.querySelectorAll("path.edge, line.edge-line, line.edge, .edge-hit").forEach((e) => {
+    // Nettoyer les arêtes (On retire volontairement .edge-hit pour ne pas le toucher)
+    this.svg.querySelectorAll("path.edge, line.edge-line, line.edge").forEach((e) => {
       try {
         e.style.stroke = "";
         e.style.strokeWidth = "";
         e.style.strokeLinecap = "";
         e.style.color = "";
+
+        // On remet la flèche par défaut de ton graphe
+        if (e.hasAttribute("marker-end") && e.getAttribute("marker-end").includes("active")) {
+          e.setAttribute("marker-end", "url(#graph-arrow)");
+        }
       } catch {
-        // Ignorer les erreurs si l'élément a été supprimé du DOM
+        // Ignorer les erreurs si l'élément a été supprimé
       }
     });
 
@@ -38,24 +43,20 @@ export class GraphVisualization extends Visualization {
     const circle = this.svg.querySelector(`circle[data-id="${nodeId}"]`);
     if (!circle) return;
 
-    // Retirer les anciens styles de survol par sécurité
     if (actionType === "visit" || actionType === "select") {
       circle.style.fill = "";
       circle.style.stroke = "";
     }
 
-    // Ajouter la classe (qui va appeler ton CSS: orange, vert, etc.)
     if (actionType === "select") circle.classList.add("selected");
     else if (actionType === "visit" || actionType === "current") circle.classList.add("visited");
 
-    // Gérer une couleur forcée par Python (ex: color_node)
     if (customColor) {
       circle.style.fill = customColor;
       circle.style.stroke = `color-mix(in srgb, ${customColor}, black 30%)`;
       circle.style.strokeWidth = "3.5px";
     }
 
-    // Gérer le texte du log
     if (message) {
       const logDisplay = document.getElementById("log-display");
       if (logDisplay) {
@@ -79,9 +80,20 @@ export class GraphVisualization extends Visualization {
     const edgePaths = Array.from(this.svg.querySelectorAll(selector));
     edgePaths.forEach((edgePath) => {
       edgePath.style.stroke = color;
-      edgePath.style.strokeWidth = "4px";
+      edgePath.style.strokeWidth = "5px"; // Ligne plus épaisse
       edgePath.style.strokeLinecap = "round";
       edgePath.style.color = color;
+
+      // Appliquer la flèche active correspondant au graphe
+      if (edgePath.hasAttribute("marker-end")) {
+        edgePath.setAttribute("marker-end", "url(#graph-arrow-active)");
+      }
+    });
+
+    // Sécurité supplémentaire : s'assurer via JS que le hitPath ne prend aucune couleur
+    const hitSelector = `line.edge-hit[data-from="${from}"][data-to="${to}"], line.edge-hit[data-from="${to}"][data-to="${from}"]`;
+    this.svg.querySelectorAll(hitSelector).forEach((hit) => {
+      hit.style.stroke = "transparent";
     });
   }
 
