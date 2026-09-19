@@ -19,8 +19,20 @@ export class AutomataEditor extends CanvasEngine {
       "afterbegin",
       `
             <defs>
+                <!-- Marqueur classique (lignes droites) -->
                 <marker id="auto-arrow" markerUnits="userSpaceOnUse" viewBox="0 -5 10 10" refX="22" refY="0" markerWidth="14" markerHeight="14" orient="auto">
                     <path d="M 0,-4 L 8,0 L 0,4 Z" fill="context-stroke" />
+                </marker>
+                <marker id="auto-arrow-active" markerUnits="userSpaceOnUse" viewBox="0 -5 10 10" refX="22" refY="0" markerWidth="14" markerHeight="14" orient="auto">
+                    <path d="M 0,-4 L 8,0 L 0,4 Z" fill="#F59E0B" />
+                </marker>
+                
+                <!-- Nouveaux marqueurs pour les boucles (courbes) -->
+                <marker id="auto-arrow-loop" markerUnits="userSpaceOnUse" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="14" markerHeight="14" orient="auto">
+                    <path d="M 0,-4 L 8,0 L 0,4 Z" fill="context-stroke" />
+                </marker>
+                <marker id="auto-arrow-loop-active" markerUnits="userSpaceOnUse" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="14" markerHeight="14" orient="auto">
+                    <path d="M 0,-4 L 8,0 L 0,4 Z" fill="#F59E0B" />
                 </marker>
             </defs>
         `
@@ -156,19 +168,63 @@ export class AutomataEditor extends CanvasEngine {
 
   // --- 3. GESTION DES TRANSITIONS ---
   // --- WRAPPER DE LA MODALE EN PROMISE ---
-  async openLabelModal(defaultValue = "a") {
+  async openLabelModal(defaultValue = "a", defaultSequence = false) {
     return new Promise((resolve) => {
       const modal = document.getElementById("edge-label-modal");
       const input = document.getElementById("edge-label-input");
+      const sequenceToggle = document.getElementById("edge-sequence-toggle");
       const btnSave = document.getElementById("btn-save-edge");
       const btnCancel = document.getElementById("btn-cancel-edge");
-      const btnClose = document.getElementById("btn-close-edge"); // Le bouton X
+      const btnClose = document.getElementById("btn-close-edge");
+
+      let errorMsg = document.getElementById("edge-error-msg");
+      if (!errorMsg) {
+        errorMsg = document.createElement("div");
+        errorMsg.id = "edge-error-msg";
+        errorMsg.style.color = "#ef4444";
+        errorMsg.style.fontSize = "12px";
+        errorMsg.style.marginTop = "6px";
+        errorMsg.style.display = "none";
+        input.parentNode.appendChild(errorMsg);
+      }
 
       // Afficher et préparer l'input
       modal.style.display = "flex"; // flex pour bien centrer via tes styles modal-overlay
       input.value = defaultValue;
+      sequenceToggle.checked = defaultSequence;
       input.focus();
       input.select(); // Surligne le texte pour l'effacer facilement
+
+      const validateInput = () => {
+        const val = input.value.trim();
+        if (!sequenceToggle.checked && val !== "") {
+          const parts = val.split(",");
+          const hasSequence = parts.some((p) => p.trim().length > 1);
+
+          if (hasSequence) {
+            input.style.borderColor = "#ef4444";
+            errorMsg.textContent =
+              "Multi-character symbols require 'Parse as Sequence' to be enabled.";
+            errorMsg.style.display = "block";
+            btnSave.disabled = true;
+            btnSave.style.opacity = "0.5";
+            btnSave.style.cursor = "not-allowed";
+            return false;
+          }
+        }
+
+        // Réinitialisation si valide
+        input.style.borderColor = "var(--canvas-border, #cbd5e1)";
+        errorMsg.style.display = "none";
+        btnSave.disabled = false;
+        btnSave.style.opacity = "1";
+        btnSave.style.cursor = "pointer";
+        return true;
+      };
+
+      input.oninput = validateInput;
+      sequenceToggle.onchange = validateInput;
+      validateInput();
 
       // Fonction de nettoyage
       const cleanup = () => {
@@ -177,13 +233,19 @@ export class AutomataEditor extends CanvasEngine {
         btnCancel.onclick = null;
         btnClose.onclick = null;
         input.onkeydown = null;
-        modal.onmousedown = null; // Nettoyer l'event du clic en dehors
+        input.oninput = null;
+        sequenceToggle.onchange = null;
+        modal.onmousedown = null;
       };
 
       // Validation
       const confirm = () => {
+        if (!validateInput()) return; // Bloque la validation clavier (Enter) si invalide
         cleanup();
-        resolve(input.value || "ε"); // Retourne "ε" si vide
+        resolve({
+          label: input.value || "ε",
+          isSequence: sequenceToggle.checked,
+        });
       };
 
       // Annulation
@@ -197,7 +259,6 @@ export class AutomataEditor extends CanvasEngine {
       btnCancel.onclick = cancel;
       btnClose.onclick = cancel;
 
-      // NOUVEAU : Fermer si on clique EN DEHORS de la modale (.modal-content)
       modal.onmousedown = (e) => {
         if (e.target === modal) {
           // S'assure qu'on a cliqué sur l'overlay sombre, pas sur la modale elle-même
@@ -216,23 +277,35 @@ export class AutomataEditor extends CanvasEngine {
   // --- 3. GESTION DES TRANSITIONS (Modifiées pour être async) ---
 
   async createEdge(fromId, toId) {
-    // Remplacement du prompt() par la modale !
-    const label = await this.openLabelModal("a");
+    const result = await this.openLabelModal("a", false);
 
-    if (label !== null) {
+    if (result !== null) {
       this.saveState();
-      const trimmedLabel = label.trim() || "ε";
+      const trimmedLabel = result.label.trim() || "ε";
 
       const existingEdge = this.edges.find((e) => e.from === fromId && e.to === toId);
+
       if (existingEdge) {
+        // Fusionne systématiquement le texte dans l'arête existante
         const currentLabels = existingEdge.label.split(",").map((s) => s.trim());
         if (!currentLabels.includes(trimmedLabel)) {
           existingEdge.label = existingEdge.label
-            ? `${existingEdge.label},${trimmedLabel}`
+            ? `${existingEdge.label}, ${trimmedLabel}`
             : trimmedLabel;
         }
+
+        // Si la nouvelle transition nécessite le mode séquence, on l'active pour toute l'arête
+        if (result.isSequence) {
+          existingEdge.isSequence = true;
+        }
       } else {
-        this.edges.push({ from: fromId, to: toId, label: trimmedLabel });
+        // Création d'une nouvelle arête s'il n'y en a aucune
+        this.edges.push({
+          from: fromId,
+          to: toId,
+          label: trimmedLabel,
+          isSequence: result.isSequence,
+        });
       }
       this.render();
     }
@@ -242,18 +315,58 @@ export class AutomataEditor extends CanvasEngine {
     const edge = this.edges[edgeIndex];
     if (!edge) return;
 
-    // Remplacement du prompt() par la modale !
-    const newLabel = await this.openLabelModal(edge.label);
+    const result = await this.openLabelModal(edge.label, edge.isSequence || false);
 
-    if (newLabel === null) return; // Annulé
+    if (result === null) return;
 
     this.saveState();
-    if (newLabel.trim() === "") {
+    if (result.label.trim() === "") {
       this.edges.splice(edgeIndex, 1);
     } else {
-      edge.label = newLabel.trim();
+      edge.label = result.label.trim();
+      edge.isSequence = result.isSequence;
     }
     this.render();
+  }
+
+  getExpandedGraph() {
+    let expandedNodes = JSON.parse(JSON.stringify(this.nodes));
+    let expandedEdges = [];
+    let hiddenIdCounter = 0;
+
+    this.edges.forEach((edge) => {
+      // 1. Découpage initial par virgule
+      const parts = edge.label
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s !== "");
+
+      parts.forEach((part) => {
+        // 2. Si c'est une séquence de plusieurs caractères
+        if (edge.isSequence && part.length > 1 && part !== "ε") {
+          const chars = part.split("");
+          let currentFrom = edge.from;
+
+          for (let i = 0; i < chars.length; i++) {
+            let nextTo;
+            if (i === chars.length - 1) {
+              nextTo = edge.to;
+            } else {
+              nextTo = `hidden_${edge.from}_${edge.to}_${hiddenIdCounter++}`;
+              expandedNodes.push({ id: nextTo, isInitial: false, isFinal: false, isHidden: true });
+            }
+
+            expandedEdges.push({ from: currentFrom, to: nextTo, label: chars[i] });
+            currentFrom = nextTo;
+          }
+        } else {
+          // 3. Transition classique (1 caractère ou epsilon)
+          expandedEdges.push({ from: edge.from, to: edge.to, label: part });
+        }
+      });
+    });
+
+    return { nodes: expandedNodes, edges: expandedEdges };
   }
 
   // --- 4. RENDU VISUEL ---
@@ -279,9 +392,25 @@ export class AutomataEditor extends CanvasEngine {
 
       if (edge.from === edge.to) {
         const r = 20;
-        dAttr = `M ${fromNode.x - 10},${fromNode.y - r + 2} C ${fromNode.x - 30},${fromNode.y - 70} ${fromNode.x + 30},${fromNode.y - 70} ${fromNode.x + 10},${fromNode.y - r + 2}`;
+        // Angles d'ancrage sur le cercle (-135° et -45°)
+        const angleStart = -Math.PI * 0.75;
+        const angleEnd = -Math.PI * 0.25;
+
+        // Calcul des points exacts sur le périmètre
+        const startX = fromNode.x + r * Math.cos(angleStart);
+        const startY = fromNode.y + r * Math.sin(angleStart);
+        const endX = fromNode.x + r * Math.cos(angleEnd);
+        const endY = fromNode.y + r * Math.sin(angleEnd);
+
+        // Tirage des points de contrôle de la courbe de Bézier
+        const cpX1 = fromNode.x - 35;
+        const cpY1 = fromNode.y - 85;
+        const cpX2 = fromNode.x + 35;
+        const cpY2 = fromNode.y - 85;
+
+        dAttr = `M ${startX},${startY} C ${cpX1},${cpY1} ${cpX2},${cpY2} ${endX},${endY}`;
         textX = fromNode.x;
-        textY = fromNode.y - 65;
+        textY = fromNode.y - 75;
       } else if (hasReverseEdge) {
         // 2. Arête bidirectionnelle (On dessine une courbe)
         const dx = toNode.x - fromNode.x;
@@ -292,28 +421,30 @@ export class AutomataEditor extends CanvasEngine {
         const nx = -dy / dist;
         const ny = dx / dist;
 
-        // Puissance de la courbure (en pixels)
+        // Puissance de la courbure (distance du point de contrôle)
         const curveOffset = 35;
 
-        // Point central de la ligne droite
         const mx = (fromNode.x + toNode.x) / 2;
         const my = (fromNode.y + toNode.y) / 2;
 
-        // Point de contrôle de la courbe de Bézier (décalé par le vecteur normal)
         const cx = mx + nx * curveOffset;
         const cy = my + ny * curveOffset;
 
-        // Q = Courbe de Bézier quadratique en SVG
         dAttr = `M ${fromNode.x},${fromNode.y} Q ${cx},${cy} ${toNode.x},${toNode.y}`;
 
-        // On place le texte exactement sur le point de contrôle (qui est à l'extérieur de la courbe)
-        textX = cx;
-        textY = cy - 5;
+        // CALCUL CORRIGÉ : L'apex de la courbe est à mi-chemin du point de contrôle
+        const apexX = mx + nx * (curveOffset / 2);
+        const apexY = my + ny * (curveOffset / 2);
+
+        // On place le texte légèrement à l'extérieur de l'apex en suivant la normale
+        const textMargin = 15;
+        textX = apexX + nx * textMargin;
+        textY = apexY + ny * textMargin;
       } else {
         // 3. Ligne droite classique (Unidirectionnelle)
         dAttr = `M ${fromNode.x},${fromNode.y} L ${toNode.x},${toNode.y}`;
         textX = (fromNode.x + toNode.x) / 2;
-        textY = (fromNode.y + toNode.y) / 2 - 8;
+        textY = (fromNode.y + toNode.y) / 2 - 12;
       }
 
       // 2. CRÉER LES ÉLÉMENTS AVEC LE D DÉJÀ CALCULÉ
@@ -339,14 +470,24 @@ export class AutomataEditor extends CanvasEngine {
       path.style.pointerEvents = "none";
 
       const isSelected = this.selectedEdgeIndex === index;
+      const isLoop = edge.from === edge.to;
+
+      let markerUrl;
+      if (isLoop) {
+        markerUrl = isSelected ? "url(#auto-arrow-loop-active)" : "url(#auto-arrow-loop)";
+      } else {
+        markerUrl = isSelected ? "url(#auto-arrow-active)" : "url(#auto-arrow)";
+      }
+
       path.setAttribute("stroke", isSelected ? "#F59E0B" : "var(--circle-stroke, #334155)");
       path.setAttribute("stroke-width", isSelected ? "5" : "3");
-      path.setAttribute("marker-end", isSelected ? "url(#auto-arrow-active)" : "url(#auto-arrow)");
+      path.setAttribute("marker-end", markerUrl);
 
       // 3. TEXTE
       const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
       text.setAttribute("x", textX);
       text.setAttribute("y", textY);
+      text.setAttribute("dominant-baseline", "central");
       text.setAttribute("fill", "var(--brand-main, #6366F1)");
       text.setAttribute("font-weight", "800");
       text.setAttribute("font-size", "16px");
@@ -538,7 +679,8 @@ export class AutomataEditor extends CanvasEngine {
     this.resetAllColors();
 
     // 1. Initialiser le simulateur NFA avec les données actuelles
-    const simulator = new NFASimulator(this.nodes, this.edges);
+    const expandedGraph = this.getExpandedGraph();
+    const simulator = new NFASimulator(expandedGraph.nodes, expandedGraph.edges);
     const result = simulator.simulateStepByStep(word);
 
     if (result.trace.length === 0) {

@@ -73,7 +73,7 @@ export class NFASimulator {
   simulateStepByStep(word) {
     const initialState = this.getInitialState();
     if (!initialState) {
-      return { accepted: false, error: "Aucun état initial défini.", trace: [] };
+      return { accepted: false, error: "No initial state defined.", trace: [] };
     }
 
     let trace = [];
@@ -92,7 +92,7 @@ export class NFASimulator {
       if (nextStates.length === 0) {
         return {
           accepted: false,
-          error: `Bloqué au caractère '${char}' (aucun chemin possible).`,
+          error: `Blocked at character '${char}' (no valid path).`,
           trace,
         };
       }
@@ -107,8 +107,8 @@ export class NFASimulator {
     return {
       accepted: accepted,
       message: accepted
-        ? `Le mot "${word}" est accepté !`
-        : `Le mot est lu, mais aucun état actif n'est final.`,
+        ? `The word "${word}" is accepted!`
+        : `The word is read, but no active state is final.`,
       trace: trace,
       finalActiveStates: currentStates,
     };
