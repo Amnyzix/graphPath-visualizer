@@ -7,6 +7,7 @@ import { RegexExtractor } from "../features/automata/RegexExtractor.js";
 import { DFAMinimizer } from "../features/automata/DFAMinimizer.js";
 import { NFASimulator } from "../features/automata/NFASimulator.js";
 import { AutomataEquivalence } from "../features/automata/AutomataEquivalence.js";
+import { AutomataCompleteness } from "../features/automata/AutomataCompleteness.js";
 
 const getAutomataApp = () => window.automataApp;
 
@@ -357,6 +358,152 @@ export const viewReferenceAutomaton = () => {
   document.getElementById("ref-automaton-modal").style.display = "flex";
 };
 
+// Extrait tous les symboles actuellement présents sur le canevas
+export const extractAlphabetFromGraph = () => {
+  const automataApp = getAutomataApp();
+  let alphabet = new Set();
+
+  automataApp.edges.forEach((e) => {
+    if (e.label && e.label !== "ε") {
+      e.label.split(",").forEach((char) => {
+        const cleanChar = char.trim();
+        if (cleanChar.length > 0) alphabet.add(cleanChar);
+      });
+    }
+  });
+
+  const input = document.getElementById("alphabet-input");
+  input.value = Array.from(alphabet).sort().join(", ");
+
+  // Un petit effet visuel pour confirmer l'action
+  input.style.backgroundColor = "#D1FAE5";
+  setTimeout(() => (input.style.backgroundColor = "var(--editor-bg)"), 300);
+};
+
+const getSymbolsOnCanvas = (edges) => {
+  let symbols = new Set();
+  edges.forEach((e) => {
+    if (e.label && e.label !== "ε") {
+      e.label.split(",").forEach((char) => {
+        const cleanChar = char.trim();
+        if (cleanChar.length > 0) symbols.add(cleanChar);
+      });
+    }
+  });
+  return Array.from(symbols);
+};
+
+// Vérifie la complétude et met les nœuds problématiques en surbrillance rouge
+export const checkCompleteness = () => {
+  const automataApp = getAutomataApp();
+  const alphabetStr = document.getElementById("alphabet-input").value;
+  const alphabet = AutomataCompleteness.parseAlphabet(alphabetStr);
+  const resultBox = document.getElementById("completeness-result");
+
+  if (alphabet.length === 0) {
+    resultBox.style.display = "block";
+    resultBox.style.backgroundColor = "#FEF3C7";
+    resultBox.style.color = "#B45309";
+    resultBox.innerHTML =
+      '<i class="fa-solid fa-triangle-exclamation"></i> Please define the alphabet (Σ) first.';
+    return;
+  }
+
+  const canvasSymbols = getSymbolsOnCanvas(automataApp.edges);
+  const alienSymbols = canvasSymbols.filter((sym) => !alphabet.includes(sym));
+
+  if (alienSymbols.length > 0) {
+    automataApp.resetAllColors();
+    resultBox.style.display = "block";
+    resultBox.style.backgroundColor = "#FEE2E2";
+    resultBox.style.color = "#991B1B";
+    resultBox.innerHTML = `<strong><i class="fa-solid fa-ban"></i> Invalid Alphabet</strong><br>Found symbols on the canvas that are not in your defined alphabet Σ: <span style="font-family: monospace; font-weight: bold;">${alienSymbols.join(", ")}</span>`;
+    return;
+  }
+
+  const { isComplete, incompleteStates } = AutomataCompleteness.check(
+    automataApp.nodes,
+    automataApp.edges,
+    alphabet
+  );
+
+  // Réinitialise les couleurs existantes
+  automataApp.resetAllColors();
+
+  resultBox.style.display = "block";
+
+  if (isComplete) {
+    resultBox.style.backgroundColor = "#D1FAE5";
+    resultBox.style.color = "#065F46";
+    resultBox.innerHTML =
+      '<strong><i class="fa-solid fa-check-circle"></i> Complete!</strong><br>Every state has a transition for all symbols in Σ.';
+  } else {
+    resultBox.style.backgroundColor = "#FEE2E2";
+    resultBox.style.color = "#991B1B";
+
+    let missingHtml =
+      '<strong><i class="fa-solid fa-circle-exclamation"></i> Incomplete Automaton</strong><br><ul style="margin: 5px 0 0 20px; padding: 0;">';
+
+    const nodeIdsToHighlight = [];
+    incompleteStates.forEach((state) => {
+      missingHtml += `<li>State <b>${state.id}</b> is missing: <span style="font-family: monospace;">${state.missing.join(", ")}</span></li>`;
+      nodeIdsToHighlight.push(state.id);
+    });
+    missingHtml += "</ul>";
+    resultBox.innerHTML = missingHtml;
+
+    // Met les nœuds incomplets en surbrillance rouge
+    automataApp.editor.highlightMultipleNodes(
+      nodeIdsToHighlight,
+      "state-error",
+      "#FECACA",
+      "#EF4444"
+    );
+  }
+};
+
+// Modifie le graphe pour créer un état Puits (Trap State)
+export const makeAutomatonComplete = () => {
+  const automataApp = getAutomataApp();
+  const alphabetStr = document.getElementById("alphabet-input").value;
+  const alphabet = AutomataCompleteness.parseAlphabet(alphabetStr);
+  const resultBox = document.getElementById("completeness-result");
+
+  if (alphabet.length === 0) {
+    resultBox.style.display = "block";
+    resultBox.style.backgroundColor = "#FEF3C7";
+    resultBox.style.color = "#B45309";
+    resultBox.innerHTML =
+      '<i class="fa-solid fa-triangle-exclamation"></i> Please define the alphabet (Σ) first.';
+    return;
+  }
+
+  const canvasSymbols = getSymbolsOnCanvas(automataApp.edges);
+  const alienSymbols = canvasSymbols.filter((sym) => !alphabet.includes(sym));
+
+  if (alienSymbols.length > 0) {
+    automataApp.resetAllColors();
+    resultBox.style.display = "block";
+    resultBox.style.backgroundColor = "#FEE2E2";
+    resultBox.style.color = "#991B1B";
+    resultBox.innerHTML = `<strong><i class="fa-solid fa-ban"></i> Invalid Alphabet</strong><br>Cannot complete automaton. Unknown symbols found: <span style="font-family: monospace; font-weight: bold;">${alienSymbols.join(", ")}</span>`;
+    return;
+  }
+
+  automataApp.saveState();
+
+  const result = AutomataCompleteness.makeComplete(automataApp.nodes, automataApp.edges, alphabet);
+
+  if (result.trapAdded) {
+    automataApp.nodes = result.nodes;
+    automataApp.edges = result.edges;
+    automataApp.render();
+    checkCompleteness();
+  } else {
+    checkCompleteness();
+  }
+};
+
 // expose automata handlers to inline HTML
 window.relayoutAutomaton = relayoutAutomaton;
 window.testAutomataWord = testAutomataWord;
@@ -371,6 +518,9 @@ window.runBatchWordTests = runBatchWordTests;
 window.setReferenceAutomaton = setReferenceAutomaton;
 window.compareWithReference = compareWithReference;
 window.viewReferenceAutomaton = viewReferenceAutomaton;
+window.extractAlphabetFromGraph = extractAlphabetFromGraph;
+window.checkCompleteness = checkCompleteness;
+window.makeAutomatonComplete = makeAutomatonComplete;
 
 document.addEventListener("DOMContentLoaded", () => {
   // Force l'activation du premier onglet au chargement de la page

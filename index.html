@@ -997,124 +997,232 @@
             </div>
 
             <!-- Tab Analyze (Regex Extraction) -->
-            <div id="tab-analyze" class="tab-content" style="padding: 20px; display: none">
-              <p class="panel-subtitle">Extract the regular expression from the canvas.</p>
+            <!-- Tab Analyze -->
+            <div
+              id="tab-analyze"
+              class="tab-content"
+              style="padding: 15px; display: none; overflow-y: auto; box-sizing: border-box"
+            >
+              <!-- 1. Alphabet & Completeness (Ouvert par défaut) -->
+              <details class="accordion-card" open>
+                <summary>
+                  <span
+                    ><i
+                      class="fa-solid fa-font"
+                      style="margin-right: 8px; color: var(--brand-main)"
+                    ></i>
+                    Completeness</span
+                  >
+                  <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <div class="accordion-body" style="text-align: center">
+                  <p class="panel-subtitle" style="margin-top: 0">
+                    Define &Sigma; to check missing transitions.
+                  </p>
 
-              <div style="margin-top: 15px">
-                <button
-                  class="action-btn"
-                  id="btn-reveal-regex"
-                  onclick="handleRevealRegex()"
-                  style="width: 100%; justify-content: center"
-                >
-                  <i class="fa-solid fa-eye"></i> Reveal Regex
-                </button>
-              </div>
-
-              <div
-                id="regex-result-container"
-                style="display: none; margin-top: 15px; text-align: left"
-              >
-                <label style="font-size: 13px; font-weight: bold; color: var(--text-primary)"
-                  >Equivalent Regular Expression:</label
-                >
-                <div
-                  id="regex-output"
-                  style="
-                    margin-top: 8px;
-                    padding: 12px;
-                    background: var(--bg-main, #f1f5f9);
-                    border: 1px solid var(--border-color);
-                    border-radius: 6px;
-                    font-family: monospace;
-                    font-size: 1.1rem;
-                    color: var(--brand-main, #6366f1);
-                    text-align: center;
-                    word-break: break-all;
-                  "
-                >
-                  <!-- Regex will be injected here -->
-                </div>
-                <button
-                  class="top-btn"
-                  onclick="document.getElementById('regex-result-container').style.display = 'none'"
-                  style="margin-top: 10px; width: 100%; justify-content: center"
-                >
-                  <i class="fa-solid fa-eye-slash"></i> Hide
-                </button>
-              </div>
-
-              <!-- Equivalence Check Card -->
-              <div
-                class="panel-card"
-                style="
-                  margin-top: 20px;
-                  padding: 20px;
-                  text-align: center;
-                  border-top: 1px dashed var(--border-color);
-                  border-radius: 0;
-                "
-              >
-                <h3><i class="fa-solid fa-scale-balanced"></i> Equivalence Check</h3>
-                <p class="panel-subtitle">
-                  Save this automaton, draw another one, and compare them.
-                </p>
-
-                <!-- Disposition sur 2 lignes pour un meilleur équilibre visuel -->
-                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px">
-                  <!-- Ligne 1 : Gestion de la référence (A) -->
-                  <div style="display: flex; gap: 8px">
-                    <button
-                      class="player-btn"
-                      id="btn-save-ref"
-                      onclick="setReferenceAutomaton()"
-                      style="flex: 1; justify-content: center; background-color: var(--bg-main)"
+                  <div style="margin-top: 15px; text-align: left">
+                    <label style="font-size: 13px; font-weight: bold; color: var(--text-primary)"
+                      >Alphabet (&Sigma;):</label
                     >
-                      <i class="fa-solid fa-thumbtack"></i> Save Ref (A)
-                    </button>
+                    <div style="display: flex; gap: 8px; margin-top: 5px">
+                      <input
+                        type="text"
+                        id="alphabet-input"
+                        placeholder="e.g.: a, b"
+                        autocomplete="off"
+                        style="
+                          flex: 1;
+                          padding: 8px 12px;
+                          border-radius: 6px;
+                          border: 1px solid var(--border-color);
+                          background: var(--editor-bg);
+                          font-family: monospace;
+                          outline: none;
+                        "
+                      />
+                      <button
+                        class="top-btn"
+                        onclick="extractAlphabetFromGraph()"
+                        title="Auto-detect from canvas"
+                        style="padding: 8px 12px"
+                      >
+                        <i class="fa-solid fa-rotate"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 10px; margin-top: 15px">
                     <button
                       class="player-btn"
-                      id="btn-view-ref"
-                      onclick="viewReferenceAutomaton()"
+                      onclick="checkCompleteness()"
                       style="
                         flex: 1;
                         justify-content: center;
-                        display: none;
-                        background-color: #e0e7ff;
-                        color: #4f46e5;
-                        border-color: #c7d2fe;
+                        background-color: #fef3c7;
+                        color: #d97706;
+                        border-color: #fcd34d;
                       "
                     >
-                      <i class="fa-solid fa-eye"></i> View (A)
+                      <i class="fa-solid fa-magnifying-glass"></i> Check
+                    </button>
+                    <button
+                      class="btn-compile"
+                      onclick="makeAutomatonComplete()"
+                      style="flex: 1; justify-content: center"
+                    >
+                      <i class="fa-solid fa-fill-drip"></i> Complete
                     </button>
                   </div>
 
-                  <!-- Ligne 2 : Comparaison (B) -->
-                  <button
-                    class="btn-compile"
-                    id="btn-compare-automata"
-                    onclick="compareWithReference()"
-                    style="width: 100%; justify-content: center; opacity: 0.5; cursor: not-allowed"
-                    disabled
-                  >
-                    <i class="fa-solid fa-code-compare"></i> Compare with (B)
-                  </button>
+                  <div
+                    id="completeness-result"
+                    style="
+                      display: none;
+                      margin-top: 15px;
+                      padding: 12px;
+                      border-radius: 6px;
+                      text-align: left;
+                      font-size: 0.9rem;
+                    "
+                  ></div>
                 </div>
+              </details>
 
-                <div
-                  id="equiv-result-container"
-                  style="
-                    display: none;
-                    margin-top: 15px;
-                    padding: 12px;
-                    border-radius: 6px;
-                    text-align: left;
-                    font-size: 0.9rem;
-                  "
-                >
-                  <!-- Résultat injecté ici -->
+              <!-- 2. Regex Extraction -->
+              <details class="accordion-card">
+                <summary>
+                  <span
+                    ><i
+                      class="fa-solid fa-wand-magic-sparkles"
+                      style="margin-right: 8px; color: var(--brand-main)"
+                    ></i>
+                    Regex Extraction</span
+                  >
+                  <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <div class="accordion-body" style="text-align: center">
+                  <p class="panel-subtitle" style="margin-top: 0">
+                    Extract the regular expression from the canvas.
+                  </p>
+
+                  <div style="margin-top: 15px">
+                    <button
+                      class="action-btn"
+                      id="btn-reveal-regex"
+                      onclick="handleRevealRegex()"
+                      style="width: 100%; justify-content: center"
+                    >
+                      <i class="fa-solid fa-eye"></i> Reveal Regex
+                    </button>
+                  </div>
+
+                  <div
+                    id="regex-result-container"
+                    style="display: none; margin-top: 15px; text-align: left"
+                  >
+                    <label style="font-size: 13px; font-weight: bold; color: var(--text-primary)"
+                      >Equivalent Regular Expression:</label
+                    >
+                    <div
+                      id="regex-output"
+                      style="
+                        margin-top: 8px;
+                        padding: 12px;
+                        background: var(--bg-main, #f1f5f9);
+                        border: 1px solid var(--border-color);
+                        border-radius: 6px;
+                        font-family: monospace;
+                        font-size: 1.1rem;
+                        color: var(--brand-main, #6366f1);
+                        text-align: center;
+                        word-break: break-all;
+                      "
+                    ></div>
+                    <button
+                      class="top-btn"
+                      onclick="
+                        document.getElementById('regex-result-container').style.display = 'none'
+                      "
+                      style="margin-top: 10px; width: 100%; justify-content: center"
+                    >
+                      <i class="fa-solid fa-eye-slash"></i> Hide
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </details>
+
+              <!-- 3. Equivalence Check -->
+              <details class="accordion-card">
+                <summary>
+                  <span
+                    ><i
+                      class="fa-solid fa-scale-balanced"
+                      style="margin-right: 8px; color: var(--brand-main)"
+                    ></i>
+                    Equivalence Check</span
+                  >
+                  <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <div class="accordion-body" style="text-align: center">
+                  <p class="panel-subtitle" style="margin-top: 0">
+                    Save this automaton, draw another one, and compare them.
+                  </p>
+
+                  <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px">
+                    <div style="display: flex; gap: 8px">
+                      <button
+                        class="player-btn"
+                        id="btn-save-ref"
+                        onclick="setReferenceAutomaton()"
+                        style="flex: 1; justify-content: center; background-color: var(--bg-main)"
+                      >
+                        <i class="fa-solid fa-thumbtack"></i> Save Ref (A)
+                      </button>
+                      <button
+                        class="player-btn"
+                        id="btn-view-ref"
+                        onclick="viewReferenceAutomaton()"
+                        style="
+                          flex: 1;
+                          justify-content: center;
+                          display: none;
+                          background-color: #e0e7ff;
+                          color: #4f46e5;
+                          border-color: #c7d2fe;
+                        "
+                      >
+                        <i class="fa-solid fa-eye"></i> View (A)
+                      </button>
+                    </div>
+                    <button
+                      class="btn-compile"
+                      id="btn-compare-automata"
+                      onclick="compareWithReference()"
+                      style="
+                        width: 100%;
+                        justify-content: center;
+                        opacity: 0.5;
+                        cursor: not-allowed;
+                      "
+                      disabled
+                    >
+                      <i class="fa-solid fa-code-compare"></i> Compare with (B)
+                    </button>
+                  </div>
+
+                  <div
+                    id="equiv-result-container"
+                    style="
+                      display: none;
+                      margin-top: 15px;
+                      padding: 12px;
+                      border-radius: 6px;
+                      text-align: left;
+                      font-size: 0.9rem;
+                    "
+                  ></div>
+                </div>
+              </details>
             </div>
           </div>
 

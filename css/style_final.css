@@ -1543,3 +1543,53 @@ body.dark-mode #terminal-container {
 .toggle-switch input:checked + .toggle-slider:before {
   transform: translateX(18px);
 }
+
+/* Style des panneaux accordéons */
+.accordion-card {
+  margin-bottom: 12px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  background: var(--container-bg, #ffffff);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.accordion-card summary {
+  padding: 12px 15px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary, #334155);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-main, #f8fafc);
+  list-style: none; /* Masque la flèche native */
+  outline: none;
+  user-select: none;
+}
+
+/* Masque la flèche native sur les navigateurs WebKit */
+.accordion-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-card summary:hover {
+  background: var(--border-color, #e2e8f0);
+}
+
+.accordion-card .accordion-body {
+  padding: 15px;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+}
+
+/* Animation de l'icône chevron */
+.accordion-card[open] summary .fa-chevron-down {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+.accordion-card:not([open]) summary .fa-chevron-down {
+  transform: rotate(0deg);
+  transition: transform 0.2s ease;
+}
